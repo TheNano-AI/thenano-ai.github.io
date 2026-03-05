@@ -382,8 +382,10 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 </div>
 
 <script>
+// Firebase SDKs werden über CDN geladen (oben im HTML)
+
 // ============================================
-// 🔥 FIREBASE KONFIGURATION - HIER ÄNDERN!
+// 🔥 FIREBASE KONFIGURATION
 // ============================================
 const firebaseConfig = {
   apiKey: "AIzaSyDttFnSozUCFSxeZ_aZUhWsXDtwKHBRQLQ",
@@ -394,6 +396,12 @@ const firebaseConfig = {
   appId: "1:866335330261:web:5395f2b52a3d2f1078f75c",
   measurementId: "G-CFFWWDNJB7"
 };
+
+// Firebase initialisieren
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+// ============================================
 
 // Firebase initialisieren
 firebase.initializeApp(firebaseConfig);
