@@ -3,1115 +3,279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nano AI</title>
-
+<title>Nano AI Chat</title>
 <style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
-}
+/* SIDEBAR */
+.sidebar{width:280px;background:#111827;display:flex;flex-direction:column;padding:20px;border-right:1px solid #1f2937;}
+.logo{display:flex;align-items:center;margin-bottom:20px;}
+.logo img{height:50px;width:50px;object-fit:contain;border-radius:12px;margin-right:10px;}
+.logo span{font-size:22px;font-weight:bold;}
+.new-chat{padding:12px;background:#2563eb;border:none;color:white;border-radius:14px;cursor:pointer;margin-bottom:15px;font-weight:bold;transition:0.2s;}
+.new-chat:hover{background:#1e40af;}
+.chat-list{flex:1;overflow-y:auto;}
+.chat-item{padding:10px;background:#1f2937;border-radius:12px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:0.2s;}
+.chat-item:hover{background:#374151;}
+.chat-item.active{background:#2563eb;}
+.chat-actions button{background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;margin-left:5px;transition:0.2s;}
+.chat-actions button:hover{color:white;}
 
-body{
-display:flex;
-height:100vh;
-background:#0f172a;
-color:white;
-overflow:hidden;
-}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;}
 
-/* sidebar */
+/* TOP BAR */
+.topbar{height:60px;background:#111827;display:flex;justify-content:space-between;align-items:center;padding:0 20px;position:relative;border-bottom:1px solid #1f2937;}
+.profile{cursor:pointer;background:#2563eb;padding:8px 14px;border-radius:20px;user-select:none;}
+.plan-badge{background:#1f2937;padding:6px 12px;border-radius:14px;font-size:13px;}
+.dropdown{position:absolute;top:60px;right:20px;background:#1f2937;padding:10px;border-radius:12px;display:none;width:220px;flex-direction:column;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.dropdown button,.dropdown select{width:100%;margin:5px 0;padding:8px;background:#374151;color:white;border:none;border-radius:12px;cursor:pointer;text-align:left;}
+.dropdown select{appearance:none;}
+.dropdown button:hover{background:#2563eb;}
 
-.sidebar{
-width:280px;
-background:#111827;
-display:flex;
-flex-direction:column;
-padding:20px;
-border-right:1px solid #1f2937;
-}
+/* CHAT */
+.chat{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.message{padding:12px;border-radius:14px;word-wrap:break-word;max-width:70%;line-height:1.5;position:relative;}
+.user{text-align:right;color:#60a5fa;background:rgba(96,165,250,0.15);align-self:flex-end;}
+.ai{text-align:left;color:#22c55e;background:rgba(34,197,94,0.15);align-self:flex-start;}
+.ai .dots{display:inline-block;margin-left:5px;}
+.dot{height:6px;width:6px;background:white;border-radius:50%;display:inline-block;margin:0 2px;animation:blink 1s infinite;}
+@keyframes blink{0%,80%,100%{opacity:0.2;}40%{opacity:1;}}
+.edit-btn{position:absolute;top:5px;right:5px;background:#2563eb;border:none;color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:14px;text-align:center;line-height:22px;transition:0.2s;}
+.edit-btn:hover{background:#1e40af;}
 
-.logo{
-display:flex;
-align-items:center;
-margin-bottom:20px;
-}
+/* INPUT */
+.input-area{display:flex;flex-direction:column;padding:15px;background:#111827;border-top:1px solid #1f2937;}
+.input-row{display:flex;gap:10px;}
+.input-row input{flex:1;padding:12px;border-radius:14px;border:none;outline:none;background:#1f2937;color:white;}
+.send-btn{padding:10px 22px;background:#2563eb;border:none;color:white;border-radius:14px;cursor:pointer;transition:0.2s;font-weight:bold;}
+.send-btn:hover{background:#1e40af;}
+#emojiPanel{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0;}
+#emojiPanel button{background:#1f2937;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;color:white;font-size:18px;transition:0.2s;}
+#emojiPanel button:hover{background:#2563eb;}
 
-.logo img{
-height:50px;
-width:50px;
-border-radius:12px;
-margin-right:10px;
-}
+/* LOGIN SCREEN */
+#loginScreen{position:absolute;inset:0;background:#0f172a;display:flex;justify-content:center;align-items:center;z-index:10;}
+.login-box{background:#111827;padding:40px;border-radius:12px;width:320px;display:flex;flex-direction:column;align-items:center;}
+.login-box input{width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:12px;background:#1f2937;color:white;}
+.login-box button{width:100%;padding:10px;border:none;border-radius:12px;background:#2563eb;color:white;cursor:pointer;margin-bottom:5px;font-weight:bold;transition:0.2s;}
+.login-box button:hover{background:#1e40af;}
 
-.logo span{
-font-size:22px;
-font-weight:bold;
-}
+/* ADMIN PANEL */
+.admin-panel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111827;color:white;width:500px;max-height:80vh;overflow-y:auto;border-radius:12px;padding:20px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.4);border:1px solid #1f2937;}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #1f2937;}
+.admin-header button{background:#ef4444;border:none;color:white;padding:6px 12px;border-radius:8px;cursor:pointer;}
+.admin-header button:hover{background:#dc2626;}
+.admin-section{margin-bottom:15px;}
+.admin-section h3{margin-bottom:10px;color:#60a5fa;}
+.admin-section input,.admin-section select{width:100%;padding:8px;margin:5px 0;border:none;border-radius:8px;background:#1f2937;color:white;}
+.admin-section button{padding:8px 12px;margin:3px;background:#2563eb;border:none;border-radius:8px;color:white;cursor:pointer;transition:0.2s;}
+.admin-section button:hover{background:#1e40af;}
+.hidden{display:none;}
 
-.new-chat{
-padding:12px;
-background:#2563eb;
-border:none;
-border-radius:14px;
-color:white;
-cursor:pointer;
-margin-bottom:15px;
-font-weight:bold;
-}
-
-.new-chat:hover{
-background:#1e40af;
-}
-
-.chat-list{
-flex:1;
-overflow-y:auto;
-}
-
-.chat-item{
-padding:10px;
-background:#1f2937;
-border-radius:12px;
-margin-bottom:10px;
-cursor:pointer;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.chat-item:hover{
-background:#374151;
-}
-
-.chat-item.active{
-background:#2563eb;
-}
-
-/* main */
-
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-/* topbar */
-
-.topbar{
-height:60px;
-background:#111827;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 20px;
-border-bottom:1px solid #1f2937;
-}
-
-.profile{
-background:#2563eb;
-padding:8px 14px;
-border-radius:20px;
-cursor:pointer;
-}
-
-.plan-badge{
-background:#1f2937;
-padding:6px 12px;
-border-radius:14px;
-font-size:13px;
-}
-
-/* chat */
-
-.chat{
-flex:1;
-padding:20px;
-overflow-y:auto;
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
-.message{
-padding:12px;
-border-radius:14px;
-max-width:70%;
-line-height:1.5;
-}
-
-.user{
-align-self:flex-end;
-background:rgba(96,165,250,0.2);
-color:#60a5fa;
-}
-
-.ai{
-align-self:flex-start;
-background:rgba(34,197,94,0.2);
-color:#22c55e;
-}
-
-/* input */
-
-.input-area{
-display:flex;
-padding:15px;
-background:#111827;
-border-top:1px solid #1f2937;
-}
-
-.input-area input{
-flex:1;
-padding:12px;
-border:none;
-border-radius:14px;
-background:#1f2937;
-color:white;
-outline:none;
-}
-
-.send-btn{
-margin-left:10px;
-padding:10px 22px;
-background:#2563eb;
-border:none;
-border-radius:14px;
-color:white;
-cursor:pointer;
-font-weight:bold;
-}
-
-/* login */
-
-#loginScreen{
-position:absolute;
-inset:0;
-background:#0f172a;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.login-box{
-background:#111827;
-padding:40px;
-border-radius:12px;
-width:320px;
-display:flex;
-flex-direction:column;
-}
-
-.login-box input{
-padding:10px;
-margin-bottom:10px;
-border:none;
-border-radius:12px;
-background:#1f2937;
-color:white;
-}
-
-.login-box button{
-padding:10px;
-border:none;
-border-radius:12px;
-background:#2563eb;
-color:white;
-cursor:pointer;
-margin-bottom:6px;
-}
-
+/* SCROLLBAR */
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-track{background:#111827;}
+::-webkit-scrollbar-thumb{background:#2563eb;border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:#1e40af;}
 </style>
 </head>
-
 <body>
 
+<!-- LOGIN -->
 <div id="loginScreen">
-
-<div class="login-box">
-
-<h2>Nano AI Login</h2>
-
-<input id="username" placeholder="Username">
-
-<input id="password" type="password" placeholder="Passwort">
-
-<button onclick="login()">Login</button>
-
-<button onclick="register()">Registrieren</button>
-
+    <div class="login-box">
+        <h2>Nano AI Login</h2>
+        <input id="username" placeholder="Username">
+        <input id="password" type="password" placeholder="Passwort">
+        <button onclick="login()">Login</button>
+        <button onclick="register()">Registrieren</button>
+    </div>
 </div>
 
-</div>
-
-
+<!-- SIDEBAR -->
 <div class="sidebar">
-
-<div class="logo">
-
-<img src="NanoAI.png">
-
-<span>Nano AI</span>
-
+    <div class="logo">
+        <img src="NanoAI.png" alt="Nano AI Logo">
+        <span>Nano AI</span>
+    </div>
+    <button class="new-chat" onclick="createChat()">+ Neuer Chat</button>
+    <div class="chat-list" id="chatList"></div>
 </div>
 
-<button class="new-chat" onclick="createChat()">+ Neuer Chat</button>
-
-<div class="chat-list" id="chatList"></div>
-
-</div>
-
-
+<!-- MAIN AREA -->
 <div class="main">
-
-<div class="topbar">
-
-<div id="planBadge" class="plan-badge">Free</div>
-
-<div class="profile" id="profileName">Profil</div>
-
+    <div class="topbar">
+        <div style="display:flex;gap:10px;align-items:center;">
+            <div id="planBadge" class="plan-badge">Free</div>
+            <button id="adminBtn" class="send-btn" style="padding:6px 12px;font-size:13px;display:none;" onclick="openAdmin()">Admin</button>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <div class="profile" onclick="toggleDropdown()" id="profileName">Profil</div>
+            <div class="dropdown" id="dropdown">
+                <button onclick="alert('Profilseite kommt bald')">Profil</button>
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="it">Italiano</option>
+                    <option value="ru">Русский</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="pl">Polski</option>
+                    <option value="nl">Nederlands</option>
+                    <option value="pt">Português</option>
+                </select>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="chat" id="chat"></div>
+    <div class="input-area">
+        <div id="emojiPanel"></div>
+        <div class="input-row">
+            <input type="text" id="prompt" placeholder="Nachricht schreiben..." onkeydown="if(event.key==='Enter')sendPrompt()">
+            <button class="send-btn" onclick="sendPrompt()">Senden</button>
+        </div>
+    </div>
 </div>
 
-<div class="chat" id="chat"></div>
-
-<div class="input-area">
-
-<input id="prompt" placeholder="Nachricht schreiben..." onkeydown="if(event.key==='Enter')sendPrompt()">
-
-<button class="send-btn" onclick="sendPrompt()">Senden</button>
-
-</div>
-
-</div>
-
-<script>
-
-const OWNER="Lobi";
-const COOWNER="Jovi";
-
-const API_URL="https://unexempt-predenial-aryanna.ngrok-free.dev";
-
-let users=JSON.parse(localStorage.getItem("nano_users"))||{};
-
-let currentUser=localStorage.getItem("nano_currentUser");
-
-let currentChat=null;
-
-const plans={
-free:{name:"Free",limit:50},
-ultra:{name:"Ultra",limit:500},
-nano:{name:"Nano",limit:9999}
-};
-
-function saveUsers(){
-
-localStorage.setItem("nano_users",JSON.stringify(users));
-
-}
-
-function register(){
-
-let u=username.value.trim();
-
-let p=password.value.trim();
-
-if(!u||!p)return;
-
-if(users[u])return;
-
-users[u]={
-
-password:p,
-
-plan:"free",
-
-banned:false,
-
-chats:{},
-
-messages:0
-
-};
-
-saveUsers();
-
-alert("Registriert");
-
-}
-
-function login(){
-
-let u=username.value.trim();
-
-let p=password.value.trim();
-
-if(!users[u])return;
-
-if(users[u].password!==p)return;
-
-if(users[u].banned)return alert("Gebannt");
-
-currentUser=u;
-
-localStorage.setItem("nano_currentUser",u);
-
-startApp();
-
-}
-
-function logout(){
-
-localStorage.removeItem("nano_currentUser");
-
-location.reload();
-
-}
-
-function startApp(){
-
-loginScreen.style.display="none";
-
-profileName.innerText=currentUser;
-
-updatePlan();
-
-renderChats();
-
-}
-
-function updatePlan(){
-
-let p=users[currentUser].plan;
-
-planBadge.innerText=plans[p].name;
-
-}
-
-function createChat(){
-
-let id=Date.now();
-
-users[currentUser].chats[id]={
-
-name:"Neuer Chat",
-
-messages:[]
-
-};
-
-currentChat=id;
-
-saveUsers();
-
-renderChats();
-
-renderMessages();
-
-}
-
-function selectChat(id){
-
-currentChat=id;
-
-renderChats();
-
-renderMessages();
-
-}
-
-function renderChats(){
-
-let list=document.getElementById("chatList");
-
-list.innerHTML="";
-
-let chats=users[currentUser].chats;
-
-for(let id in chats){
-
-let div=document.createElement("div");
-
-div.className="chat-item";
-
-if(id==currentChat)div.classList.add("active");
-
-div.innerText=chats[id].name;
-
-div.onclick=()=>selectChat(id);
-
-list.appendChild(div);
-
-}
-
-}
-
-function renderMessages(){
-
-let chatDiv=document.getElementById("chat");
-
-chatDiv.innerHTML="";
-
-if(!currentChat)return;
-
-let msgs=users[currentUser].chats[currentChat].messages;
-
-msgs.forEach(m=>{
-
-let d=document.createElement("div");
-
-d.className="message "+m.role;
-
-d.innerText=m.text;
-
-chatDiv.appendChild(d);
-
-});
-
-}
-
-function sendPrompt(){
-
-let input=document.getElementById("prompt");
-
-let text=input.value.trim();
-
-if(!text)return;
-
-if(!currentChat)return;
-
-let plan=users[currentUser].plan;
-
-if(users[currentUser].messages>=plans[plan].limit){
-
-alert("Limit erreicht");
-
-return;
-
-}
-
-users[currentUser].messages++;
-
-users[currentUser].chats[currentChat].messages.push({role:"user",text});
-
-renderMessages();
-
-input.value="";
-
-let bot=document.createElement("div");
-
-bot.className="message ai";
-
-bot.innerText="...";
-
-document.getElementById("chat").appendChild(bot);
-
-fetch(API_URL,{
-
-method:"POST",
-
-headers:{"Content-Type":"application/json"},
-
-body:JSON.stringify({prompt:text})
-
-})
-
-.then(r=>r.json())
-
-.then(d=>{
-
-bot.innerText=d.text;
-
-users[currentUser].chats[currentChat].messages.push({role:"ai",text:d.text});
-
-saveUsers();
-
-})
-
-.catch(()=>{
-
-bot.innerText="Server Fehler";
-
-});
-
-}
-
-if(currentUser){
-
-startApp();
-
-}
-
-</script>
-
-</body>
-</html>
-<!-- =========================
-ADMIN PANEL CORE
-========================= -->
-
+<!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel hidden">
     <div class="admin-header">
         <h2>Admin Panel</h2>
-        <button onclick="closeAdmin()">X</button>
+        <button onclick="closeAdmin()">✕</button>
     </div>
-
     <div class="admin-section">
         <h3>Server Owners</h3>
-        <p>Owner: Lobi</p>
-        <p>Co-Owner: Jovi</p>
+        <p>Owner: <strong>Lobi</strong></p>
+        <p>Co-Owner: <strong>Jovi</strong></p>
     </div>
-
     <div class="admin-section">
         <h3>User Management</h3>
-
-        <input id="userSearch" placeholder="Search user">
-
-        <button onclick="banUser()">Ban User</button>
-        <button onclick="kickUser()">Kick User</button>
-        <button onclick="muteUser()">Mute User</button>
-        <button onclick="unmuteUser()">Unmute User</button>
+        <input id="userSearch" placeholder="Username eingeben">
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
+            <button onclick="banUser()">Ban</button>
+            <button onclick="unbanUser()">Unban</button>
+            <button onclick="upgradeUser()">Upgrade</button>
+            <button onclick="resetLimit()">Reset Limit</button>
+        </div>
     </div>
-
     <div class="admin-section">
-        <h3>Gift Tariff</h3>
-
+        <h3>Tariff verschenken</h3>
         <input id="giftUser" placeholder="Username">
         <select id="giftTariff">
-            <option value="basic">Basic</option>
-            <option value="plus">Plus</option>
-            <option value="pro">Pro</option>
+            <option value="free">Free</option>
             <option value="ultra">Ultra</option>
+            <option value="nano">Nano</option>
         </select>
-
-        <button onclick="giftTariff()">Gift</button>
+        <button onclick="giftTariff()" style="margin-top:8px;">Verschenken</button>
     </div>
-
-</div>
-
-<style>
-
-.admin-panel{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:#111;
-color:white;
-width:500px;
-border-radius:10px;
-padding:20px;
-z-index:999;
-}
-
-.admin-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.admin-section{
-margin-top:20px;
-}
-
-.hidden{
-display:none;
-}
-
-</style>
-
-<script>
-
-function openAdmin(){
-document.getElementById("adminPanel").classList.remove("hidden")
-}
-
-function closeAdmin(){
-document.getElementById("adminPanel").classList.add("hidden")
-}
-
-function banUser(){
-
-let user=document.getElementById("userSearch").value
-
-alert("User banned: "+user)
-
-}
-
-function kickUser(){
-
-let user=document.getElementById("userSearch").value
-
-alert("User kicked: "+user)
-
-}
-
-function muteUser(){
-
-let user=document.getElementById("userSearch").value
-
-alert("User muted: "+user)
-
-}
-
-function unmuteUser(){
-
-let user=document.getElementById("userSearch").value
-
-alert("User unmuted: "+user)
-
-}
-
-function giftTariff(){
-
-let user=document.getElementById("giftUser").value
-let tariff=document.getElementById("giftTariff").value
-
-alert("Tariff "+tariff+" gifted to "+user)
-
-}
-
-</script>
-
-<!-- =========================
-CHAT CORE EXTENSIONS
-========================= -->
-
-<script>
-
-let messages=[]
-
-function sendMessage(){
-
-let input=document.getElementById("chatInput")
-let msg=input.value
-
-if(msg.trim()==="")return
-
-messages.push(msg)
-
-renderMessages()
-
-input.value=""
-
-}
-
-function renderMessages(){
-
-let box=document.getElementById("chatBox")
-
-box.innerHTML=""
-
-for(let i=0;i<messages.length;i++){
-
-let m=document.createElement("div")
-m.className="msg"
-
-m.innerText=messages[i]
-
-box.appendChild(m)
-
-}
-
-}
-
-</script>
-
-<style>
-
-#chatBox{
-height:400px;
-overflow-y:auto;
-background:#0f0f0f;
-padding:10px;
-border-radius:10px;
-}
-
-.msg{
-background:#1f1f1f;
-padding:8px;
-margin-bottom:6px;
-border-radius:6px;
-}
-
-</style>
-
-<!-- =========================
-PROFILE SYSTEM
-========================= -->
-
-<script>
-
-let users={}
-
-function createUser(name){
-
-users[name]={
-
-tariff:"basic",
-messages:0
-
-}
-
-}
-
-function giveTariff(user,tariff){
-
-if(!users[user])createUser(user)
-
-users[user].tariff=tariff
-
-}
-
-function getTariff(user){
-
-if(!users[user])return"basic"
-
-return users[user].tariff
-
-}
-
-</script>
-
-<!-- =========================
-STATS SYSTEM
-========================= -->
-
-<script>
-
-let stats={
-
-totalMessages:0,
-usersOnline:0,
-serverName:"Nano AI"
-
-}
-
-function updateStats(){
-
-document.getElementById("statMessages").innerText=stats.totalMessages
-document.getElementById("statUsers").innerText=stats.usersOnline
-
-}
-
-</script>
-
-<!-- =========================
-THEME SYSTEM
-========================= -->
-
-<script>
-
-function setThemeDark(){
-
-document.body.style.background="#000"
-document.body.style.color="#fff"
-
-}
-
-function setThemeLight(){
-
-document.body.style.background="#fff"
-document.body.style.color="#000"
-
-}
-
-</script>
-
-<!-- =========================
-MESSAGE REACTIONS
-========================= -->
-
-<script>
-
-function addReaction(msgIndex,reaction){
-
-console.log("Reaction",reaction,"on",msgIndex)
-
-}
-
-</script>
-
-<!-- =========================
-EXPORT CHAT
-========================= -->
-
-<script>
-
-function exportChat(){
-
-let data=messages.join("\n")
-
-let blob=new Blob([data],{type:"text/plain"})
-
-let a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-
-a.download="chat.txt"
-
-a.click()
-
-}
-
-</script>
-
-<!-- =========================
-SEARCH MESSAGES
-========================= -->
-
-<script>
-
-function searchMessages(){
-
-let q=document.getElementById("searchInput").value.toLowerCase()
-
-let box=document.getElementById("chatBox")
-
-box.innerHTML=""
-
-for(let i=0;i<messages.length;i++){
-
-if(messages[i].toLowerCase().includes(q)){
-
-let m=document.createElement("div")
-
-m.className="msg"
-
-m.innerText=messages[i]
-
-box.appendChild(m)
-
-}
-
-}
-
-}
-
-</script>
-
-<!-- =========================
-END PART 2
-========================= -->
-<!-- =========================
-CHAT HISTORY & OFFLINE STORAGE
-========================= -->
-
-<script>
-function saveChatHistory(){
-    if(!currentUser) return;
-    localStorage.setItem(`chat_${currentUser}`, JSON.stringify(users[currentUser].chats));
-}
-
-function loadChatHistory(){
-    if(!currentUser) return;
-    let saved = localStorage.getItem(`chat_${currentUser}`);
-    if(saved){
-        users[currentUser].chats = JSON.parse(saved);
-        renderChats();
-        renderMessages();
-    }
-}
-
-window.addEventListener("beforeunload", saveChatHistory);
-window.addEventListener("load", loadChatHistory);
-</script>
-
-<!-- =========================
-FEEDBACK SYSTEM
-========================= -->
-
-<div id="feedbackPanel" class="hidden">
-    <h3>Feedback geben</h3>
-    <textarea id="feedbackText" placeholder="Dein Feedback..."></textarea>
-    <button onclick="submitFeedback()">Senden</button>
+    <div class="admin-section">
+        <h3>Stats</h3>
+        <p>Total Users: <span id="statUsers">0</span></p>
+        <p>Messages Today: <span id="statMessages">0</span></p>
+    </div>
 </div>
 
 <script>
-let feedbacks = [];
+// === CONFIG ===
+const OWNER = "Lobi";
+const COOWNER = "Jovi";
+const API_URL = "https://unexempt-predenial-aryanna.ngrok-free.dev";
 
-function openFeedback(){
-    document.getElementById("feedbackPanel").classList.remove("hidden");
-}
+// === STATE ===
+let users = JSON.parse(localStorage.getItem("nano_users")) || {};
+let currentUser = localStorage.getItem("nano_currentUser");
+let currentChat = null;
+let currentLanguage = localStorage.getItem("nano_language") || "de";
 
-function closeFeedback(){
-    document.getElementById("feedbackPanel").classList.add("hidden");
-}
+const plans = {
+    free: {name: "Free", limit: 50},
+    ultra: {name: "Ultra", limit: 500},
+    nano: {name: "Nano", limit: 9999}
+};
 
-function submitFeedback(){
-    let text = document.getElementById("feedbackText").value.trim();
-    if(!text) return alert("Feedback ist leer");
-    feedbacks.push({user: currentUser, text: text, time: Date.now()});
-    document.getElementById("feedbackText").value = "";
-    alert("Feedback gesendet");
-    closeFeedback();
-}
-</script>
+const emojis = ["😀","😂","😎","😢","😡","👍","👎","❤️","🔥","🎉","✨","🤖","💬","✅","❌"];
 
-<style>
-#feedbackPanel{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:300px;
-    background:#1f2937;
-    padding:15px;
-    border-radius:10px;
-    color:white;
-    z-index:999;
-}
-#feedbackPanel textarea{
-    width:100%;
-    height:80px;
-    border:none;
-    border-radius:8px;
-    background:#111827;
-    color:white;
-    padding:8px;
-    margin-bottom:8px;
-    resize:none;
-}
-#feedbackPanel button{
-    width:100%;
-    padding:8px;
-    border:none;
-    border-radius:8px;
-    background:#2563eb;
-    color:white;
-    cursor:pointer;
-}
-#feedbackPanel button:hover{
-    background:#1e40af;
-}
-</style>
-
-<!-- =========================
-TARIFF MANAGEMENT & LIMITS
-========================= -->
-
-<script>
-function upgradeTariff(user,tariff){
-    if(!users[user]) return;
-    users[user].plan = tariff;
-    saveUsers();
-    if(user === currentUser) updatePlan();
-}
-
-function checkUserLimit(user){
-    let plan = users[user].plan;
-    return users[user].messages < plans[plan].limit;
-}
-</script>
-
-<!-- =========================
-USER ONLINE STATUS
-========================= -->
-
-<script>
-let onlineUsers = {};
-
-function setUserOnline(user){
-    onlineUsers[user] = true;
-    updateOnlineCount();
-}
-
-function setUserOffline(user){
-    delete onlineUsers[user];
-    updateOnlineCount();
-}
-
-function updateOnlineCount(){
-    stats.usersOnline = Object.keys(onlineUsers).length;
+// === STORAGE ===
+function saveUsers(){
+    localStorage.setItem("nano_users", JSON.stringify(users));
     updateStats();
 }
 
-if(currentUser){
-    setUserOnline(currentUser);
-    window.addEventListener("beforeunload", ()=> setUserOffline(currentUser));
-}
-</script>
-
-<!-- =========================
-ADVANCED CHAT FEATURES
-========================= -->
-
-<script>
-function editMessage(chatId,msgIndex,newText){
-    if(!currentUser) return;
-    if(!users[currentUser].chats[chatId]) return;
-    users[currentUser].chats[chatId].messages[msgIndex].text = newText;
+// === AUTH ===
+function register(){
+    const u = document.getElementById("username").value.trim();
+    const p = document.getElementById("password").value.trim();
+    if(!u || !p) return alert("Bitte alle Felder ausfüllen");
+    if(users[u]) return alert("User existiert bereits");
+    
+    users[u] = {
+        password: p,
+        plan: "free",
+        banned: false,
+        chats: {},
+        messages: 0
+    };
     saveUsers();
+    alert("Registriert! Jetzt einloggen.");
+}
+
+function login(){
+    const u = document.getElementById("username").value.trim();
+    const p = document.getElementById("password").value.trim();
+    
+    if(!users[u]) return alert("User nicht gefunden");
+    if(users[u].password !== p) return alert("Falsches Passwort");
+    if(users[u].banned) return alert("Dieser Account wurde gebannt");
+    
+    currentUser = u;
+    localStorage.setItem("nano_currentUser", u);
+    startApp();
+}
+
+function logout(){
+    localStorage.removeItem("nano_currentUser");
+    location.reload();
+}
+
+// === APP INIT ===
+function startApp(){
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("profileName").innerText = currentUser;
+    
+    // Admin button visibility
+    if(currentUser === OWNER || currentUser === COOWNER){
+        document.getElementById("adminBtn").style.display = "block";
+    }
+    
+    // Language
+    document.getElementById("languageSelect").value = currentLanguage;
+    applyLanguage();
+    
+    updatePlan();
+    renderChats();
     renderMessages();
+    renderEmojiPanel();
+    updateStats();
 }
 
-function deleteMessage(chatId,msgIndex){
-    if(!currentUser) return;
-    if(!users[currentUser].chats[chatId]) return;
-    users[currentUser].chats[chatId].messages.splice(msgIndex,1);
-    saveUsers();
-    renderMessages();
+// === UI FUNCTIONS ===
+function toggleDropdown(){
+    const d = document.getElementById("dropdown");
+    d.style.display = d.style.display === "flex" ? "none" : "flex";
 }
-
-function highlightMessage(msgIndex){
-    let chatDiv = document.getElementById("chat");
-    let children = chatDiv.children;
-    if(children[msgIndex]) children[msgIndex].style.background = "#444";
-}
-</script>
-
-<!-- =========================
-SEARCH & FILTER MESSAGES
-========================= -->
-
-<script>
-function filterMessages(keyword){
-    let chatDiv = document.getElementById("chat");
-    chatDiv.innerHTML = "";
-    if(!currentChat) return;
-    users[currentUser].chats[currentChat].messages.forEach((m,i)=>{
-        if(m.text.toLowerCase().includes(keyword.toLowerCase())){
-            let div = document.createElement("div");
-            div.className = "message " + m.role;
-            div.innerText = m.text;
-            chatDiv.appendChild(div);
-        }
-    });
-}
-</script>
-
-<!-- =========================
-PART 3 END
-========================= -->
-
-<!-- =========================
-MULTI-LANGUAGE SUPPORT
-========================= -->
-
-<script>
-const languages = {
-    de: "Deutsch",
-    en: "English",
-    fr: "Français",
-    es: "Español",
-    it: "Italiano",
-    ru: "Русский",
-    tr: "Türkçe",
-    pl: "Polski",
-    nl: "Nederlands",
-    pt: "Português"
-};
 
 function changeLanguage(){
-    let sel = document.getElementById("languageSelect");
-    currentLanguage = sel.value;
+    currentLanguage = document.getElementById("languageSelect").value;
     localStorage.setItem("nano_language", currentLanguage);
     applyLanguage();
 }
 
 function applyLanguage(){
-    // Minimal example: change placeholder
-    document.getElementById("prompt").placeholder = {
+    const placeholders = {
         de: "Nachricht schreiben...",
         en: "Write a message...",
         fr: "Écrire un message...",
@@ -1122,42 +286,125 @@ function applyLanguage(){
         pl: "Napisz wiadomość...",
         nl: "Bericht schrijven...",
         pt: "Escreva uma mensagem..."
-    }[currentLanguage] || "Write a message...";
+    };
+    document.getElementById("prompt").placeholder = placeholders[currentLanguage] || "Write a message...";
 }
-</script>
 
-<!-- =========================
-CUSTOM CHAT STYLES
-========================= -->
-
-<style>
-.message.user{
-    border-left:3px solid #60a5fa;
-    padding-left:10px;
+function updatePlan(){
+    if(!currentUser) return;
+    const p = users[currentUser].plan;
+    document.getElementById("planBadge").innerText = plans[p]?.name || "Free";
 }
-.message.ai{
-    border-left:3px solid #22c55e;
-    padding-left:10px;
-}
-.message.system{
-    border-left:3px solid #facc15;
-    padding-left:10px;
-    font-style:italic;
-}
-</style>
 
-<!-- =========================
-AUTOMATIC SCROLL & TYPING EFFECT
-========================= -->
+// === CHAT FUNCTIONS ===
+function createChat(){
+    const id = Date.now();
+    users[currentUser].chats[id] = {name: "Neuer Chat", messages: []};
+    currentChat = id;
+    saveUsers();
+    renderChats();
+    renderMessages();
+}
 
-<script>
+function selectChat(id){
+    currentChat = id;
+    renderChats();
+    renderMessages();
+}
+
+function renameChat(id){
+    const name = prompt("Neuer Chat-Name:", users[currentUser].chats[id].name);
+    if(name && name.trim()){
+        users[currentUser].chats[id].name = name.trim();
+        saveUsers();
+        renderChats();
+    }
+}
+
+function deleteChat(id){
+    if(!confirm("Chat wirklich löschen?")) return;
+    delete users[currentUser].chats[id];
+    if(currentChat === id) currentChat = null;
+    saveUsers();
+    renderChats();
+    renderMessages();
+}
+
+function renderChats(){
+    const list = document.getElementById("chatList");
+    list.innerHTML = "";
+    if(!currentUser) return;
+    
+    const chats = users[currentUser].chats;
+    Object.entries(chats).forEach(([id, chat]) => {
+        const div = document.createElement("div");
+        div.className = "chat-item" + (id === currentChat ? " active" : "");
+        
+        const title = document.createElement("span");
+        title.innerText = chat.name;
+        title.style.flex = "1";
+        title.style.cursor = "pointer";
+        title.onclick = () => selectChat(id);
+        
+        const actions = document.createElement("div");
+        actions.className = "chat-actions";
+        
+        const renameBtn = document.createElement("button");
+        renameBtn.innerHTML = "✏";
+        renameBtn.title = "Umbenennen";
+        renameBtn.onclick = (e) => {e.stopPropagation(); renameChat(id);};
+        
+        const deleteBtn = document.createElement("button");
+        deleteBtn.innerHTML = "🗑";
+        deleteBtn.title = "Löschen";
+        deleteBtn.onclick = (e) => {e.stopPropagation(); deleteChat(id);};
+        
+        actions.append(renameBtn, deleteBtn);
+        div.append(title, actions);
+        list.appendChild(div);
+    });
+}
+
+function renderMessages(){
+    const chatDiv = document.getElementById("chat");
+    chatDiv.innerHTML = "";
+    if(!currentChat || !users[currentUser]?.chats[currentChat]) return;
+    
+    const msgs = users[currentUser].chats[currentChat].messages;
+    msgs.forEach((m, index) => {
+        const div = document.createElement("div");
+        div.className = "message " + (m.role === "ai" ? "ai" : "user");
+        div.innerText = m.text;
+        
+        // Edit button for user messages
+        if(m.role === "user"){
+            const editBtn = document.createElement("button");
+            editBtn.className = "edit-btn";
+            editBtn.innerHTML = "✏";
+            editBtn.title = "Bearbeiten";
+            editBtn.onclick = () => {
+                const newText = prompt("Nachricht bearbeiten:", m.text);
+                if(newText !== null && newText.trim()){
+                    users[currentUser].chats[currentChat].messages[index].text = newText.trim();
+                    saveUsers();
+                    renderMessages();
+                }
+            };
+            div.appendChild(editBtn);
+        }
+        chatDiv.appendChild(div);
+    });
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+// === TYPING EFFECT ===
 function typeText(container, text, callback){
     container.innerText = "";
     let i = 0;
-    let interval = setInterval(()=>{
+    const interval = setInterval(() => {
         container.innerText += text.charAt(i);
         i++;
-        container.scrollIntoView({behavior:"smooth"});
+        container.scrollIntoView({behavior: "smooth"});
         if(i >= text.length){
             clearInterval(interval);
             if(callback) callback();
@@ -1165,166 +412,167 @@ function typeText(container, text, callback){
     }, 20);
 }
 
-function sendPromptWithTyping(){
-    let input = document.getElementById("prompt");
-    let text = input.value.trim();
+// === SEND MESSAGE ===
+function sendPrompt(){
+    const input = document.getElementById("prompt");
+    const text = input.value.trim();
     if(!text || !currentChat) return;
-
-    users[currentUser].chats[currentChat].messages.push({role:"user", text});
+    
+    // Check limit
+    const plan = users[currentUser].plan;
+    if(users[currentUser].messages >= plans[plan].limit){
+        return alert("⚠️ Nachrichten-Limit erreicht! Upgrade für mehr.");
+    }
+    
+    // Add user message
+    users[currentUser].chats[currentChat].messages.push({role: "user", text});
+    users[currentUser].messages++;
     renderMessages();
     input.value = "";
-
-    let chatDiv = document.getElementById("chat");
-    let botDiv = document.createElement("div");
+    
+    // Show typing indicator
+    const chatDiv = document.getElementById("chat");
+    const botDiv = document.createElement("div");
     botDiv.className = "message ai";
-    let dots = document.createElement("span");
+    const dots = document.createElement("span");
     dots.className = "dots";
-    for(let d=0; d<3; d++){
-        let dot = document.createElement("span");
-        dot.className="dot";
+    for(let d = 0; d < 3; d++){
+        const dot = document.createElement("span");
+        dot.className = "dot";
         dots.appendChild(dot);
     }
     botDiv.appendChild(dots);
     chatDiv.appendChild(botDiv);
     chatDiv.scrollTop = chatDiv.scrollHeight;
-
+    
+    // API call
     fetch(API_URL, {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({prompt:text, language:currentLanguage})
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({prompt: text, language: currentLanguage})
     })
-    .then(res=>res.json())
-    .then(data=>{
+    .then(res => res.json())
+    .then(data => {
         botDiv.removeChild(dots);
-        typeText(botDiv, data.text, ()=>{
-            users[currentUser].chats[currentChat].messages.push({role:"ai", text:data.text});
+        typeText(botDiv, data.text, () => {
+            users[currentUser].chats[currentChat].messages.push({role: "ai", text: data.text});
             saveUsers();
         });
     })
-    .catch(()=>{botDiv.innerText="Server Fehler";});
-}
-</script>
-
-<!-- =========================
-DARK/LIGHT THEME TOGGLE
-========================= -->
-
-<div style="position:absolute;top:10px;right:10px;">
-    <button onclick="setThemeDark()">Dark</button>
-    <button onclick="setThemeLight()">Light</button>
-</div>
-
-<!-- =========================
-PART 4 END
-========================= -->
-<!-- =========================
-USER INTERACTIONS & EMOJI SUPPORT
-========================= -->
-
-<script>
-const emojis = ["😀","😂","😎","😢","😡","👍","👎","❤️","🔥","🎉"];
-
-function appendEmoji(emoji){
-    let input = document.getElementById("prompt");
-    input.value += emoji;
-    input.focus();
+    .catch(err => {
+        botDiv.innerText = "❌ Server-Fehler. Bitte versuche es später.";
+        console.error(err);
+    });
 }
 
+// === EMOJI PANEL ===
 function renderEmojiPanel(){
-    let panel = document.getElementById("emojiPanel");
+    const panel = document.getElementById("emojiPanel");
     panel.innerHTML = "";
-    emojis.forEach(e=>{
-        let btn = document.createElement("button");
-        btn.innerText = e;
-        btn.onclick = ()=> appendEmoji(e);
+    emojis.forEach(emoji => {
+        const btn = document.createElement("button");
+        btn.innerText = emoji;
+        btn.onclick = () => {
+            const input = document.getElementById("prompt");
+            input.value += emoji;
+            input.focus();
+        };
         panel.appendChild(btn);
     });
 }
-</script>
 
-<style>
-#emojiPanel{
-    display:flex;
-    flex-wrap:wrap;
-    gap:5px;
-    background:#1f2937;
-    padding:5px;
-    border-radius:8px;
-    margin-top:5px;
-}
-#emojiPanel button{
-    background:#2563eb;
-    border:none;
-    border-radius:6px;
-    padding:4px 6px;
-    cursor:pointer;
-    color:white;
-    font-size:18px;
-}
-#emojiPanel button:hover{
-    background:#1e40af;
-}
-</style>
-
-<div id="emojiPanel"></div>
-<script>renderEmojiPanel();</script>
-
-<!-- =========================
-NOTIFICATIONS SYSTEM
-========================= -->
-
-<script>
-function notifyUser(title, message){
-    if(Notification.permission === "granted"){
-        new Notification(title, {body: message});
-    }else if(Notification.permission !== "denied"){
-        Notification.requestPermission().then(permission=>{
-            if(permission === "granted") new Notification(title,{body: message});
-        });
-    }
+// === ADMIN PANEL ===
+function openAdmin(){
+    if(currentUser !== OWNER && currentUser !== COOWNER) return;
+    document.getElementById("adminPanel").classList.remove("hidden");
+    updateStats();
 }
 
-function notifyNewMessage(msg){
-    if(msg.role === "ai") return;
-    notifyUser("Neue Nachricht", msg.text);
+function closeAdmin(){
+    document.getElementById("adminPanel").classList.add("hidden");
 }
-</script>
 
-<!-- =========================
-AUTOSAVE & LOCAL BACKUP
-========================= -->
+function banUser(){
+    const user = document.getElementById("userSearch").value.trim();
+    if(!user || !users[user]) return alert("User nicht gefunden");
+    if(user === OWNER || user === COOWNER) return alert("Kann Owner nicht bannen!");
+    
+    users[user].banned = true;
+    saveUsers();
+    alert(`✅ ${user} wurde gebannt`);
+    document.getElementById("userSearch").value = "";
+}
 
-<script>
-function autosaveChats(){
-    if(currentUser){
+function unbanUser(){
+    const user = document.getElementById("userSearch").value.trim();
+    if(!user || !users[user]) return alert("User nicht gefunden");
+    
+    users[user].banned = false;
+    saveUsers();
+    alert(`✅ ${user} wurde entbannt`);
+    document.getElementById("userSearch").value = "";
+}
+
+function upgradeUser(){
+    const user = document.getElementById("userSearch").value.trim();
+    if(!user || !users[user]) return alert("User nicht gefunden");
+    
+    const newPlan = prompt("Neuer Plan (free/ultra/nano):", users[user].plan);
+    if(newPlan && plans[newPlan]){
+        users[user].plan = newPlan;
+        users[user].messages = 0;
         saveUsers();
-        setTimeout(autosaveChats, 5000); // alle 5 Sekunden speichern
+        alert(`✅ ${user} hat jetzt ${plans[newPlan].name}`);
     }
+    document.getElementById("userSearch").value = "";
 }
-autosaveChats();
+
+function resetLimit(){
+    const user = document.getElementById("userSearch").value.trim();
+    if(!user || !users[user]) return alert("User nicht gefunden");
+    
+    users[user].messages = 0;
+    saveUsers();
+    alert(`✅ Nachrichten-Counter für ${user} zurückgesetzt`);
+    document.getElementById("userSearch").value = "";
+}
+
+function giftTariff(){
+    const user = document.getElementById("giftUser").value.trim();
+    const tariff = document.getElementById("giftTariff").value;
+    
+    if(!user || !users[user]) return alert("User nicht gefunden");
+    if(!plans[tariff]) return alert("Ungültiger Tarif");
+    
+    users[user].plan = tariff;
+    users[user].messages = 0;
+    saveUsers();
+    alert(`✅ ${tariff}-Tariff an ${user} verschenkt!`);
+    document.getElementById("giftUser").value = "";
+}
+
+function updateStats(){
+    const userCount = Object.keys(users).length;
+    const msgCount = Object.values(users).reduce((sum, u) => sum + (u.messages || 0), 0);
+    document.getElementById("statUsers").innerText = userCount;
+    document.getElementById("statMessages").innerText = msgCount;
+}
+
+// === INIT ===
+if(currentUser){
+    startApp();
+} else {
+    document.getElementById("loginScreen").style.display = "flex";
+}
+
+// Close dropdown when clicking outside
+document.addEventListener("click", (e) => {
+    const dropdown = document.getElementById("dropdown");
+    const profile = document.querySelector(".profile");
+    if(!dropdown.contains(e.target) && !profile.contains(e.target)){
+        dropdown.style.display = "none";
+    }
+});
 </script>
-
-<!-- =========================
-FINAL TOUCHES
-========================= -->
-
-<style>
-body::-webkit-scrollbar{
-    width:10px;
-}
-body::-webkit-scrollbar-thumb{
-    background:#2563eb;
-    border-radius:10px;
-}
-body::-webkit-scrollbar-track{
-    background:#111827;
-}
-</style>
-
-<script>
-console.log("Nano AI Chat fully loaded. Owner: Lobi, Co-Owner: Jovi");
-</script>
-
-<!-- =========================
-PART 5 END
-========================= -->
+</body>
+</html>
