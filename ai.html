@@ -3,976 +3,3047 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nano AI Chat</title>
+<title>✨ Nano AI Chat - Premium Experience</title>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
-.sidebar{width:280px;background:#111827;display:flex;flex-direction:column;padding:20px;border-right:1px solid #1f2937;}
-.logo{display:flex;align-items:center;margin-bottom:20px;}
-.logo img{height:50px;width:50px;object-fit:contain;border-radius:12px;margin-right:10px;}
-.logo span{font-size:22px;font-weight:bold;}
-.new-chat{padding:12px;background:#2563eb;border:none;color:white;border-radius:14px;cursor:pointer;margin-bottom:15px;font-weight:bold;transition:0.2s;}
-.new-chat:hover{background:#1e40af;}
-.chat-list{flex:1;overflow-y:auto;}
-.chat-item{padding:10px;background:#1f2937;border-radius:12px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:0.2s;}
-.chat-item:hover{background:#374151;}
-.chat-item.active{background:#2563eb;}
-.chat-actions button{background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;margin-left:5px;transition:0.2s;}
-.chat-actions button:hover{color:white;}
-.main{flex:1;display:flex;flex-direction:column;}
-.topbar{height:60px;background:#111827;display:flex;justify-content:space-between;align-items:center;padding:0 20px;position:relative;border-bottom:1px solid #1f2937;}
-.profile{cursor:pointer;background:#2563eb;padding:8px 14px;border-radius:20px;user-select:none;}
-.plan-badge{background:#1f2937;padding:6px 12px;border-radius:14px;font-size:13px;}
-.dropdown{position:absolute;top:60px;right:20px;background:#1f2937;padding:10px;border-radius:12px;display:none;width:220px;flex-direction:column;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
-.dropdown button,.dropdown select{width:100%;margin:5px 0;padding:8px;background:#374151;color:white;border:none;border-radius:12px;cursor:pointer;text-align:left;}
-.dropdown select{appearance:none;}
-.dropdown button:hover{background:#2563eb;}
-.chat{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
-.message{padding:12px;border-radius:14px;word-wrap:break-word;max-width:70%;line-height:1.5;position:relative;}
-.user{text-align:right;color:#60a5fa;background:rgba(96,165,250,0.15);align-self:flex-end;}
-.ai{text-align:left;color:#22c55e;background:rgba(34,197,94,0.15);align-self:flex-start;}
-.ai .dots{display:inline-block;margin-left:5px;}
-.dot{height:6px;width:6px;background:white;border-radius:50%;display:inline-block;margin:0 2px;animation:blink 1s infinite;}
-@keyframes blink{0%,80%,100%{opacity:0.2;}40%{opacity:1;}}
-.edit-btn{position:absolute;top:5px;right:5px;background:#2563eb;border:none;color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:14px;text-align:center;line-height:22px;transition:0.2s;}
-.edit-btn:hover{background:#1e40af;}
-.input-area{display:flex;flex-direction:column;padding:15px;background:#111827;border-top:1px solid #1f2937;}
-.input-row{display:flex;gap:10px;}
-.input-row input{flex:1;padding:12px;border-radius:14px;border:none;outline:none;background:#1f2937;color:white;}
-.send-btn{padding:10px 22px;background:#2563eb;border:none;color:white;border-radius:14px;cursor:pointer;transition:0.2s;font-weight:bold;}
-.send-btn:hover{background:#1e40af;}
-#emojiPanel{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0;}
-#emojiPanel button{background:#1f2937;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;color:white;font-size:18px;transition:0.2s;}
-#emojiPanel button:hover{background:#2563eb;}
-#loginScreen{position:absolute;inset:0;background:#0f172a;display:flex;justify-content:center;align-items:center;z-index:2000;}
-.login-box{background:#111827;padding:40px;border-radius:12px;width:320px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
-.login-box h2{margin-bottom:20px;color:#60a5fa;}
-.login-box input{width:100%;padding:12px;margin-bottom:12px;border:none;border-radius:10px;background:#1f2937;color:white;font-size:14px;}
-.login-box input::placeholder{color:#888;}
-.login-box button{width:100%;padding:12px;border:none;border-radius:10px;background:#2563eb;color:white;cursor:pointer;font-weight:bold;transition:0.2s;font-size:14px;margin-top:5px;}
-.login-box button:hover{background:#1e40af;}
-.login-box button.secondary{background:#1f2937;}
-.login-box button.secondary:hover{background:#374151;}
-.login-error{color:#ef4444;font-size:13px;margin-top:5px;display:none;}
-#maintenanceScreen{position:absolute;inset:0;background:#0f172a;display:none;justify-content:center;align-items:center;z-index:3000;text-align:center;}
-.maintenance-box{background:#111827;padding:60px;border-radius:16px;max-width:500px;}
-.maintenance-box h1{color:#ef4444;margin-bottom:15px;font-size:28px;}
-.maintenance-box p{color:#aaa;margin-bottom:20px;}
-.maintenance-icon{font-size:64px;margin-bottom:20px;}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:1500;backdrop-filter:blur(4px);}
-.modal{background:#111827;border-radius:16px;padding:20px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto;border:1px solid #1f2937;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #1f2937;}
-.modal-header h2{color:#60a5fa;font-size:18px;}
-.modal-header .close-btn{background:#ef4444;border:none;color:white;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:16px;}
-.modal-header .close-btn:hover{background:#dc2626;}
-.tabs{display:flex;gap:5px;margin-bottom:15px;border-bottom:1px solid #1f2937;padding-bottom:10px;flex-wrap:wrap;}
-.tab-btn{padding:8px 14px;background:#1f2937;border:none;border-radius:8px;color:white;cursor:pointer;transition:0.2s;font-size:13px;}
-.tab-btn:hover{background:#2563eb;}
-.tab-btn.active{background:#2563eb;font-weight:bold;}
-.tab-content{display:none;animation:fadeIn 0.2s;}
-.tab-content.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
-.modal-section{margin-bottom:15px;padding:15px;background:#1f2937;border-radius:12px;}
-.modal-section h3{margin-bottom:10px;color:#60a5fa;font-size:15px;}
-.modal-section p{margin:5px 0;color:#aaa;font-size:13px;}
-.modal-section input,.modal-section select,.modal-section textarea{width:100%;padding:10px;margin:5px 0;border:none;border-radius:8px;background:#111827;color:white;font-size:14px;}
-.modal-section textarea{min-height:80px;resize:vertical;}
-.modal-section button{padding:8px 16px;margin:3px;background:#2563eb;border:none;border-radius:8px;color:white;cursor:pointer;transition:0.2s;font-size:13px;}
-.modal-section button:hover{background:#1e40af;}
-.modal-section button.danger{background:#ef4444;}
-.modal-section button.danger:hover{background:#dc2626;}
-.modal-section button.success{background:#22c55e;}
-.modal-section button.success:hover{background:#16a34a;}
-.confirm-modal{max-width:400px;text-align:center;}
-.confirm-modal p{margin:15px 0;color:#aaa;}
-.confirm-actions{display:flex;gap:10px;justify-content:center;margin-top:15px;}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.stat-card{background:#111827;padding:12px;border-radius:10px;text-align:center;}
-.stat-card .num{font-size:22px;font-weight:bold;color:#60a5fa;}
-.stat-card .label{font-size:11px;color:#aaa;}
-.profile-preview{text-align:center;padding:15px;background:#111827;border-radius:12px;margin-bottom:15px;}
-.profile-preview .avatar{width:70px;height:70px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 10px;}
-.profile-preview .name{font-size:17px;font-weight:bold;}
-.profile-preview .plan{display:inline-block;padding:4px 10px;background:#1f2937;border-radius:20px;font-size:11px;margin-top:5px;}
-.store-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;}
-.store-card{background:#111827;padding:20px;border-radius:12px;text-align:center;border:2px solid #1f2937;transition:0.2s;}
-.store-card:hover{border-color:#2563eb;transform:translateY(-2px);}
-.store-card.featured{border-color:#22c55e;background:rgba(34,197,94,0.1);}
-.store-card .plan-name{font-size:20px;font-weight:bold;margin-bottom:5px;}
-.store-card .plan-price{font-size:28px;color:#22c55e;margin-bottom:10px;}
-.store-card .plan-price span{font-size:14px;color:#aaa;}
-.store-card .plan-features{list-style:none;margin:15px 0;text-align:left;}
-.store-card .plan-features li{padding:5px 0;color:#aaa;font-size:13px;}
-.store-card .plan-features li::before{content:"✓ ";color:#22c55e;}
-.store-card button{width:100%;margin-top:10px;}
-::-webkit-scrollbar{width:8px;height:8px;}
-::-webkit-scrollbar-track{background:#111827;}
-::-webkit-scrollbar-thumb{background:#2563eb;border-radius:4px;}
-::-webkit-scrollbar-thumb:hover{background:#1e40af;}
-@media(max-width:768px){body{flex-direction:column;}.sidebar{width:100%;height:auto;max-height:200px;}.main{height:auto;}}
+/* ============================================
+   🎨 CSS VARIABLES & RESET
+   ============================================ */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --primary-light: #3b82f6;
+    --secondary: #64748b;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #06b6d4;
+    
+    --bg-primary: #0f172a;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1f2937;
+    --bg-card: #1e293b;
+    
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    
+    --border-color: #334155;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+    --shadow-xl: 0 20px 25px rgba(0,0,0,0.6);
+    
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    
+    --transition: all 0.2s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    line-height: 1.6;
+}
+
+/* ============================================
+   📜 SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* ============================================
+   🔐 LOGIN SCREEN
+   ============================================ */
+#loginScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, #1e1b4b 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.5s ease;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    animation: slideUp 0.5s ease;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 16px;
+    box-shadow: var(--shadow-lg);
+}
+
+.login-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.input-field {
+    width: 100%;
+    padding: 14px 14px 14px 46px;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 15px;
+    transition: var(--transition);
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-field:focus + .input-icon {
+    color: var(--primary);
+}
+
+.input-field::placeholder {
+    color: var(--text-muted);
+}
+
+.btn {
+    padding: 14px 20px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    color: white;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.error-message.show {
+    display: flex;
+    animation: shake 0.5s ease;
+}
+
+/* ============================================
+   🔧 MAINTENANCE SCREEN
+   ============================================ */
+#maintenanceScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-primary);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+}
+
+.maintenance-container {
+    text-align: center;
+    padding: 60px 40px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 500px;
+}
+
+.maintenance-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    animation: pulse 2s ease infinite;
+}
+
+.maintenance-container h1 {
+    font-size: 32px;
+    margin-bottom: 16px;
+    color: var(--danger);
+}
+
+.maintenance-container p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* ============================================
+   📱 MAIN LAYOUT
+   ============================================ */
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* ============================================
+   📋 SIDEBAR
+   ============================================ */
+.sidebar {
+    width: 320px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    animation: slideInLeft 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.logo-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: var(--shadow-md);
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.btn-new-chat {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-new-chat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Chat List */
+.chat-list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.chat-list-header {
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.chat-item {
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-item:hover {
+    background: var(--bg-card);
+    transform: translateX(4px);
+}
+
+.chat-item.active {
+    background: rgba(37, 99, 235, 0.15);
+    border-color: var(--primary);
+}
+
+.chat-item-icon {
+    font-size: 18px;
+}
+
+.chat-item-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-item-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.chat-item:hover .chat-item-actions {
+    opacity: 1;
+}
+
+.chat-action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.chat-action-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   🎯 MAIN CONTENT
+   ============================================ */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+}
+
+/* Top Bar */
+.topbar {
+    height: 64px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.badge {
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge-free { color: var(--text-secondary); }
+.badge-ultra { color: var(--warning); }
+.badge-nano { color: var(--success); }
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: var(--transition);
+}
+
+.icon-btn:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.profile-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 72px;
+    right: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    min-width: 220px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: flex;
+    animation: slideInDown 0.2s ease;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    width: 100%;
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}
+
+/* ============================================
+   💬 CHAT AREA
+   ============================================ */
+.chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.welcome-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.welcome-message h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+/* Message Bubbles */
+.message {
+    max-width: 75%;
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    position: relative;
+    animation: messageSlide 0.3s ease;
+    word-wrap: break-word;
+    line-height: 1.6;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-bottom-right-radius: var(--radius-sm);
+}
+
+.message-ai {
+    align-self: flex-start;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-bottom-left-radius: var(--radius-sm);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.message-text {
+    font-size: 15px;
+}
+
+.message-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-action-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.message-action-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 14px 18px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    border-bottom-left-radius: var(--radius-sm);
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: typingBounce 1.4s ease infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   ⌨️ INPUT AREA
+   ============================================ */
+.input-container {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 20px 24px;
+}
+
+.emoji-picker {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+}
+
+.emoji-btn {
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.emoji-btn:hover {
+    background: var(--bg-card);
+    transform: scale(1.2);
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.input-box {
+    flex: 1;
+    position: relative;
+}
+
+.message-input {
+    width: 100%;
+    padding: 14px 48px 14px 16px;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: 15px;
+    resize: none;
+    outline: none;
+    transition: var(--transition);
+    max-height: 120px;
+    font-family: inherit;
+}
+
+.message-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-hint {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.btn-send {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-send:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-send:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   🪟 MODAL SYSTEM
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-container {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow: hidden;
+    animation: modalSlide 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes modalSlide {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(85vh - 140px);
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Tabs */
+.tabs-container {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    position: relative;
+    transition: var(--transition);
+}
+
+.tab-btn:hover {
+    color: var(--text-secondary);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   📦 SECTIONS & CARDS
+   ============================================ */
+.section {
+    margin-bottom: 24px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+}
+
+.card {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+}
+
+/* Profile Preview */
+.profile-preview {
+    text-align: center;
+    padding: 32px 24px;
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-card) 100%);
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin: 0 auto 16px;
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.profile-plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Store Cards */
+.store-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.plan-card {
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+}
+
+.plan-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-lg);
+}
+
+.plan-card.featured {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.plan-badge {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background: var(--success);
+    color: white;
+    padding: 4px 12px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.plan-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.plan-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.plan-price {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 4px;
+}
+
+.plan-price span {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.plan-features {
+    list-style: none;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.plan-features li {
+    padding: 8px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.plan-features li::before {
+    content: '✓';
+    color: var(--success);
+    font-weight: 700;
+}
+
+/* ============================================
+   🎭 ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+/* ============================================
+   📱 RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+    
+    .login-container {
+        margin: 20px;
+        padding: 24px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .store-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   🌙 LIGHT THEME
+   ============================================ */
+body.light-theme {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: #e2e8f0;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    
+    --border-color: #cbd5e1;
+}
+
+body.light-theme .message-ai {
+    background: var(--bg-tertiary);
+}
+
+body.light-theme .chat-item {
+    background: var(--bg-tertiary);
+}
+
+body.light-theme .chat-item:hover {
+    background: var(--bg-card);
+}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ============================================
+     🔐 LOGIN SCREEN
+     ============================================ -->
 <div id="loginScreen">
-    <div class="login-box">
-        <h2>🤖 Nano AI Login</h2>
-        <input type="text" id="username" placeholder="Username" autocomplete="username">
-        <input type="password" id="password" placeholder="Passwort" autocomplete="current-password">
-        <div id="loginError" class="login-error"></div>
-        <button type="button" onclick="handleLogin()">🔐 Login</button>
-        <button type="button" class="secondary" onclick="handleRegister()">✨ Registrieren</button>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">🤖</div>
+            <h1>Nano AI Chat</h1>
+            <p>Willkommen zurück! Melde dich an 🚀</p>
+        </div>
+        
+        <form class="login-form" onsubmit="return false;">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="username" 
+                    class="input-field" 
+                    placeholder="Benutzername"
+                    autocomplete="username"
+                >
+                <span class="input-icon">👤</span>
+            </div>
+            
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    id="password" 
+                    class="input-field" 
+                    placeholder="Passwort"
+                    autocomplete="current-password"
+                >
+                <span class="input-icon">🔒</span>
+            </div>
+            
+            <div id="loginError" class="error-message">
+                <span>⚠️</span>
+                <span id="errorText"></span>
+            </div>
+            
+            <button type="button" class="btn btn-primary btn-block" onclick="handleLogin()">
+                <span>🔐</span>
+                <span>Login</span>
+            </button>
+            
+            <button type="button" class="btn btn-secondary btn-block" onclick="handleRegister()">
+                <span>✨</span>
+                <span>Registrieren</span>
+            </button>
+        </form>
     </div>
 </div>
 
-<!-- MAINTENANCE SCREEN -->
+<!-- ============================================
+     🔧 MAINTENANCE SCREEN
+     ============================================ -->
 <div id="maintenanceScreen">
-    <div class="maintenance-box">
+    <div class="maintenance-container">
         <div class="maintenance-icon">🔧</div>
         <h1>Wartungsmodus</h1>
-        <p id="maintenanceText">Der Server wird gerade gewartet. Bitte versuche es später erneut.</p>
-        <p style="color:#60a5fa;font-size:12px;">Nano AI Team</p>
+        <p>Wir arbeiten gerade an Verbesserungen. Bitte versuche es später erneut.</p>
+        <p style="font-size: 14px; color: var(--primary);">💙 Das Nano AI Team</p>
     </div>
 </div>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <div class="logo">
-        <img src="NanoAI.png" alt="Nano AI" onerror="this.style.display='none'">
-        <span>Nano AI</span>
-    </div>
-    <button class="new-chat" onclick="createChat()">+ Neuer Chat</button>
-    <div class="chat-list" id="chatList"></div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-    <div class="topbar">
-        <div style="display:flex;gap:10px;align-items:center;">
-            <div id="planBadge" class="plan-badge">Free</div>
-            <button id="adminBtn" class="send-btn" style="padding:6px 12px;font-size:13px;display:none;" onclick="openModal('adminModal')">🛡️ Admin</button>
-            <button class="send-btn" style="padding:6px 12px;font-size:13px;background:#1f2937;" onclick="openModal('storeModal')">🛒 Store</button>
-            <button class="send-btn" style="padding:6px 12px;font-size:13px;background:#1f2937;" onclick="openModal('settingsModal')">⚙️</button>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;">
-            <div class="profile" onclick="toggleDropdown()" id="profileName">Profil</div>
-            <div class="dropdown" id="dropdown">
-                <button onclick="openModal('profileModal')">👤 Mein Profil</button>
-                <select id="languageSelect" onchange="changeLanguage()">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="fr">Français</option>
-                    <option value="es">Español</option>
-                    <option value="it">Italiano</option>
-                    <option value="ru">Русский</option>
-                    <option value="tr">Türkçe</option>
-                    <option value="pl">Polski</option>
-                    <option value="nl">Nederlands</option>
-                    <option value="pt">Português</option>
-                </select>
-                <button onclick="handleLogout()">🚪 Logout</button>
+<!-- ============================================
+     📱 MAIN APPLICATION
+     ============================================ -->
+<div class="app-container" id="appContainer" style="display: none;">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-section">
+                <div class="logo-icon">🤖</div>
+                <span class="logo-text">Nano AI</span>
             </div>
+            <button class="btn-new-chat" onclick="createChat()">
+                <span>➕</span>
+                <span>Neuer Chat</span>
+            </button>
         </div>
-    </div>
-    <div class="chat" id="chat"></div>
-    <div class="input-area">
-        <div id="emojiPanel"></div>
-        <div class="input-row">
-            <input type="text" id="prompt" placeholder="Nachricht schreiben..." onkeydown="if(event.key==='Enter')sendPrompt()">
-            <button class="send-btn" onclick="sendPrompt()">Senden</button>
+        
+        <div class="chat-list-container">
+            <div class="chat-list-header">📋 Deine Chats</div>
+            <div id="chatList"></div>
         </div>
-    </div>
-</div>
-
-<!-- PROFILE MODAL -->
-<div id="profileModal" class="modal-overlay">
-    <div class="modal">
-        <div class="modal-header">
-            <h2>👤 Mein Profil</h2>
-            <button class="close-btn" onclick="closeModal('profileModal')">✕</button>
-        </div>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('profileModal','info')">Info</button>
-            <button class="tab-btn" onclick="switchTab('profileModal','security')">Sicherheit</button>
-            <button class="tab-btn" onclick="switchTab('profileModal','data')">Daten</button>
-        </div>
-        <div id="profile-info" class="tab-content active">
-            <div class="profile-preview">
-                <div class="avatar">👤</div>
-                <div class="name" id="profileNameDisplay">Username</div>
-                <div class="plan" id="profilePlanDisplay">Free</div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div id="planBadge" class="badge badge-free">
+                    <span>🎫</span>
+                    <span>Free</span>
+                </div>
+                
+                <button id="adminBtn" class="icon-btn" onclick="openModal('adminModal')" style="display: none;">
+                    🛡️
+                </button>
+                
+                <button class="icon-btn" onclick="openModal('storeModal')">
+                    🛒
+                </button>
+                
+                <button class="icon-btn" onclick="openModal('settingsModal')">
+                    ⚙️
+                </button>
             </div>
-            <div class="modal-section">
-                <h3>📊 Statistiken</h3>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="num" id="statChats">0</div><div class="label">Chats</div></div>
-                    <div class="stat-card"><div class="num" id="statMsgs">0</div><div class="label">Nachrichten</div></div>
-                    <div class="stat-card"><div class="num" id="statLimit">50</div><div class="label">Limit/Monat</div></div>
-                    <div class="stat-card"><div class="num" id="statUsed">0</div><div class="label">Verbraucht</div></div>
+            
+            <div class="topbar-right">
+                <button class="profile-btn" onclick="toggleDropdown()">
+                    <span>👤</span>
+                    <span id="profileName">Profil</span>
+                    <span>▼</span>
+                </button>
+                
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <button class="dropdown-item" onclick="openModal('profileModal')">
+                        <span>👤</span>
+                        <span>Mein Profil</span>
+                    </button>
+                    
+                    <button class="dropdown-item" onclick="changeLanguage()">
+                        <span>🌍</span>
+                        <span>Sprache: <strong id="langDisplay">DE</strong></span>
+                    </button>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <button class="dropdown-item" onclick="handleLogout()">
+                        <span>🚪</span>
+                        <span>Logout</span>
+                    </button>
                 </div>
             </div>
-            <div class="modal-section">
-                <h3>🎫 Aktueller Plan</h3>
-                <p id="currentPlanInfo">Free - 50 Nachrichten/Monat</p>
-                <button onclick="openModal('storeModal')" class="success" style="margin-top:8px;">🛒 Plan im Store ändern</button>
+        </header>
+        
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <div class="welcome-message">
+                <div class="welcome-icon">💬</div>
+                <h2>Willkommen bei Nano AI!</h2>
+                <p>Starte einen neuen Chat oder wähle einen bestehenden aus.</p>
             </div>
         </div>
-        <div id="profile-security" class="tab-content">
-            <div class="modal-section">
-                <h3>🔑 Passwort ändern</h3>
-                <input type="password" id="oldPass" placeholder="Altes Passwort">
-                <input type="password" id="newPass" placeholder="Neues Passwort (min. 6 Zeichen)">
-                <input type="password" id="confirmPass" placeholder="Bestätigen">
-                <button onclick="changePassword()" style="margin-top:8px;">Passwort speichern</button>
-            </div>
-            <div class="modal-section">
-                <h3>⚠️ Account</h3>
-                <button class="danger" onclick="confirmAction('deleteAccount','Willst du deinen Account WIRKLICH löschen?')">🗑️ Account löschen</button>
+        
+        <!-- Input Area -->
+        <div class="input-container">
+            <div class="emoji-picker" id="emojiPicker"></div>
+            
+            <div class="input-wrapper">
+                <div class="input-box">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Nachricht schreiben..."
+                        rows="1"
+                        onkeydown="handleInputKeydown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <span class="input-hint">Enter zum Senden</span>
+                </div>
+                
+                <button class="btn-send" onclick="sendMessage()">
+                    <span>📤</span>
+                    <span>Senden</span>
+                </button>
             </div>
         </div>
-        <div id="profile-data" class="tab-content">
-            <div class="modal-section">
-                <h3>📥 Daten exportieren</h3>
-                <button onclick="exportData()">💾 Exportieren als TXT</button>
+    </main>
+</div>
+
+<!-- ============================================
+     👤 PROFILE MODAL
+     ============================================ -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span>👤</span>
+                <span>Mein Profil</span>
+            </h2>
+            <button class="modal-close" onclick="closeModal('profileModal')">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="profile-preview">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-name" id="profileNameDisplay">Username</div>
+                <div class="profile-plan" id="profilePlanDisplay">
+                    <span>🎫</span>
+                    <span>Free</span>
+                </div>
             </div>
-            <div class="modal-section">
-                <h3>🗑️ Daten löschen</h3>
-                <button class="danger" onclick="confirmAction('clearData','Alle Daten löschen?')">🗑️ Alle Daten löschen</button>
+            
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('profile', 'info')">
+                    📊 Info
+                </button>
+                <button class="tab-btn" onclick="switchTab('profile', 'security')">
+                    🔒 Sicherheit
+                </button>
+                <button class="tab-btn" onclick="switchTab('profile', 'data')">
+                    💾 Daten
+                </button>
+            </div>
+            
+            <!-- Info Tab -->
+            <div class="tab-content active" id="profile-info">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>📊</span>
+                        <span>Statistiken</span>
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statChats">0</div>
+                            <div class="stat-label">💬 Chats</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statMsgs">0</div>
+                            <div class="stat-label">✉️ Nachrichten</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statLimit">50</div>
+                            <div class="stat-label">🎯 Limit/Monat</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statUsed">0</div>
+                            <div class="stat-label">✅ Verbraucht</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>🎫</span>
+                        <span>Aktueller Plan</span>
+                    </h3>
+                    <div class="card">
+                        <p id="currentPlanInfo" style="margin-bottom: 12px;">Free - 50 Nachrichten/Monat</p>
+                        <button class="btn btn-success btn-block" onclick="openModal('storeModal'); closeModal('profileModal');">
+                            <span>🛒</span>
+                            <span>Plan im Store ändern</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Tab -->
+            <div class="tab-content" id="profile-security">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>🔑</span>
+                        <span>Passwort ändern</span>
+                    </h3>
+                    <div class="card">
+                        <div class="input-group" style="margin-bottom: 12px;">
+                            <input type="password" id="oldPass" class="input-field" placeholder="Altes Passwort">
+                            <span class="input-icon">🔒</span>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 12px;">
+                            <input type="password" id="newPass" class="input-field" placeholder="Neues Passwort (min. 6 Zeichen)">
+                            <span class="input-icon">🔐</span>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="confirmPass" class="input-field" placeholder="Bestätigen">
+                            <span class="input-icon">✓</span>
+                        </div>
+                        <button class="btn btn-primary btn-block" style="margin-top: 16px;" onclick="changePassword()">
+                            <span>💾</span>
+                            <span>Passwort speichern</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>⚠️</span>
+                        <span>Account</span>
+                    </h3>
+                    <button class="btn btn-danger btn-block" onclick="confirmAction('deleteAccount', 'Willst du deinen Account WIRKLICH löschen? Alle Daten gehen für immer verloren! ️')">
+                        <span>🗑️</span>
+                        <span>Account löschen</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Data Tab -->
+            <div class="tab-content" id="profile-data">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>📥</span>
+                        <span>Daten exportieren</span>
+                    </h3>
+                    <div class="card">
+                        <p style="margin-bottom: 12px; color: var(--text-muted);">Lade alle deine Chats als Text-Datei herunter.</p>
+                        <button class="btn btn-primary btn-block" onclick="exportData()">
+                            <span>💾</span>
+                            <span>Exportieren als TXT</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>🗑️</span>
+                        <span>Daten löschen</span>
+                    </h3>
+                    <div class="card">
+                        <p style="margin-bottom: 12px; color: var(--text-muted);">Alle Chats und Nachrichten dieses Accounts entfernen.</p>
+                        <button class="btn btn-danger btn-block" onclick="confirmAction('clearData', 'Alle Daten löschen? Dies kann nicht rückgängig gemacht werden! ⚠️')">
+                            <span>🗑️</span>
+                            <span>Alle Daten löschen</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- STORE MODAL -->
-<div id="storeModal" class="modal-overlay">
-    <div class="modal">
+<!-- ============================================
+     🛒 STORE MODAL
+     ============================================ -->
+<div class="modal-overlay" id="storeModal">
+    <div class="modal-container">
         <div class="modal-header">
-            <h2>🛒 Nano AI Store</h2>
-            <button class="close-btn" onclick="closeModal('storeModal')">✕</button>
+            <h2 class="modal-title">
+                <span>🛒</span>
+                <span>Nano AI Store</span>
+            </h2>
+            <button class="modal-close" onclick="closeModal('storeModal')">✕</button>
         </div>
-        <div class="modal-section">
-            <h3 id="storeTitle">Wähle deinen Plan</h3>
-            <p id="storeDesc" style="margin-bottom:15px;">Alle Preise sind aktuell 0€ - Limited Offer!</p>
+        
+        <div class="modal-body">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h3 id="storeTitle" style="font-size: 20px; margin-bottom: 8px;">Wähle deinen Plan</h3>
+                <p id="storeDesc" style="color: var(--text-muted);">Alle Preise sind aktuell 0€ - Limited Offer! 🎉</p>
+            </div>
+            
             <div class="store-grid">
-                <div class="store-card">
+                <!-- Free Plan -->
+                <div class="plan-card" onclick="selectPlan('free')">
+                    <div class="plan-icon">🆓</div>
                     <div class="plan-name">Free</div>
-                    <div class="plan-price" id="priceFree">0€<span>/Monat</span></div>
+                    <div class="plan-price" id="priceFree">
+                        0€
+                        <span>/Monat</span>
+                    </div>
                     <ul class="plan-features">
                         <li id="feat1">50 Nachrichten/Monat</li>
                         <li id="feat2">Standard Geschwindigkeit</li>
                         <li id="feat3">Basis Support</li>
                     </ul>
-                    <button onclick="selectPlan('free')" class="success">Auswählen</button>
+                    <button class="btn btn-secondary btn-block">
+                        <span>👆</span>
+                        <span>Auswählen</span>
+                    </button>
                 </div>
-                <div class="store-card featured">
-                    <div class="plan-name">Ultra ⭐</div>
-                    <div class="plan-price" id="priceUltra">0€<span>/Monat</span></div>
+                
+                <!-- Ultra Plan -->
+                <div class="plan-card featured" onclick="selectPlan('ultra')">
+                    <div class="plan-badge">Beliebt ⭐</div>
+                    <div class="plan-icon">🚀</div>
+                    <div class="plan-name">Ultra</div>
+                    <div class="plan-price" id="priceUltra">
+                        0€
+                        <span>/Monat</span>
+                    </div>
                     <ul class="plan-features">
                         <li id="feat4">500 Nachrichten/Monat</li>
                         <li id="feat5">Schnelle Antwort</li>
                         <li id="feat6">Priority Support</li>
                     </ul>
-                    <button onclick="selectPlan('ultra')" class="success">Auswählen</button>
+                    <button class="btn btn-success btn-block">
+                        <span>👆</span>
+                        <span>Auswählen</span>
+                    </button>
                 </div>
-                <div class="store-card">
-                    <div class="plan-name">Nano 👑</div>
-                    <div class="plan-price" id="priceNano">0€<span>/Monat</span></div>
+                
+                <!-- Nano Plan -->
+                <div class="plan-card" onclick="selectPlan('nano')">
+                    <div class="plan-icon">👑</div>
+                    <div class="plan-name">Nano</div>
+                    <div class="plan-price" id="priceNano">
+                        0€
+                        <span>/Monat</span>
+                    </div>
                     <ul class="plan-features">
                         <li id="feat7">Unbegrenzte Nachrichten</li>
                         <li id="feat8">Schnellste Antwort</li>
                         <li id="feat9">VIP Support</li>
                     </ul>
-                    <button onclick="selectPlan('nano')" class="success">Auswählen</button>
+                    <button class="btn btn-secondary btn-block">
+                        <span>👆</span>
+                        <span>Auswählen</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ADMIN MODAL -->
-<div id="adminModal" class="modal-overlay">
-    <div class="modal">
+<!-- ============================================
+     ⚙️ SETTINGS MODAL
+     ============================================ -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal-container">
         <div class="modal-header">
-            <h2>🛡️ Admin Panel</h2>
-            <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
+            <h2 class="modal-title">
+                <span>⚙️</span>
+                <span>Einstellungen</span>
+            </h2>
+            <button class="modal-close" onclick="closeModal('settingsModal')">✕</button>
         </div>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('adminModal','users')">Users</button>
-            <button class="tab-btn" onclick="switchTab('adminModal','settings')">Einstellungen</button>
-        </div>
-        <div id="admin-users" class="tab-content active">
-            <div class="modal-section">
-                <h3>🔍 User suchen</h3>
-                <input id="adminUserSearch" placeholder="Username eingeben..." onkeyup="searchUsers()">
-                <div id="adminUserResults" style="margin-top:10px;max-height:200px;overflow-y:auto;"></div>
+        
+        <div class="modal-body">
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('settings', 'chat')">
+                    💬 Chat
+                </button>
+                <button class="tab-btn" onclick="switchTab('settings', 'appearance')">
+                    🎨 Design
+                </button>
             </div>
-            <div class="modal-section">
-                <h3>⚡ Aktionen</h3>
-                <p id="selectedUserInfo" style="color:#60a5fa;margin-bottom:10px;font-size:13px;">Kein User ausgewählt</p>
-                <input type="hidden" id="selectedUser">
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                    <button onclick="banUser()">🚫 Ban</button>
-                    <button onclick="unbanUser()">✅ Unban</button>
-                    <button onclick="resetUserLimit()">🔄 Limit reset</button>
+            
+            <!-- Chat Settings -->
+            <div class="tab-content active" id="settings-chat">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>📝</span>
+                        <span>Aktuellen Chat</span>
+                    </h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="confirmAction('renameChat', 'Chat umbenennen? ✏️')" style="flex: 1;">
+                            <span>✏️</span>
+                            <span>Umbenennen</span>
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmAction('deleteChat', 'Diesen Chat WIRKLICH löschen? 🗑️')" style="flex: 1;">
+                            <span>🗑️</span>
+                            <span>Löschen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appearance Settings -->
+            <div class="tab-content" id="settings-appearance">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>🎨</span>
+                        <span>Theme</span>
+                    </h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="setTheme('dark')" style="flex: 1;">
+                            <span>🌙</span>
+                            <span>Dark</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="setTheme('light')" style="flex: 1;">
+                            <span>☀️</span>
+                            <span>Light</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="admin-settings" class="tab-content">
-            <div class="modal-section">
-                <h3>⚙️ Server-Einstellungen</h3>
-                <label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;">
-                    <input type="checkbox" id="maintMode" onchange="toggleMaintenance()"> 
-                    <span id="maintLabel">Wartungsmodus aktivieren</span>
-                </label>
-                <p id="maintStatus" style="color:#aaa;font-size:12px;margin-top:5px;">Status: Aktiv</p>
-                <button onclick="saveAdminSettings()" class="success" style="margin-top:8px;">Speichern</button>
+    </div>
+</div>
+
+<!-- ============================================
+     🛡️ ADMIN MODAL
+     ============================================ -->
+<div class="modal-overlay" id="adminModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span>🛡️</span>
+                <span>Admin Panel</span>
+            </h2>
+            <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('admin', 'users')">
+                    👥 Users
+                </button>
+                <button class="tab-btn" onclick="switchTab('admin', 'settings')">
+                    ⚙️ Einstellungen
+                </button>
+            </div>
+            
+            <!-- Users Tab -->
+            <div class="tab-content active" id="admin-users">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>🔍</span>
+                        <span>User suchen</span>
+                    </h3>
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="adminUserSearch" 
+                            class="input-field" 
+                            placeholder="Username eingeben..."
+                            onkeyup="searchUsers()"
+                        >
+                        <span class="input-icon">🔍</span>
+                    </div>
+                    <div id="adminUserResults" style="margin-top: 12px; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>⚡</span>
+                        <span>Aktionen</span>
+                    </h3>
+                    <div class="card">
+                        <p id="selectedUserInfo" style="color: var(--primary); margin-bottom: 12px; font-weight: 600;">
+                            Kein User ausgewählt
+                        </p>
+                        <input type="hidden" id="selectedUser">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <button class="btn btn-danger" onclick="banUser()">
+                                <span>🚫</span>
+                                <span>Ban</span>
+                            </button>
+                            <button class="btn btn-success" onclick="unbanUser()">
+                                <span>✅</span>
+                                <span>Unban</span>
+                            </button>
+                            <button class="btn btn-secondary" onclick="resetUserLimit()">
+                                <span>🔄</span>
+                                <span>Limit reset</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-content" id="admin-settings">
+                <div class="section">
+                    <h3 class="section-title">
+                        <span>⚙️</span>
+                        <span>Server-Einstellungen</span>
+                    </h3>
+                    <div class="card">
+                        <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                id="maintMode" 
+                                onchange="toggleMaintenance()"
+                                style="width: 20px; height: 20px; cursor: pointer;"
+                            >
+                            <span style="font-weight: 600;">Wartungsmodus aktivieren</span>
+                        </label>
+                        <p id="maintStatus" style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+                            Status: <strong style="color: var(--success);">🟢 Deaktiviert</strong>
+                        </p>
+                        <button class="btn btn-success btn-block" onclick="saveAdminSettings()">
+                            <span>💾</span>
+                            <span>Speichern</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- SETTINGS MODAL -->
-<div id="settingsModal" class="modal-overlay">
-    <div class="modal">
+<!-- ============================================
+     ⚠️ CONFIRM MODAL
+     ============================================ -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-container" style="max-width: 450px;">
         <div class="modal-header">
-            <h2>⚙️ Chat-Einstellungen</h2>
-            <button class="close-btn" onclick="closeModal('settingsModal')">✕</button>
+            <h2 class="modal-title">
+                <span>⚠️</span>
+                <span>Bestätigen</span>
+            </h2>
+            <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
         </div>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('settingsModal','chat')">Chat</button>
-            <button class="tab-btn" onclick="switchTab('settingsModal','appearance')">Design</button>
-        </div>
-        <div id="settings-chat" class="tab-content active">
-            <div class="modal-section">
-                <h3>📝 Aktuellen Chat</h3>
-                <button onclick="confirmAction('renameChat','Chat umbenennen?')" style="margin-right:5px;">✏️ Umbenennen</button>
-                <button onclick="confirmAction('deleteChat','Diesen Chat WIRKLICH löschen?')" class="danger">🗑️ Löschen</button>
+        
+        <div class="modal-body" style="text-align: center; padding: 32px 24px;">
+            <p id="confirmText" style="font-size: 16px; margin-bottom: 24px; color: var(--text-secondary);">
+                Möchtest du wirklich fortfahren?
+            </p>
+            
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="cancelConfirm()" style="flex: 1;">
+                    <span>❌</span>
+                    <span>Abbrechen</span>
+                </button>
+                <button class="btn btn-danger" onclick="executeConfirm()" style="flex: 1;">
+                    <span>✅</span>
+                    <span>Ja, ausführen</span>
+                </button>
             </div>
-        </div>
-        <div id="settings-appearance" class="tab-content">
-            <div class="modal-section">
-                <h3>🎨 Theme</h3>
-                <button onclick="setTheme('dark')" style="margin-right:5px;">🌙 Dark</button>
-                <button onclick="setTheme('light')">☀️ Light</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- CONFIRM MODAL -->
-<div id="confirmModal" class="modal-overlay">
-    <div class="modal confirm-modal">
-        <div class="modal-header">
-            <h2>⚠️ Bestätigen</h2>
-            <button class="close-btn" onclick="closeModal('confirmModal')">✕</button>
-        </div>
-        <p id="confirmText">Möchtest du wirklich fortfahren?</p>
-        <div class="confirm-actions">
-            <button onclick="cancelConfirm()" style="background:#1f2937;">Abbrechen</button>
-            <button onclick="executeConfirm()" class="danger">Ja, ausführen</button>
         </div>
     </div>
 </div>
 
 <script>
-// Firebase SDKs werden über CDN geladen (oben im HTML)
-
 // ============================================
-// 🔥 FIREBASE KONFIGURATION
+// 🔥 FIREBASE CONFIGURATION
 // ============================================
 const firebaseConfig = {
-  apiKey: "AIzaSyDttFnSozUCFSxeZ_aZUhWsXDtwKHBRQLQ",
-  authDomain: "nano-ai-d3486.firebaseapp.com",
-  projectId: "nano-ai-d3486",
-  storageBucket: "nano-ai-d3486.firebasestorage.app",
-  messagingSenderId: "866335330261",
-  appId: "1:866335330261:web:5395f2b52a3d2f1078f75c",
-  measurementId: "G-CFFWWDNJB7"
+    apiKey: "AIzaSyDttFnSozUCFSxeZ_aZUhWsXDtwKHBRQLQ",
+    authDomain: "nano-ai-d3486.firebaseapp.com",
+    projectId: "nano-ai-d3486",
+    storageBucket: "nano-ai-d3486.firebasestorage.app",
+    messagingSenderId: "866335330261",
+    appId: "1:866335330261:web:5395f2b52a3d2f1078f75c",
+    measurementId: "G-CFFWWDNJB7"
 };
 
-// Firebase initialisieren
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
-// ============================================
-
-// Firebase initialisieren
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
 
 // ============================================
-// CONFIG
+// ⚙️ CONFIGURATION
 // ============================================
 const OWNER = "Lobi";
 const COOWNER = "Jovi";
 const API_URL = "https://unexempt-predenial-aryanna.ngrok-free.dev";
 
 // ============================================
-// STATE
+// 📦 STATE MANAGEMENT
 // ============================================
 let currentUser = null;
 let userData = null;
 let currentChat = null;
 let currentLanguage = localStorage.getItem("nano_language") || "de";
 let confirmCallback = null;
-let settings = {typingEffect:true, showEmoji:true, theme:'dark'};
 let maintenanceMode = false;
 
-const plans = {free:{name:"Free",limit:50}, ultra:{name:"Ultra",limit:500}, nano:{name:"Nano",limit:9999}};
-const emojis = ["😀","😂","😎","😢","😡","👍","👎","❤️","🔥","🎉","✨","🤖","💬","✅","❌","🚀","💡"];
+const plans = {
+    free: { name: "Free", limit: 50, icon: "🆓" },
+    ultra: { name: "Ultra", limit: 500, icon: "🚀" },
+    nano: { name: "Nano", limit: 9999, icon: "👑" }
+};
+
+const emojis = [
+    "😀", "😂", "", "😢", "", 
+    "", "👎", "❤️", "🔥", "🎉", 
+    "✨", "🤖", "💬", "✅", "❌", 
+    "🚀", "", "🎯", "📊", "🔒"
+];
+
+const languages = {
+    de: { code: "DE", name: "Deutsch", flag: "🇩🇪" },
+    en: { code: "EN", name: "English", flag: "🇬🇧" },
+    fr: { code: "FR", name: "Français", flag: "🇫🇷" },
+    es: { code: "ES", name: "Español", flag: "🇪🇸" },
+    it: { code: "IT", name: "Italiano", flag: "🇮🇹" },
+    ru: { code: "RU", name: "Русский", flag: "🇷" },
+    tr: { code: "TR", name: "Türkçe", flag: "🇹🇷" },
+    pl: { code: "PL", name: "Polski", flag: "🇵🇱" },
+    nl: { code: "NL", name: "Nederlands", flag: "🇳🇱" },
+    pt: { code: "PT", name: "Português", flag: "🇵🇹" }
+};
 
 const storeText = {
-    de: {title:"Wähle deinen Plan", desc:"Alle Preise sind aktuell 0€ - Limited Offer!", price:"0€", month:"/Monat"},
-    en: {title:"Choose your plan", desc:"All prices currently 0€ - Limited Offer!", price:"0€", month:"/month"},
-    fr: {title:"Choisissez votre plan", desc:"Tous les prix actuellement 0€ - Offre limitée!", price:"0€", month:"/mois"},
-    es: {title:"Elige tu plan", desc:"¡Todos los precios actualmente 0€ - Oferta limitada!", price:"0€", month:"/mes"},
-    it: {title:"Scegli il tuo piano", desc:"Tutti i prezzi attualmente 0€ - Offerta limitata!", price:"0€", month:"/mese"},
-    ru: {title:"Выберите план", desc:"Все цены сейчас 0€ - Ограниченное предложение!", price:"0€", month:"/месяц"},
-    tr: {title:"Planınızı seçin", desc:"Tüm fiyatlar şu anda 0€ - Sınırlı teklif!", price:"0€", month:"/ay"},
-    pl: {title:"Wybierz swój plan", desc:"Wszystkie ceny obecnie 0€ - Oferta limitowana!", price:"0€", month:"/miesiąc"},
-    nl: {title:"Kies je plan", desc:"Alle prijzen momenteel 0€ - Beperkte aanbieding!", price:"0€", month:"/maand"},
-    pt: {title:"Escolha seu plano", desc:"Todos os preços atualmente 0€ - Oferta limitada!", price:"0€", month:"/mês"}
+    de: { title: "Wähle deinen Plan", desc: "Alle Preise sind aktuell 0€ - Limited Offer! 🎉" },
+    en: { title: "Choose your plan", desc: "All prices currently 0€ - Limited Offer! 🎉" },
+    fr: { title: "Choisissez votre plan", desc: "Tous les prix actuellement 0€ - Offre limitée! 🎉" },
+    es: { title: "Elige tu plan", desc: "¡Todos los precios actualmente 0€ - Oferta limitada! 🎉" },
+    it: { title: "Scegli il tuo piano", desc: "Tutti i prezzi attualmente 0€ - Offerta limitata! 🎉" },
+    ru: { title: "Выберите план", desc: "Все цены сейчас 0€ - Ограниченное предложение! 🎉" },
+    tr: { title: "Planınızı seçin", desc: "Tüm fiyatlar şu anda 0€ - Sınırlı teklif! 🎉" },
+    pl: { title: "Wybierz swój plan", desc: "Wszystkie ceny obecnie 0€ - Oferta limitowana! 🎉" },
+    nl: { title: "Kies je plan", desc: "Alle prijzen momenteel 0€ - Beperkte aanbieding! 🎉" },
+    pt: { title: "Escolha seu plano", desc: "Todos os preços atualmente 0€ - Oferta limitada! 🎉" }
 };
 
 // ============================================
-// INIT
+// 🚀 INITIALIZATION
 // ============================================
-async function init(){
-    try{
-        await checkMaintenance();
-        currentUser = localStorage.getItem("nano_currentUser");
-        if(currentUser){
-            await loadUserData();
-        } else {
-            document.getElementById("loginScreen").style.display = "flex";
-        }
-        document.getElementById("username")?.addEventListener("keypress", e => {if(e.key==="Enter")handleLogin();});
-        document.getElementById("password")?.addEventListener("keypress", e => {if(e.key==="Enter")handleLogin();});
-        console.log("✅ Nano AI initialized with Firebase");
-    } catch(err){
-        console.error("❌ Init error:", err);
-        showError("Fehler beim Starten. Firebase konfigurieren!");
-        document.getElementById("loginScreen").style.display = "flex";
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("✅ Nano AI Chat wird initialisiert...");
+    
+    // Event Listeners für Login
+    document.getElementById('username').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+    
+    document.getElementById('password').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+    
+    // Prüfen ob User eingeloggt ist
+    currentUser = localStorage.getItem("nano_currentUser");
+    if (currentUser) {
+        await loadUserData();
     }
-}
+    
+    // Emoji Picker rendern
+    renderEmojiPicker();
+    
+    console.log("✅ Nano AI Chat bereit!");
+});
 
 // ============================================
-// FIREBASE FUNCTIONS
+// 🔥 FIREBASE FUNCTIONS
 // ============================================
-async function checkMaintenance(){
-    try{
+async function checkMaintenance() {
+    try {
         const doc = await db.collection("settings").doc("maintenance").get();
-        if(doc.exists && doc.data().enabled){
+        if (doc.exists && doc.data().enabled) {
             maintenanceMode = true;
             document.getElementById("maintenanceScreen").style.display = "flex";
             document.getElementById("loginScreen").style.display = "none";
             return true;
         }
-    } catch(e){
-        console.log("Maintenance check skipped");
+    } catch (e) {
+        console.log("⚠️ Maintenance Check skipped:", e.message);
     }
     return false;
 }
 
-async function getUserData(username){
-    const doc = await db.collection("users").doc(username).get();
-    if(doc.exists) return doc.data();
-    return null;
+async function getUserData(username) {
+    try {
+        const doc = await db.collection("users").doc(username).get();
+        if (doc.exists) {
+            return doc.data();
+        }
+        return null;
+    } catch (e) {
+        console.error("❌ Get User Error:", e);
+        return null;
+    }
 }
 
-async function saveUserData(username, data){
-    await db.collection("users").doc(username).set(data, {merge: true});
+async function saveUserData(username, data) {
+    try {
+        await db.collection("users").doc(username).set(data, { merge: true });
+        return true;
+    } catch (e) {
+        console.error("❌ Save User Error:", e);
+        return false;
+    }
 }
 
-async function createUser(username, password){
-    await db.collection("users").doc(username).set({
-        password: password,
-        plan: "free",
-        banned: false,
-        chats: {},
-        messages: 0,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+async function createUser(username, password) {
+    try {
+        await db.collection("users").doc(username).set({
+            password: password,
+            plan: "free",
+            banned: false,
+            chats: {},
+            messages: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return true;
+    } catch (e) {
+        console.error("❌ Create User Error:", e);
+        return false;
+    }
 }
 
-async function getAllUsers(){
-    const snapshot = await db.collection("users").get();
-    const users = {};
-    snapshot.forEach(doc => {users[doc.id] = doc.data();});
-    return users;
+async function getAllUsers() {
+    try {
+        const snapshot = await db.collection("users").get();
+        const users = {};
+        snapshot.forEach(doc => {
+            users[doc.id] = doc.data();
+        });
+        return users;
+    } catch (e) {
+        console.error("❌ Get All Users Error:", e);
+        return {};
+    }
 }
 
 // ============================================
-// AUTH
+// 🔐 AUTHENTICATION
 // ============================================
-async function handleRegister(){
-    const u = document.getElementById("username")?.value.trim() || "";
-    const p = document.getElementById("password")?.value.trim() || "";
-    if(!u || !p) return showError("Bitte Username und Passwort eingeben");
-    if(u.length < 3) return showError("Username zu kurz (min. 3 Zeichen)");
-    if(p.length < 6) return showError("Passwort zu kurz (min. 6 Zeichen)");
+function showError(message) {
+    const errorDiv = document.getElementById("loginError");
+    const errorText = document.getElementById("errorText");
     
-    try{
-        const existing = await getUserData(u);
-        if(existing) return showError("Username bereits vergeben");
-        
-        await createUser(u, p);
+    errorText.textContent = message;
+    errorDiv.classList.add("show");
+    
+    setTimeout(() => {
+        errorDiv.classList.remove("show");
+    }, 5000);
+}
+
+async function handleRegister() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    
+    console.log("📝 Registrierung:", username);
+    
+    // Validierung
+    if (!username || !password) {
+        return showError("❌ Bitte alle Felder ausfüllen");
+    }
+    
+    if (username.length < 3) {
+        return showError("❌ Username zu kurz (min. 3 Zeichen)");
+    }
+    
+    if (password.length < 6) {
+        return showError("❌ Passwort zu kurz (min. 6 Zeichen)");
+    }
+    
+    // Prüfen ob User existiert
+    const existing = await getUserData(username);
+    if (existing) {
+        return showError("❌ Username bereits vergeben");
+    }
+    
+    // User erstellen
+    const success = await createUser(username, password);
+    if (success) {
         showError("✅ Registriert! Jetzt einloggen.");
         document.getElementById("password").value = "";
-    } catch(e){
-        console.error("Register error:", e);
-        showError("Registrierung fehlgeschlagen");
+    } else {
+        showError("❌ Registrierung fehlgeschlagen");
     }
 }
 
-async function handleLogin(){
-    const u = document.getElementById("username")?.value.trim() || "";
-    const p = document.getElementById("password")?.value.trim() || "";
-    if(!u || !p) return showError("Bitte alle Felder ausfüllen");
+async function handleLogin() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
     
-    try{
-        const data = await getUserData(u);
-        if(!data) return showError("User nicht gefunden");
-        if(data.password !== p) return showError("Falsches Passwort");
-        if(data.banned) return showError("Account wurde gebannt");
-        
-        currentUser = u;
-        userData = data;
-        localStorage.setItem("nano_currentUser", currentUser);
-        startApp();
-    } catch(e){
-        console.error("Login error:", e);
-        showError("Login fehlgeschlagen");
+    console.log("🔐 Login Versuch:", username);
+    
+    // Validierung
+    if (!username || !password) {
+        return showError("❌ Bitte alle Felder ausfüllen");
     }
+    
+    // User Daten laden
+    const data = await getUserData(username);
+    if (!data) {
+        return showError("❌ User nicht gefunden");
+    }
+    
+    // Passwort prüfen
+    if (data.password !== password) {
+        return showError("❌ Falsches Passwort");
+    }
+    
+    // Bann Status prüfen
+    if (data.banned) {
+        return showError("❌ Account wurde gebannt");
+    }
+    
+    // Login erfolgreich
+    currentUser = username;
+    userData = data;
+    localStorage.setItem("nano_currentUser", currentUser);
+    
+    // App starten
+    startApp();
 }
 
-async function loadUserData(){
-    try{
+async function loadUserData() {
+    try {
         const data = await getUserData(currentUser);
-        if(data){
+        if (data) {
             userData = data;
             startApp();
         } else {
             localStorage.removeItem("nano_currentUser");
             document.getElementById("loginScreen").style.display = "flex";
         }
-    } catch(e){
-        console.error("Load error:", e);
+    } catch (e) {
+        console.error("❌ Load User Error:", e);
         document.getElementById("loginScreen").style.display = "flex";
     }
 }
 
-function handleLogout(){
+function handleLogout() {
     localStorage.removeItem("nano_currentUser");
     currentUser = null;
     userData = null;
+    currentChat = null;
     location.reload();
 }
 
-function showError(msg){
-    const err = document.getElementById("loginError");
-    if(err){
-        err.innerText = msg;
-        err.style.display = "block";
-        setTimeout(()=>{err.style.display="none";}, 3000);
+// ============================================
+// 🚀 APP START
+// ============================================
+function startApp() {
+    console.log("✅ App gestartet für:", currentUser);
+    
+    // Login Screen ausblenden
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appContainer").style.display = "flex";
+    
+    // Profil Name setzen
+    document.getElementById("profileName").textContent = currentUser;
+    document.getElementById("profileNameDisplay").textContent = currentUser;
+    
+    // Admin Button anzeigen (wenn Owner/Co-Owner)
+    const adminBtn = document.getElementById("adminBtn");
+    if (adminBtn) {
+        adminBtn.style.display = (currentUser === OWNER || currentUser === COOWNER) ? "flex" : "none";
+    }
+    
+    // UI aktualisieren
+    updatePlan();
+    updateProfileStats();
+    renderChatList();
+    renderMessages();
+    updateStoreLanguage();
+    
+    // Theme anwenden
+    if (settings.theme === 'light') {
+        setTheme('light');
     }
 }
 
 // ============================================
-// APP START
+// 🎨 UI FUNCTIONS
 // ============================================
-function startApp(){
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("profileName").innerText = currentUser;
-    document.getElementById("profileNameDisplay").innerText = currentUser;
-    
-    const adminBtn = document.getElementById("adminBtn");
-    if(adminBtn) adminBtn.style.display = (currentUser===OWNER||currentUser===COOWNER) ? "block" : "none";
-    
-    document.getElementById("languageSelect").value = currentLanguage;
-    applyLanguage();
-    updateStoreLanguage();
-    updatePlan();
-    updateProfileStats();
-    renderChats();
-    renderMessages();
-    renderEmojiPanel();
-    
-    if(settings.theme === 'light') setTheme('light');
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add("active");
+        closeModal('dropdownMenu');
+    }
 }
 
-// ============================================
-// UI FUNCTIONS
-// ============================================
-function openModal(id){document.getElementById(id).style.display="flex";}
-function closeModal(id){document.getElementById(id).style.display="none";}
-function switchTab(modalId, tabName){
+function closeModal(modalId) {
     const modal = document.getElementById(modalId);
-    if(!modal) return;
-    modal.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    modal.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-    event.target.classList.add("active");
-    const content = document.getElementById(`${modalId.replace('Modal','')}-${tabName}`);
-    if(content) content.classList.add("active");
-    if(modalId==="profileModal" && tabName==="info") updateProfileStats();
+    if (modal) {
+        modal.classList.remove("active");
+    }
 }
-function confirmAction(action, text){
-    document.getElementById("confirmText").innerText = text;
+
+function toggleDropdown() {
+    const dropdown = document.getElementById("dropdownMenu");
+    dropdown.classList.toggle("show");
+}
+
+function switchTab(category, tabName) {
+    // Alle Tabs deaktivieren
+    const modalId = category + "Modal";
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    // Tab Buttons
+    const tabButtons = modal.querySelectorAll(".tab-btn");
+    tabButtons.forEach(btn => btn.classList.remove("active"));
+    
+    // Tab Contents
+    const tabContents = modal.querySelectorAll(".tab-content");
+    tabContents.forEach(content => content.classList.remove("active"));
+    
+    // Aktuellen Tab aktivieren
+    event.target.classList.add("active");
+    const contentId = category + "-" + tabName;
+    const content = document.getElementById(contentId);
+    if (content) {
+        content.classList.add("active");
+    }
+    
+    // Spezifische Updates
+    if (category === "profile" && tabName === "info") {
+        updateProfileStats();
+    }
+}
+
+function confirmAction(action, text) {
+    document.getElementById("confirmText").textContent = text;
     confirmCallback = action;
     openModal("confirmModal");
 }
-function cancelConfirm(){closeModal("confirmModal"); confirmCallback=null;}
-function executeConfirm(){
-    const action = confirmCallback;
+
+function cancelConfirm() {
     closeModal("confirmModal");
-    if(action==="deleteChat" && currentChat) deleteChat(currentChat);
-    else if(action==="renameChat" && currentChat) renameChat(currentChat);
-    else if(action==="deleteAccount") deleteAccount();
-    else if(action==="clearData") clearUserData();
     confirmCallback = null;
 }
-function toggleDropdown(){
-    const d = document.getElementById("dropdown");
-    if(d) d.style.display = (d.style.display==="flex") ? "none" : "flex";
+
+function executeConfirm() {
+    const action = confirmCallback;
+    closeModal("confirmModal");
+    
+    switch(action) {
+        case "deleteChat":
+            if (currentChat) deleteChat(currentChat);
+            break;
+        case "renameChat":
+            if (currentChat) renameChat(currentChat);
+            break;
+        case "deleteAccount":
+            deleteAccount();
+            break;
+        case "clearData":
+            clearUserData();
+            break;
+    }
+    
+    confirmCallback = null;
 }
 
 // ============================================
-// LANGUAGE
+// 🌍 LANGUAGE
 // ============================================
-function changeLanguage(){
-    currentLanguage = document.getElementById("languageSelect").value;
+function changeLanguage() {
+    const langCodes = Object.keys(languages);
+    const currentIndex = langCodes.indexOf(currentLanguage);
+    const nextIndex = (currentIndex + 1) % langCodes.length;
+    
+    currentLanguage = langCodes[nextIndex];
     localStorage.setItem("nano_language", currentLanguage);
-    applyLanguage();
+    
     updateStoreLanguage();
+    applyLanguage();
+    
+    // Dropdown schließen
+    closeModal("dropdownMenu");
 }
-function applyLanguage(){
-    const ph = {de:"Nachricht schreiben...",en:"Write a message...",fr:"Écrire un message...",es:"Escribe un mensaje...",it:"Scrivi un messaggio...",ru:"Напишите сообщение...",tr:"Mesaj yaz...",pl:"Napisz wiadomość...",nl:"Bericht schrijven...",pt:"Escreva uma mensagem..."};
-    const prompt = document.getElementById("prompt");
-    if(prompt) prompt.placeholder = ph[currentLanguage] || "Write a message...";
+
+function applyLanguage() {
+    const lang = languages[currentLanguage];
+    document.getElementById("langDisplay").textContent = lang.code;
+    
+    const placeholders = {
+        de: "Nachricht schreiben...",
+        en: "Write a message...",
+        fr: "Écrire un message...",
+        es: "Escribe un mensaje...",
+        it: "Scrivi un messaggio...",
+        ru: "Напишите сообщение...",
+        tr: "Mesaj yaz...",
+        pl: "Napisz wiadomość...",
+        nl: "Bericht schrijven...",
+        pt: "Escreva uma mensagem..."
+    };
+    
+    const input = document.getElementById("messageInput");
+    if (input) {
+        input.placeholder = placeholders[currentLanguage] || placeholders.en;
+    }
 }
-function updateStoreLanguage(){
-    const t = storeText[currentLanguage] || storeText.en;
-    document.getElementById("storeTitle").innerText = t.title;
-    document.getElementById("storeDesc").innerText = t.desc;
-    document.getElementById("priceFree").innerHTML = `${t.price}<span>${t.month}</span>`;
-    document.getElementById("priceUltra").innerHTML = `${t.price}<span>${t.month}</span>`;
-    document.getElementById("priceNano").innerHTML = `${t.price}<span>${t.month}</span>`;
+
+function updateStoreLanguage() {
+    const text = storeText[currentLanguage] || storeText.en;
+    document.getElementById("storeTitle").textContent = text.title;
+    document.getElementById("storeDesc").textContent = text.desc;
 }
 
 // ============================================
-// PLAN & STORE
+// 💳 PLAN & STORE
 // ============================================
-function updatePlan(){
-    if(!userData) return;
-    const p = userData.plan;
+function updatePlan() {
+    if (!userData) return;
+    
+    const plan = userData.plan || "free";
+    const planData = plans[plan];
     const badge = document.getElementById("planBadge");
+    
+    if (badge) {
+        badge.innerHTML = `
+            <span>${planData.icon}</span>
+            <span>${planData.name}</span>
+        `;
+        badge.className = `badge badge-${plan}`;
+    }
+    
+    // Profile Plan Display
     const planDisplay = document.getElementById("profilePlanDisplay");
-    if(badge) badge.innerText = plans[p]?.name || "Free";
-    if(planDisplay) planDisplay.innerText = plans[p]?.name || "Free";
+    if (planDisplay) {
+        planDisplay.innerHTML = `
+            <span>${planData.icon}</span>
+            <span>${planData.name}</span>
+        `;
+    }
 }
-function updateProfileStats(){
-    if(!userData) return;
-    const chatCount = Object.keys(userData.chats||{}).length;
-    const msgCount = Object.values(userData.chats||{}).reduce((s,c)=>s+(c.messages?.length||0),0);
-    document.getElementById("statChats").innerText = chatCount;
-    document.getElementById("statMsgs").innerText = msgCount;
-    document.getElementById("statLimit").innerText = plans[userData.plan]?.limit || 50;
-    document.getElementById("statUsed").innerText = userData.messages || 0;
-    document.getElementById("currentPlanInfo").innerText = `${plans[userData.plan]?.name} - ${plans[userData.plan]?.limit} Nachrichten/Monat`;
+
+function updateProfileStats() {
+    if (!userData) return;
+    
+    const chats = Object.keys(userData.chats || {}).length;
+    const messages = Object.values(userData.chats || {}).reduce((sum, chat) => {
+        return sum + (chat.messages || []).length;
+    }, 0);
+    
+    const plan = userData.plan || "free";
+    const limit = plans[plan]?.limit || 50;
+    const used = userData.messages || 0;
+    
+    document.getElementById("statChats").textContent = chats;
+    document.getElementById("statMsgs").textContent = messages;
+    document.getElementById("statLimit").textContent = limit;
+    document.getElementById("statUsed").textContent = used;
+    
+    document.getElementById("currentPlanInfo").textContent = 
+        `${plans[plan]?.name} - ${limit} Nachrichten/Monat`;
 }
-async function selectPlan(plan){
-    if(!currentUser) return;
+
+async function selectPlan(plan) {
+    if (!currentUser) return;
+    
+    const confirmed = confirm(`Möchtest du wirklich zu ${plans[plan]?.name} wechseln?`);
+    if (!confirmed) return;
+    
     userData.plan = plan;
     userData.messages = 0;
-    try{
-        await saveUserData(currentUser, {plan:plan, messages:0});
-        alert(`✅ Plan zu ${plans[plan].name} geändert!`);
+    
+    const success = await saveUserData(currentUser, {
+        plan: plan,
+        messages: 0
+    });
+    
+    if (success) {
+        alert(`✅ Plan zu ${plans[plan]?.name} geändert!`);
         closeModal("storeModal");
         updatePlan();
         updateProfileStats();
-    } catch(e){
+    } else {
         alert("❌ Fehler beim Plan-Wechsel");
     }
 }
 
 // ============================================
-// CHAT
+// 💬 CHAT FUNCTIONS
 // ============================================
-function createChat(){
-    if(!userData) return;
-    const id = Date.now();
-    userData.chats[id] = {name:"Neuer Chat", messages:[]};
+function createChat() {
+    if (!userData) return;
+    
+    const id = Date.now().toString();
+    userData.chats[id] = {
+        name: "Neuer Chat",
+        messages: [],
+        createdAt: new Date().toISOString()
+    };
+    
     currentChat = id;
     saveToFirebase();
-    renderChats();
+    renderChatList();
     renderMessages();
 }
-function selectChat(id){currentChat = id; renderChats(); renderMessages();}
-function renameChat(id){
-    const name = prompt("Neuer Chat-Name:", userData.chats[id].name);
-    if(name && name.trim()){
-        userData.chats[id].name = name.trim();
+
+function selectChat(chatId) {
+    currentChat = chatId;
+    renderChatList();
+    renderMessages();
+}
+
+function renameChat(chatId) {
+    if (!userData.chats[chatId]) return;
+    
+    const currentName = userData.chats[chatId].name;
+    const newName = prompt("Neuer Chat-Name:", currentName);
+    
+    if (newName && newName.trim()) {
+        userData.chats[chatId].name = newName.trim();
         saveToFirebase();
-        renderChats();
+        renderChatList();
     }
 }
-function deleteChat(id){
-    delete userData.chats[id];
-    if(currentChat === id) currentChat = null;
+
+function deleteChat(chatId) {
+    if (!userData.chats[chatId]) return;
+    
+    delete userData.chats[chatId];
+    
+    if (currentChat === chatId) {
+        currentChat = null;
+    }
+    
     saveToFirebase();
-    renderChats();
+    renderChatList();
     renderMessages();
 }
-function renderChats(){
-    const list = document.getElementById("chatList");
-    if(!list || !userData) return;
-    list.innerHTML = "";
-    Object.entries(userData.chats).forEach(([id,chat])=>{
-        const div = document.createElement("div");
-        div.className = "chat-item" + (id===currentChat ? " active" : "");
-        const title = document.createElement("span");
-        title.innerText = chat.name;
-        title.style.flex = "1";
-        title.style.cursor = "pointer";
-        title.onclick = () => selectChat(id);
-        const actions = document.createElement("div");
-        actions.className = "chat-actions";
-        const ren = document.createElement("button");
-        ren.innerHTML = "✏";
-        ren.onclick = e => {e.stopPropagation(); renameChat(id);};
-        const del = document.createElement("button");
-        del.innerHTML = "🗑";
-        del.onclick = e => {e.stopPropagation(); confirmAction('deleteChat','Chat "'+chat.name+'" löschen?');};
-        actions.append(ren,del);
-        div.append(title,actions);
-        list.appendChild(div);
+
+function renderChatList() {
+    const listContainer = document.getElementById("chatList");
+    if (!listContainer || !userData) return;
+    
+    listContainer.innerHTML = "";
+    
+    const chats = userData.chats || {};
+    const chatIds = Object.keys(chats).sort((a, b) => {
+        return new Date(chats[b].createdAt || 0) - new Date(chats[a].createdAt || 0);
+    });
+    
+    if (chatIds.length === 0) {
+        listContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+                <div>Noch keine Chats</div>
+            </div>
+        `;
+        return;
+    }
+    
+    chatIds.forEach(chatId => {
+        const chat = chats[chatId];
+        const messageCount = chat.messages?.length || 0;
+        
+        const chatItem = document.createElement("div");
+        chatItem.className = `chat-item ${chatId === currentChat ? "active" : ""}`;
+        chatItem.onclick = () => selectChat(chatId);
+        
+        chatItem.innerHTML = `
+            <span class="chat-item-icon">💬</span>
+            <span class="chat-item-title">${chat.name}</span>
+            <div class="chat-item-actions">
+                <button class="chat-action-btn" onclick="event.stopPropagation(); renameChat('${chatId}')" title="Umbenennen">
+                    ✏️
+                </button>
+                <button class="chat-action-btn" onclick="event.stopPropagation(); confirmAction('deleteChat', 'Chat \\"${chat.name}\\" löschen? 🗑️')" title="Löschen">
+                    🗑️
+                </button>
+            </div>
+        `;
+        
+        listContainer.appendChild(chatItem);
     });
 }
-function renderMessages(){
-    const chatDiv = document.getElementById("chat");
-    if(!chatDiv || !currentChat || !userData?.chats[currentChat]) return;
-    chatDiv.innerHTML = "";
-    userData.chats[currentChat].messages.forEach((m,index)=>{
-        const div = document.createElement("div");
-        div.className = "message " + (m.role==="ai"?"ai":"user");
-        div.innerText = m.text;
-        if(m.role==="user"){
-            const edit = document.createElement("button");
-            edit.className = "edit-btn";
-            edit.innerHTML = "✏";
-            edit.onclick = () => {
-                const nt = prompt("Bearbeiten:",m.text);
-                if(nt!==null && nt.trim()){
-                    userData.chats[currentChat].messages[index].text = nt.trim();
-                    saveToFirebase();
-                    renderMessages();
-                }
-            };
-            div.appendChild(edit);
-        }
-        chatDiv.appendChild(div);
+
+function renderMessages() {
+    const chatArea = document.getElementById("chatArea");
+    if (!chatArea) return;
+    
+    chatArea.innerHTML = "";
+    
+    if (!currentChat || !userData.chats[currentChat]) {
+        chatArea.innerHTML = `
+            <div class="welcome-message">
+                <div class="welcome-icon">💬</div>
+                <h2>Willkommen bei Nano AI!</h2>
+                <p>Starte einen neuen Chat oder wähle einen bestehenden aus.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const messages = userData.chats[currentChat].messages || [];
+    
+    if (messages.length === 0) {
+        chatArea.innerHTML = `
+            <div class="welcome-message">
+                <div class="welcome-icon">👋</div>
+                <h2>Neuer Chat gestartet!</h2>
+                <p>Schreibe deine erste Nachricht.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    messages.forEach((message, index) => {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message message-${message.role}`;
+        
+        const time = message.timestamp ? 
+            new Date(message.timestamp).toLocaleTimeString('de-DE', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            }) : '';
+        
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <span>${message.role === 'user' ? '👤 Du' : '🤖 Nano AI'}</span>
+                <span>${time}</span>
+            </div>
+            <div class="message-text">${message.text}</div>
+            ${message.role === 'user' ? `
+                <div class="message-actions">
+                    <button class="message-action-btn" onclick="editMessage(${index})" title="Bearbeiten">
+                        ✏️
+                    </button>
+                </div>
+            ` : ''}
+        `;
+        
+        chatArea.appendChild(messageDiv);
     });
-    chatDiv.scrollTop = chatDiv.scrollHeight;
+    
+    // Scroll to bottom
+    chatArea.scrollTop = chatArea.scrollHeight;
 }
-function typeText(container,text,callback){
-    if(!settings.typingEffect){container.innerText=text;if(callback)callback();return;}
-    container.innerText = "";
-    let i = 0;
-    const int = setInterval(()=>{
-        container.innerText += text.charAt(i);
-        i++;
-        container.scrollIntoView({behavior:"smooth"});
-        if(i>=text.length){clearInterval(int);if(callback)callback();}
-    },20);
+
+function editMessage(index) {
+    if (!currentChat || !userData.chats[currentChat]) return;
+    
+    const message = userData.chats[currentChat].messages[index];
+    const newText = prompt("Nachricht bearbeiten:", message.text);
+    
+    if (newText !== null && newText.trim()) {
+        userData.chats[currentChat].messages[index].text = newText.trim();
+        saveToFirebase();
+        renderMessages();
+    }
 }
-async function sendPrompt(){
-    const input = document.getElementById("prompt");
-    const text = input?.value.trim() || "";
-    if(!text || !currentChat || !userData) return;
-    const plan = userData.plan;
-    if(userData.messages >= plans[plan].limit) return alert("⚠️ Limit erreicht!");
-    userData.chats[currentChat].messages.push({role:"user",text});
+
+async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+    
+    if (!text || !currentChat || !userData) return;
+    
+    // Limit prüfen
+    const plan = userData.plan || "free";
+    const limit = plans[plan]?.limit || 50;
+    
+    if (userData.messages >= limit) {
+        alert(`⚠️ Limit erreicht! Dein Plan erlaubt ${limit} Nachrichten pro Monat. Wechsle im Store zu einem höheren Plan. 🛒`);
+        return;
+    }
+    
+    // User Nachricht speichern
+    userData.chats[currentChat].messages.push({
+        role: "user",
+        text: text,
+        timestamp: new Date().toISOString()
+    });
+    
     userData.messages++;
     renderMessages();
-    if(input) input.value = "";
-    const chatDiv = document.getElementById("chat");
-    const botDiv = document.createElement("div");
-    botDiv.className = "message ai";
-    const dots = document.createElement("span");
-    dots.className = "dots";
-    for(let d=0;d<3;d++){const dot=document.createElement("span");dot.className="dot";dots.appendChild(dot);}
-    botDiv.appendChild(dots);
-    chatDiv.appendChild(botDiv);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-    try{
-        const res = await fetch(API_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({prompt:text,language:currentLanguage})});
-        const data = await res.json();
-        if(dots.parentNode) botDiv.removeChild(dots);
-        typeText(botDiv, data.text, ()=>{
-            userData.chats[currentChat].messages.push({role:"ai",text:data.text});
-            saveToFirebase();
+    input.value = "";
+    input.style.height = "auto";
+    
+    // Typing Indicator anzeigen
+    showTypingIndicator();
+    
+    // AI API Call
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prompt: text,
+                language: currentLanguage
+            })
         });
-    } catch(e){
-        botDiv.innerText = "❌ Server-Fehler";
+        
+        const data = await response.json();
+        
+        // Typing Indicator entfernen
+        removeTypingIndicator();
+        
+        // AI Antwort speichern
+        userData.chats[currentChat].messages.push({
+            role: "ai",
+            text: data.text || "Entschuldigung, ich konnte deine Frage nicht verstehen.",
+            timestamp: new Date().toISOString()
+        });
+        
+        await saveToFirebase();
+        renderMessages();
+        
+    } catch (error) {
+        console.error("❌ API Error:", error);
+        removeTypingIndicator();
+        
+        // Fehlermeldung
+        userData.chats[currentChat].messages.push({
+            role: "ai",
+            text: "❌ Entschuldigung, es gab einen Verbindungsfehler. Bitte versuche es erneut.",
+            timestamp: new Date().toISOString()
+        });
+        
+        await saveToFirebase();
+        renderMessages();
     }
 }
-async function saveToFirebase(){
-    if(!currentUser) return;
-    await saveUserData(currentUser, userData);
+
+function showTypingIndicator() {
+    const chatArea = document.getElementById("chatArea");
+    const indicator = document.createElement("div");
+    indicator.id = "typingIndicator";
+    indicator.className = "typing-indicator";
+    indicator.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    `;
+    chatArea.appendChild(indicator);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const indicator = document.getElementById("typingIndicator");
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+async function saveToFirebase() {
+    if (!currentUser || !userData) return;
+    
+    try {
+        await saveUserData(currentUser, userData);
+        updateProfileStats();
+    } catch (e) {
+        console.error("❌ Save Error:", e);
+    }
 }
 
 // ============================================
-// EMOJI
+// 😊 EMOJI PICKER
 // ============================================
-function renderEmojiPanel(){
-    if(!settings.showEmoji) return;
-    const panel = document.getElementById("emojiPanel");
-    if(!panel) return;
-    panel.innerHTML = "";
-    emojis.forEach(e=>{
+function renderEmojiPicker() {
+    const picker = document.getElementById("emojiPicker");
+    if (!picker) return;
+    
+    picker.innerHTML = "";
+    
+    emojis.forEach(emoji => {
         const btn = document.createElement("button");
-        btn.innerText = e;
-        btn.onclick = ()=>{const inp=document.getElementById("prompt");if(inp){inp.value+=e;inp.focus();}};
-        panel.appendChild(btn);
+        btn.className = "emoji-btn";
+        btn.textContent = emoji;
+        btn.onclick = () => insertEmoji(emoji);
+        btn.title = `Emoji: ${emoji}`;
+        picker.appendChild(btn);
     });
 }
 
-// ============================================
-// ADMIN
-// ============================================
-async function searchUsers(){
-    try{
-        const allUsers = await getAllUsers();
-        const q = document.getElementById("adminUserSearch").value.toLowerCase();
-        const res = document.getElementById("adminUserResults");
-        res.innerHTML = "";
-        Object.keys(allUsers).filter(u=>u.toLowerCase().includes(q)).slice(0,10).forEach(u=>{
-            const btn = document.createElement("button");
-            btn.innerText = u + (allUsers[u].banned ? " 🚫" : "");
-            btn.style.width = "100%";
-            btn.style.margin = "2px 0";
-            btn.style.background = allUsers[u].banned ? "#ef4444" : "#1f2937";
-            btn.style.textAlign = "left";
-            btn.onclick = ()=>{
-                document.getElementById("selectedUser").value = u;
-                document.getElementById("selectedUserInfo").innerText = `Ausgewählt: ${u} | Plan: ${allUsers[u].plan}`;
-            };
-            res.appendChild(btn);
-        });
-    } catch(e){
-        console.error("Search error:", e);
-    }
+function insertEmoji(emoji) {
+    const input = document.getElementById("messageInput");
+    if (!input) return;
+    
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const text = input.value;
+    
+    input.value = text.substring(0, start) + emoji + text.substring(end);
+    input.focus();
+    input.selectionStart = input.selectionEnd = start + emoji.length;
 }
-async function banUser(){
-    const u = document.getElementById("selectedUser")?.value;
-    if(!u) return alert("User auswählen");
-    if(u===OWNER||u===COOWNER) return alert("Owner nicht bannbar!");
-    await saveUserData(u, {banned:true});
-    alert(`${u} gebannt`);
-    searchUsers();
-}
-async function unbanUser(){
-    const u = document.getElementById("selectedUser")?.value;
-    if(!u) return alert("User auswählen");
-    await saveUserData(u, {banned:false});
-    alert(`${u} entbannt`);
-    searchUsers();
-}
-async function resetUserLimit(){
-    const u = document.getElementById("selectedUser")?.value;
-    if(!u) return alert("User auswählen");
-    await saveUserData(u, {messages:0});
-    alert(`Limit für ${u} zurückgesetzt`);
-}
-async function toggleMaintenance(){
-    const chk = document.getElementById("maintMode");
-    maintenanceMode = chk.checked;
-}
-async function saveAdminSettings(){
-    try{
-        await db.collection("settings").doc("maintenance").set({enabled: maintenanceMode});
-        alert("✅ Einstellungen gespeichert");
-    } catch(e){
-        alert("❌ Nur für Admins");
+
+function handleInputKeydown(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
     }
 }
 
-// ============================================
-// SETTINGS
-// ============================================
-function setTheme(t){
-    settings.theme = t;
-    if(t==='light'){
-        document.body.style.background = "#f1f5f9";
-        document.body.style.color = "#1e293b";
-    } else {
-        document.body.style.background = "#0f172a";
-        document.body.style.color = "white";
-    }
+function autoResize(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
 }
-function changePassword(){
-    const oldP = document.getElementById("oldPass")?.value || "";
-    const newP = document.getElementById("newPass")?.value || "";
-    const confP = document.getElementById("confirmPass")?.value || "";
-    if(!oldP || !newP || !confP) return alert("Alle Felder ausfüllen");
-    if(userData.password !== oldP) return alert("Altes Passwort falsch");
-    if(newP !== confP) return alert("Passwörter stimmen nicht überein");
-    if(newP.length < 6) return alert("Passwort muss mind. 6 Zeichen haben");
-    userData.password = newP;
+
+// ============================================
+// 🔒 SECURITY
+// ============================================
+function changePassword() {
+    const oldPass = document.getElementById("oldPass").value;
+    const newPass = document.getElementById("newPass").value;
+    const confirmPass = document.getElementById("confirmPass").value;
+    
+    if (!oldPass || !newPass || !confirmPass) {
+        alert("❌ Bitte alle Felder ausfüllen");
+        return;
+    }
+    
+    if (userData.password !== oldPass) {
+        alert("❌ Altes Passwort ist falsch");
+        return;
+    }
+    
+    if (newPass !== confirmPass) {
+        alert("❌ Passwörter stimmen nicht überein");
+        return;
+    }
+    
+    if (newPass.length < 6) {
+        alert("❌ Passwort muss mindestens 6 Zeichen lang sein");
+        return;
+    }
+    
+    userData.password = newPass;
     saveToFirebase();
-    alert("✅ Passwort geändert!");
+    
+    // Felder leeren
     document.getElementById("oldPass").value = "";
     document.getElementById("newPass").value = "";
     document.getElementById("confirmPass").value = "";
+    
+    alert("✅ Passwort erfolgreich geändert!");
+    closeModal("profileModal");
 }
-function deleteAccount(){
-    if(!confirm("WIRKLICH löschen?")) return;
-    alert("Account gelöscht (Demo)");
+
+function deleteAccount() {
+    const confirmed = confirm("⚠️ WIRKLICH löschen? Alle Daten gehen für immer verloren! Dies kann nicht rückgängig gemacht werden!");
+    
+    if (!confirmed) return;
+    
+    // Demo - In Produktion würde man den User aus Firebase löschen
+    alert("🗑️ Account gelöscht (Demo)");
     handleLogout();
 }
-function clearUserData(){
-    if(!confirm("Alle Daten löschen?")) return;
+
+function clearUserData() {
+    const confirmed = confirm("⚠️ Alle Chats und Nachrichten löschen? Dies kann nicht rückgängig gemacht werden!");
+    
+    if (!confirmed) return;
+    
     userData.chats = {};
     userData.messages = 0;
     currentChat = null;
+    
     saveToFirebase();
-    renderChats();
+    renderChatList();
     renderMessages();
-    alert("✅ Daten gelöscht!");
+    
+    alert("✅ Alle Daten gelöscht!");
     closeModal("profileModal");
 }
-function exportData(){
-    let data = `Nano AI Export - ${currentUser}\n${"=".repeat(40)}\n\n`;
-    Object.entries(userData.chats||{}).forEach(([id,c])=>{
-        data += `Chat: ${c.name}\n${"-".repeat(30)}\n`;
-        (c.messages||[]).forEach(m=>{data+=`[${m.role.toUpperCase()}] ${m.text}\n`;});
-        data += "\n";
+
+function exportData() {
+    if (!userData) return;
+    
+    let exportText = `╔════════════════════════════════════════════════════════╗\n`;
+    exportText += `║         Nano AI Chat - Daten Export        ║\n`;
+    exportText += `║  User: ${currentUser.padEnd(36)}║\n`;
+    exportText += `║  Datum: ${new Date().toLocaleString('de-DE').padEnd(31)}║\n`;
+    exportText += `╚════════════════════════════════════════════════════════╝\n\n`;
+    
+    const chats = userData.chats || {};
+    
+    Object.entries(chats).forEach(([chatId, chat], index) => {
+        exportText += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        exportText += `📁 Chat ${index + 1}: ${chat.name}\n`;
+        exportText += `📅 Erstellt: ${chat.createdAt || 'Unbekannt'}\n`;
+        exportText += `💬 Nachrichten: ${chat.messages?.length || 0}\n`;
+        exportText += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        
+        const messages = chat.messages || [];
+        messages.forEach((msg, msgIndex) => {
+            const role = msg.role === 'user' ? '👤 DU' : '🤖 AI';
+            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString('de-DE') : '';
+            
+            exportText += `[${time}] ${role}:\n`;
+            exportText += `${msg.text}\n\n`;
+        });
+        
+        exportText += `\n`;
     });
-    const blob = new Blob([data],{type:"text/plain"});
+    
+    // Download
+    const blob = new Blob([exportText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "nano_export.txt";
+    a.href = url;
+    a.download = `nano-ai-export-${currentUser}-${Date.now()}.txt`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    alert("✅ Daten erfolgreich exportiert! 📥");
+    closeModal("profileModal");
 }
 
 // ============================================
-// INIT ON LOAD
+// 🛡️ ADMIN FUNCTIONS
 // ============================================
-window.addEventListener("DOMContentLoaded", init);
-document.addEventListener("click",(e)=>{
-    const dd = document.getElementById("dropdown");
-    const pr = document.querySelector(".profile");
-    if(dd && pr && !dd.contains(e.target) && !pr.contains(e.target)) dd.style.display = "none";
-    document.querySelectorAll(".modal-overlay").forEach(m=>{if(e.target===m)m.style.display="none";});
+async function searchUsers() {
+    const searchInput = document.getElementById("adminUserSearch");
+    const resultsDiv = document.getElementById("adminUserResults");
+    
+    if (!searchInput || !resultsDiv) return;
+    
+    const query = searchInput.value.toLowerCase().trim();
+    
+    if (!query) {
+        resultsDiv.innerHTML = "";
+        return;
+    }
+    
+    const allUsers = await getAllUsers();
+    const filteredUsers = Object.entries(allUsers)
+        .filter(([username]) => username.toLowerCase().includes(query))
+        .slice(0, 10);
+    
+    if (filteredUsers.length === 0) {
+        resultsDiv.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                <div style="font-size: 32px; margin-bottom: 8px;">🔍</div>
+                <div>Keine User gefunden</div>
+            </div>
+        `;
+        return;
+    }
+    
+    resultsDiv.innerHTML = "";
+    
+    filteredUsers.forEach(([username, data]) => {
+        const userDiv = document.createElement("div");
+        userDiv.className = "card";
+        userDiv.style.cursor = "pointer";
+        userDiv.style.marginBottom = "8px";
+        userDiv.onclick = () => selectAdminUser(username, data);
+        
+        const planIcon = plans[data.plan]?.icon || "🆓";
+        const bannedStatus = data.banned ? "🚫 Gebannt" : "✅ Aktiv";
+        
+        userDiv.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 24px;">👤</span>
+                    <div>
+                        <div style="font-weight: 600;">${username}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">
+                            ${planIcon} ${plans[data.plan]?.name || "Free"} • 
+                            ${data.messages || 0} Nachrichten
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: ${data.banned ? 'var(--danger)' : 'var(--success)'};">
+                    ${bannedStatus}
+                </div>
+            </div>
+        `;
+        
+        resultsDiv.appendChild(userDiv);
+    });
+}
+
+function selectAdminUser(username, data) {
+    document.getElementById("selectedUser").value = username;
+    document.getElementById("selectedUserInfo").innerHTML = `
+        Ausgewählt: <strong>${username}</strong><br>
+        Plan: ${plans[data.plan]?.icon} ${plans[data.plan]?.name} • 
+        Nachrichten: ${data.messages || 0} • 
+        Status: ${data.banned ? '🚫 Gebannt' : '✅ Aktiv'}
+    `;
+}
+
+async function banUser() {
+    const username = document.getElementById("selectedUser").value;
+    
+    if (!username) {
+        alert("❌ Bitte einen User auswählen");
+        return;
+    }
+    
+    if (username === OWNER || username === COOWNER) {
+        alert("❌ Owner können nicht gebannt werden!");
+        return;
+    }
+    
+    const confirmed = confirm(`Möchtest du ${username} wirklich bannen? 🚫`);
+    if (!confirmed) return;
+    
+    await saveUserData(username, { banned: true });
+    alert(`✅ ${username} wurde gebannt`);
+    searchUsers();
+}
+
+async function unbanUser() {
+    const username = document.getElementById("selectedUser").value;
+    
+    if (!username) {
+        alert("❌ Bitte einen User auswählen");
+        return;
+    }
+    
+    await saveUserData(username, { banned: false });
+    alert(`✅ ${username} wurde entbannt`);
+    searchUsers();
+}
+
+async function resetUserLimit() {
+    const username = document.getElementById("selectedUser").value;
+    
+    if (!username) {
+        alert("❌ Bitte einen User auswählen");
+        return;
+    }
+    
+    await saveUserData(username, { messages: 0 });
+    alert(`✅ Nachrichten-Limit für ${username} zurückgesetzt`);
+    searchUsers();
+}
+
+async function toggleMaintenance() {
+    const checkbox = document.getElementById("maintMode");
+    maintenanceMode = checkbox.checked;
+    
+    const status = document.getElementById("maintStatus");
+    if (maintenanceMode) {
+        status.innerHTML = 'Status: <strong style="color: var(--danger);">🔴 Aktiviert</strong>';
+    } else {
+        status.innerHTML = 'Status: <strong style="color: var(--success);">🟢 Deaktiviert</strong>';
+    }
+}
+
+async function saveAdminSettings() {
+    try {
+        await db.collection("settings").doc("maintenance").set({
+            enabled: maintenanceMode
+        });
+        
+        alert("✅ Einstellungen gespeichert");
+        closeModal("adminModal");
+    } catch (e) {
+        console.error("❌ Save Settings Error:", e);
+        alert("❌ Fehler beim Speichern");
+    }
+}
+
+// ============================================
+// 🎨 THEME
+// ============================================
+function setTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+    }
+    
+    settings.theme = theme;
+    localStorage.setItem('nano_theme', theme);
+}
+
+// ============================================
+// ️ GLOBAL EVENT LISTENERS
+// ============================================
+document.addEventListener('click', (e) => {
+    // Dropdown schließen wenn woanders geklickt
+    const dropdown = document.getElementById("dropdownMenu");
+    const profileBtn = document.querySelector(".profile-btn");
+    
+    if (dropdown && profileBtn && 
+        !dropdown.contains(e.target) && 
+        !profileBtn.contains(e.target)) {
+        dropdown.classList.remove("show");
+    }
+    
+    // Modals schließen beim Klick außerhalb
+    document.querySelectorAll(".modal-overlay").forEach(modal => {
+        if (e.target === modal) {
+            modal.classList.remove("active");
+        }
+    });
 });
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    // ESC schließt alle Modals
+    if (e.key === 'Escape') {
+        document.querySelectorAll(".modal-overlay").forEach(modal => {
+            modal.classList.remove("active");
+        });
+    }
+    
+    // CTRL/CMD + K für neuen Chat
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        createChat();
+    }
+});
+
+console.log("✅ Nano AI Chat - Professional Edition loaded! 🚀");
+console.log("📊 Total Lines: ~2500+ (including CSS, HTML, JS)");
+console.log("🎨 Features: Login, Register, Chat, Store, Admin, Profile, Settings");
+console.log("🔥 Firebase Integration: Active");
+console.log("🌍 Multi-Language: 10 Languages");
+console.log("😊 Emojis: Integrated everywhere");
 </script>
 </body>
 </html>
