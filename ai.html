@@ -3,180 +3,1328 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nano AI Chat</title>
+<title>Nano AI</title>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 
-/* SIDEBAR */
-.sidebar{width:280px;background:#111827;display:flex;flex-direction:column;padding:20px;}
-.logo{display:flex;align-items:center;margin-bottom:20px;}
-.logo img{height:50px;width:50px;object-fit:contain;border-radius:12px;margin-right:10px;}
-.logo span{font-size:22px;font-weight:bold;}
-.new-chat{padding:12px;background:#2563eb;border:none;color:white;border-radius:14px;cursor:pointer;margin-bottom:15px;font-weight:bold;transition:0.2s;}
-.new-chat:hover{background:#1e40af;}
-.chat-list{flex:1;overflow-y:auto;}
-.chat-item{padding:10px;background:#1f2937;border-radius:12px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:0.2s;}
-.chat-item:hover{background:#374151;}
-.chat-item.active{background:#2563eb;}
-.chat-actions button{background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;margin-left:5px;}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
 
-/* MAIN */
-.main{flex:1;display:flex;flex-direction:column;}
+body{
+display:flex;
+height:100vh;
+background:#0f172a;
+color:white;
+overflow:hidden;
+}
 
-/* TOP BAR */
-.topbar{height:60px;background:#111827;display:flex;justify-content:flex-end;align-items:center;padding:0 20px;position:relative;}
-.profile{cursor:pointer;background:#2563eb;padding:8px 14px;border-radius:20px;user-select:none;}
-.dropdown{position:absolute;top:60px;right:20px;background:#1f2937;padding:10px;border-radius:12px;display:none;width:220px;flex-direction:column;}
-.dropdown button,.dropdown select{width:100%;margin:5px 0;padding:8px;background:#374151;color:white;border:none;border-radius:12px;cursor:pointer;}
-.dropdown select{appearance:none;}
+/* sidebar */
 
-/* CHAT */
-.chat{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
-.message{padding:12px;border-radius:14px;word-wrap:break-word;max-width:70%;line-height:1.5;position:relative;}
-.user{text-align:right;color:#60a5fa;background:rgba(96,165,250,0.15);align-self:flex-end;}
-.ai{text-align:left;color:#22c55e;background:rgba(34,197,94,0.15);align-self:flex-start;}
-.ai .dots{display:inline-block;margin-left:5px;}
-.dot{height:6px;width:6px;background:white;border-radius:50%;display:inline-block;margin:0 2px;animation:blink 1s infinite;}
-@keyframes blink{0%,80%,100%{opacity:0.2;}40%{opacity:1;}}
+.sidebar{
+width:280px;
+background:#111827;
+display:flex;
+flex-direction:column;
+padding:20px;
+border-right:1px solid #1f2937;
+}
 
-/* INPUT */
-.input-area{display:flex;padding:15px;background:#111827;}
-input{flex:1;padding:12px;border-radius:14px;border:none;outline:none;background:#1f2937;color:white;}
-.send-btn{margin-left:10px;padding:10px 22px;background:#2563eb;border:none;color:white;border-radius:14px;cursor:pointer;transition:0.2s;font-weight:bold;}
-.send-btn:hover{background:#1e40af;}
+.logo{
+display:flex;
+align-items:center;
+margin-bottom:20px;
+}
 
-/* LOGIN SCREEN */
-#loginScreen{position:absolute;inset:0;background:#0f172a;display:flex;justify-content:center;align-items:center;z-index:10;}
-.login-box{background:#111827;padding:40px;border-radius:12px;width:320px;display:flex;flex-direction:column;align-items:center;}
-.login-box input{width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:12px;background:#1f2937;color:white;}
-.login-box button{width:100%;padding:10px;border:none;border-radius:12px;background:#2563eb;color:white;cursor:pointer;margin-bottom:5px;font-weight:bold;transition:0.2s;}
-.login-box button:hover{background:#1e40af;}
-.edit-btn{position:absolute;top:0;right:0;background:#2563eb;border:none;color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:14px;text-align:center;line-height:22px;}
-.edit-btn:hover{background:#1e40af;}
+.logo img{
+height:50px;
+width:50px;
+border-radius:12px;
+margin-right:10px;
+}
+
+.logo span{
+font-size:22px;
+font-weight:bold;
+}
+
+.new-chat{
+padding:12px;
+background:#2563eb;
+border:none;
+border-radius:14px;
+color:white;
+cursor:pointer;
+margin-bottom:15px;
+font-weight:bold;
+}
+
+.new-chat:hover{
+background:#1e40af;
+}
+
+.chat-list{
+flex:1;
+overflow-y:auto;
+}
+
+.chat-item{
+padding:10px;
+background:#1f2937;
+border-radius:12px;
+margin-bottom:10px;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.chat-item:hover{
+background:#374151;
+}
+
+.chat-item.active{
+background:#2563eb;
+}
+
+/* main */
+
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+/* topbar */
+
+.topbar{
+height:60px;
+background:#111827;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 20px;
+border-bottom:1px solid #1f2937;
+}
+
+.profile{
+background:#2563eb;
+padding:8px 14px;
+border-radius:20px;
+cursor:pointer;
+}
+
+.plan-badge{
+background:#1f2937;
+padding:6px 12px;
+border-radius:14px;
+font-size:13px;
+}
+
+/* chat */
+
+.chat{
+flex:1;
+padding:20px;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.message{
+padding:12px;
+border-radius:14px;
+max-width:70%;
+line-height:1.5;
+}
+
+.user{
+align-self:flex-end;
+background:rgba(96,165,250,0.2);
+color:#60a5fa;
+}
+
+.ai{
+align-self:flex-start;
+background:rgba(34,197,94,0.2);
+color:#22c55e;
+}
+
+/* input */
+
+.input-area{
+display:flex;
+padding:15px;
+background:#111827;
+border-top:1px solid #1f2937;
+}
+
+.input-area input{
+flex:1;
+padding:12px;
+border:none;
+border-radius:14px;
+background:#1f2937;
+color:white;
+outline:none;
+}
+
+.send-btn{
+margin-left:10px;
+padding:10px 22px;
+background:#2563eb;
+border:none;
+border-radius:14px;
+color:white;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* login */
+
+#loginScreen{
+position:absolute;
+inset:0;
+background:#0f172a;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.login-box{
+background:#111827;
+padding:40px;
+border-radius:12px;
+width:320px;
+display:flex;
+flex-direction:column;
+}
+
+.login-box input{
+padding:10px;
+margin-bottom:10px;
+border:none;
+border-radius:12px;
+background:#1f2937;
+color:white;
+}
+
+.login-box button{
+padding:10px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+cursor:pointer;
+margin-bottom:6px;
+}
+
 </style>
 </head>
+
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen">
-    <div class="login-box">
-        <h2>Nano AI Login</h2>
-        <input id="username" placeholder="Username">
-        <input id="password" type="password" placeholder="Passwort">
-        <button onclick="login()">Login</button>
-        <button onclick="register()">Registrieren</button>
-    </div>
+
+<div class="login-box">
+
+<h2>Nano AI Login</h2>
+
+<input id="username" placeholder="Username">
+
+<input id="password" type="password" placeholder="Passwort">
+
+<button onclick="login()">Login</button>
+
+<button onclick="register()">Registrieren</button>
+
 </div>
 
-<!-- SIDEBAR -->
+</div>
+
+
 <div class="sidebar">
-    <div class="logo">
-        <img src="NanoAI.png" alt="Nano AI Logo">
-        <span>Nano AI</span>
-    </div>
-    <button class="new-chat" onclick="createChat()">+ Neuer Chat</button>
-    <div class="chat-list" id="chatList"></div>
+
+<div class="logo">
+
+<img src="NanoAI.png">
+
+<span>Nano AI</span>
+
 </div>
 
-<!-- MAIN AREA -->
+<button class="new-chat" onclick="createChat()">+ Neuer Chat</button>
+
+<div class="chat-list" id="chatList"></div>
+
+</div>
+
+
 <div class="main">
-    <div class="topbar">
-        <div class="profile" onclick="toggleDropdown()" id="profileName">Profil</div>
-        <div class="dropdown" id="dropdown">
-            <button onclick="alert('Profilseite kommt bald')">Profil</button>
-            <select id="languageSelect" onchange="changeLanguage()">
-                <option value="de">Deutsch</option>
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="es">Español</option>
-                <option value="it">Italiano</option>
-                <option value="ru">Русский</option>
-                <option value="tr">Türkçe</option>
-                <option value="pl">Polski</option>
-                <option value="nl">Nederlands</option>
-                <option value="pt">Português</option>
-            </select>
-            <button onclick="logout()">Logout</button>
-        </div>
-    </div>
-    <div class="chat" id="chat"></div>
-    <div class="input-area">
-        <input type="text" id="prompt" placeholder="Nachricht schreiben..." onkeydown="if(event.key==='Enter') sendPrompt()">
-        <button class="send-btn" onclick="sendPrompt()">Senden</button>
-    </div>
+
+<div class="topbar">
+
+<div id="planBadge" class="plan-badge">Free</div>
+
+<div class="profile" id="profileName">Profil</div>
+
+</div>
+
+<div class="chat" id="chat"></div>
+
+<div class="input-area">
+
+<input id="prompt" placeholder="Nachricht schreiben..." onkeydown="if(event.key==='Enter')sendPrompt()">
+
+<button class="send-btn" onclick="sendPrompt()">Senden</button>
+
+</div>
+
 </div>
 
 <script>
+
+const OWNER="Lobi";
+const COOWNER="Jovi";
+
 const API_URL="https://unexempt-predenial-aryanna.ngrok-free.dev";
+
 let users=JSON.parse(localStorage.getItem("nano_users"))||{};
+
 let currentUser=localStorage.getItem("nano_currentUser");
+
 let currentChat=null;
-let currentLanguage=localStorage.getItem("nano_language")||"de";
 
-// Sprache
-function changeLanguage(){currentLanguage=document.getElementById("languageSelect").value;localStorage.setItem("nano_language",currentLanguage);}
+const plans={
+free:{name:"Free",limit:50},
+ultra:{name:"Ultra",limit:500},
+nano:{name:"Nano",limit:9999}
+};
 
-// Dropdown
-function toggleDropdown(){const d=document.getElementById("dropdown");d.style.display=d.style.display==="flex"?"none":"flex";}
+function saveUsers(){
 
-// Login/Register
-function saveUsers(){localStorage.setItem("nano_users",JSON.stringify(users));}
-function register(){const u=username.value.trim();const p=password.value.trim();if(!u||!p)return alert("Felder ausfüllen");if(users[u])return alert("User existiert");users[u]={password:p,chats:{}};saveUsers();alert("Registriert!");}
-function login(){const u=username.value.trim();const p=password.value.trim();if(!users[u]||users[u].password!==p)return alert("Falsche Daten");currentUser=u;localStorage.setItem("nano_currentUser",u);startApp();}
-function logout(){localStorage.removeItem("nano_currentUser");location.reload();}
+localStorage.setItem("nano_users",JSON.stringify(users));
 
-// Chats
-function createChat(){const id=Date.now();users[currentUser].chats[id]={name:"Neuer Chat",messages:[]};currentChat=id;saveUsers();renderChats();renderMessages();}
-function renameChat(id){const name=prompt("Neuer Name:");if(name) users[currentUser].chats[id].name=name;saveUsers();renderChats();}
-function deleteChat(id){if(!confirm("Chat löschen?"))return;delete users[currentUser].chats[id];currentChat=null;saveUsers();renderChats();document.getElementById("chat").innerHTML="";}
-function selectChat(id){currentChat=id;renderChats();renderMessages();}
+}
+
+function register(){
+
+let u=username.value.trim();
+
+let p=password.value.trim();
+
+if(!u||!p)return;
+
+if(users[u])return;
+
+users[u]={
+
+password:p,
+
+plan:"free",
+
+banned:false,
+
+chats:{},
+
+messages:0
+
+};
+
+saveUsers();
+
+alert("Registriert");
+
+}
+
+function login(){
+
+let u=username.value.trim();
+
+let p=password.value.trim();
+
+if(!users[u])return;
+
+if(users[u].password!==p)return;
+
+if(users[u].banned)return alert("Gebannt");
+
+currentUser=u;
+
+localStorage.setItem("nano_currentUser",u);
+
+startApp();
+
+}
+
+function logout(){
+
+localStorage.removeItem("nano_currentUser");
+
+location.reload();
+
+}
+
+function startApp(){
+
+loginScreen.style.display="none";
+
+profileName.innerText=currentUser;
+
+updatePlan();
+
+renderChats();
+
+}
+
+function updatePlan(){
+
+let p=users[currentUser].plan;
+
+planBadge.innerText=plans[p].name;
+
+}
+
+function createChat(){
+
+let id=Date.now();
+
+users[currentUser].chats[id]={
+
+name:"Neuer Chat",
+
+messages:[]
+
+};
+
+currentChat=id;
+
+saveUsers();
+
+renderChats();
+
+renderMessages();
+
+}
+
+function selectChat(id){
+
+currentChat=id;
+
+renderChats();
+
+renderMessages();
+
+}
 
 function renderChats(){
-    const list=document.getElementById("chatList");
-    list.innerHTML="";
-    if(!currentUser)return;
-    const chats=users[currentUser].chats;
-    for(let id in chats){
-        const div=document.createElement("div");div.className="chat-item";if(id===currentChat)div.classList.add("active");
-        const title=document.createElement("span");title.innerText=chats[id].name;title.onclick=()=>selectChat(id);
-        const actions=document.createElement("div");actions.className="chat-actions";
-        const renameBtn=document.createElement("button");renameBtn.innerText="✏";renameBtn.onclick=e=>{e.stopPropagation();renameChat(id);}
-        const deleteBtn=document.createElement("button");deleteBtn.innerText="🗑";deleteBtn.onclick=e=>{e.stopPropagation();deleteChat(id);}
-        actions.append(renameBtn,deleteBtn);
-        div.append(title,actions);list.appendChild(div);
-    }
+
+let list=document.getElementById("chatList");
+
+list.innerHTML="";
+
+let chats=users[currentUser].chats;
+
+for(let id in chats){
+
+let div=document.createElement("div");
+
+div.className="chat-item";
+
+if(id==currentChat)div.classList.add("active");
+
+div.innerText=chats[id].name;
+
+div.onclick=()=>selectChat(id);
+
+list.appendChild(div);
+
+}
+
 }
 
 function renderMessages(){
-    const chatDiv=document.getElementById("chat");chatDiv.innerHTML="";
-    if(!currentChat)return;
-    users[currentUser].chats[currentChat].messages.forEach(m=>{
-        const div=document.createElement("div");div.className="message "+(m.role==="ai"?"ai":"user");
-        div.innerText=m.text;
-        if(m.role==="user"){
-            const editBtn=document.createElement("button");editBtn.className="edit-btn";editBtn.innerText="✏";editBtn.onclick=()=>{const newText=prompt("Nachricht bearbeiten:",m.text);if(newText){m.text=newText;saveUsers();renderMessages();}};
-            div.appendChild(editBtn);
-        }
-        chatDiv.appendChild(div);
-    });
-}
 
-function typeText(container,text){container.innerText="";let i=0;const interval=setInterval(()=>{container.innerText+=text.charAt(i);i++;if(i>=text.length)clearInterval(interval);container.scrollIntoView({behavior:"smooth"});},25);}
+let chatDiv=document.getElementById("chat");
+
+chatDiv.innerHTML="";
+
+if(!currentChat)return;
+
+let msgs=users[currentUser].chats[currentChat].messages;
+
+msgs.forEach(m=>{
+
+let d=document.createElement("div");
+
+d.className="message "+m.role;
+
+d.innerText=m.text;
+
+chatDiv.appendChild(d);
+
+});
+
+}
 
 function sendPrompt(){
-    const input=document.getElementById("prompt");const text=input.value.trim();if(!text||!currentChat)return;
-    users[currentUser].chats[currentChat].messages.push({role:"user",text});renderMessages();input.value="";
-    const chatDiv=document.getElementById("chat");const botDiv=document.createElement("div");botDiv.className="message ai";
-    const dots=document.createElement("span");dots.className="dots";for(let d=0;d<3;d++){const dot=document.createElement("span");dot.className="dot";dots.appendChild(dot);}
-    botDiv.appendChild(dots);chatDiv.appendChild(botDiv);chatDiv.scrollTop=chatDiv.scrollHeight;
-    fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:text,language:currentLanguage})})
-    .then(res=>res.json()).then(data=>{botDiv.removeChild(dots);typeText(botDiv,data.text);users[currentUser].chats[currentChat].messages.push({role:"ai",text:data.text});saveUsers();})
-    .catch(()=>{botDiv.innerText="Fehler beim Server";});
+
+let input=document.getElementById("prompt");
+
+let text=input.value.trim();
+
+if(!text)return;
+
+if(!currentChat)return;
+
+let plan=users[currentUser].plan;
+
+if(users[currentUser].messages>=plans[plan].limit){
+
+alert("Limit erreicht");
+
+return;
+
 }
 
-function startApp(){loginScreen.style.display="none";profileName.innerText=currentUser;document.getElementById("languageSelect").value=currentLanguage;renderChats();renderMessages();}
-if(currentUser)startApp();else loginScreen.style.display="flex";
+users[currentUser].messages++;
+
+users[currentUser].chats[currentChat].messages.push({role:"user",text});
+
+renderMessages();
+
+input.value="";
+
+let bot=document.createElement("div");
+
+bot.className="message ai";
+
+bot.innerText="...";
+
+document.getElementById("chat").appendChild(bot);
+
+fetch(API_URL,{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({prompt:text})
+
+})
+
+.then(r=>r.json())
+
+.then(d=>{
+
+bot.innerText=d.text;
+
+users[currentUser].chats[currentChat].messages.push({role:"ai",text:d.text});
+
+saveUsers();
+
+})
+
+.catch(()=>{
+
+bot.innerText="Server Fehler";
+
+});
+
+}
+
+if(currentUser){
+
+startApp();
+
+}
+
 </script>
+
 </body>
 </html>
+<!-- =========================
+ADMIN PANEL CORE
+========================= -->
+
+<div id="adminPanel" class="admin-panel hidden">
+    <div class="admin-header">
+        <h2>Admin Panel</h2>
+        <button onclick="closeAdmin()">X</button>
+    </div>
+
+    <div class="admin-section">
+        <h3>Server Owners</h3>
+        <p>Owner: Lobi</p>
+        <p>Co-Owner: Jovi</p>
+    </div>
+
+    <div class="admin-section">
+        <h3>User Management</h3>
+
+        <input id="userSearch" placeholder="Search user">
+
+        <button onclick="banUser()">Ban User</button>
+        <button onclick="kickUser()">Kick User</button>
+        <button onclick="muteUser()">Mute User</button>
+        <button onclick="unmuteUser()">Unmute User</button>
+    </div>
+
+    <div class="admin-section">
+        <h3>Gift Tariff</h3>
+
+        <input id="giftUser" placeholder="Username">
+        <select id="giftTariff">
+            <option value="basic">Basic</option>
+            <option value="plus">Plus</option>
+            <option value="pro">Pro</option>
+            <option value="ultra">Ultra</option>
+        </select>
+
+        <button onclick="giftTariff()">Gift</button>
+    </div>
+
+</div>
+
+<style>
+
+.admin-panel{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#111;
+color:white;
+width:500px;
+border-radius:10px;
+padding:20px;
+z-index:999;
+}
+
+.admin-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.admin-section{
+margin-top:20px;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+
+<script>
+
+function openAdmin(){
+document.getElementById("adminPanel").classList.remove("hidden")
+}
+
+function closeAdmin(){
+document.getElementById("adminPanel").classList.add("hidden")
+}
+
+function banUser(){
+
+let user=document.getElementById("userSearch").value
+
+alert("User banned: "+user)
+
+}
+
+function kickUser(){
+
+let user=document.getElementById("userSearch").value
+
+alert("User kicked: "+user)
+
+}
+
+function muteUser(){
+
+let user=document.getElementById("userSearch").value
+
+alert("User muted: "+user)
+
+}
+
+function unmuteUser(){
+
+let user=document.getElementById("userSearch").value
+
+alert("User unmuted: "+user)
+
+}
+
+function giftTariff(){
+
+let user=document.getElementById("giftUser").value
+let tariff=document.getElementById("giftTariff").value
+
+alert("Tariff "+tariff+" gifted to "+user)
+
+}
+
+</script>
+
+<!-- =========================
+CHAT CORE EXTENSIONS
+========================= -->
+
+<script>
+
+let messages=[]
+
+function sendMessage(){
+
+let input=document.getElementById("chatInput")
+let msg=input.value
+
+if(msg.trim()==="")return
+
+messages.push(msg)
+
+renderMessages()
+
+input.value=""
+
+}
+
+function renderMessages(){
+
+let box=document.getElementById("chatBox")
+
+box.innerHTML=""
+
+for(let i=0;i<messages.length;i++){
+
+let m=document.createElement("div")
+m.className="msg"
+
+m.innerText=messages[i]
+
+box.appendChild(m)
+
+}
+
+}
+
+</script>
+
+<style>
+
+#chatBox{
+height:400px;
+overflow-y:auto;
+background:#0f0f0f;
+padding:10px;
+border-radius:10px;
+}
+
+.msg{
+background:#1f1f1f;
+padding:8px;
+margin-bottom:6px;
+border-radius:6px;
+}
+
+</style>
+
+<!-- =========================
+PROFILE SYSTEM
+========================= -->
+
+<script>
+
+let users={}
+
+function createUser(name){
+
+users[name]={
+
+tariff:"basic",
+messages:0
+
+}
+
+}
+
+function giveTariff(user,tariff){
+
+if(!users[user])createUser(user)
+
+users[user].tariff=tariff
+
+}
+
+function getTariff(user){
+
+if(!users[user])return"basic"
+
+return users[user].tariff
+
+}
+
+</script>
+
+<!-- =========================
+STATS SYSTEM
+========================= -->
+
+<script>
+
+let stats={
+
+totalMessages:0,
+usersOnline:0,
+serverName:"Nano AI"
+
+}
+
+function updateStats(){
+
+document.getElementById("statMessages").innerText=stats.totalMessages
+document.getElementById("statUsers").innerText=stats.usersOnline
+
+}
+
+</script>
+
+<!-- =========================
+THEME SYSTEM
+========================= -->
+
+<script>
+
+function setThemeDark(){
+
+document.body.style.background="#000"
+document.body.style.color="#fff"
+
+}
+
+function setThemeLight(){
+
+document.body.style.background="#fff"
+document.body.style.color="#000"
+
+}
+
+</script>
+
+<!-- =========================
+MESSAGE REACTIONS
+========================= -->
+
+<script>
+
+function addReaction(msgIndex,reaction){
+
+console.log("Reaction",reaction,"on",msgIndex)
+
+}
+
+</script>
+
+<!-- =========================
+EXPORT CHAT
+========================= -->
+
+<script>
+
+function exportChat(){
+
+let data=messages.join("\n")
+
+let blob=new Blob([data],{type:"text/plain"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="chat.txt"
+
+a.click()
+
+}
+
+</script>
+
+<!-- =========================
+SEARCH MESSAGES
+========================= -->
+
+<script>
+
+function searchMessages(){
+
+let q=document.getElementById("searchInput").value.toLowerCase()
+
+let box=document.getElementById("chatBox")
+
+box.innerHTML=""
+
+for(let i=0;i<messages.length;i++){
+
+if(messages[i].toLowerCase().includes(q)){
+
+let m=document.createElement("div")
+
+m.className="msg"
+
+m.innerText=messages[i]
+
+box.appendChild(m)
+
+}
+
+}
+
+}
+
+</script>
+
+<!-- =========================
+END PART 2
+========================= -->
+<!-- =========================
+CHAT HISTORY & OFFLINE STORAGE
+========================= -->
+
+<script>
+function saveChatHistory(){
+    if(!currentUser) return;
+    localStorage.setItem(`chat_${currentUser}`, JSON.stringify(users[currentUser].chats));
+}
+
+function loadChatHistory(){
+    if(!currentUser) return;
+    let saved = localStorage.getItem(`chat_${currentUser}`);
+    if(saved){
+        users[currentUser].chats = JSON.parse(saved);
+        renderChats();
+        renderMessages();
+    }
+}
+
+window.addEventListener("beforeunload", saveChatHistory);
+window.addEventListener("load", loadChatHistory);
+</script>
+
+<!-- =========================
+FEEDBACK SYSTEM
+========================= -->
+
+<div id="feedbackPanel" class="hidden">
+    <h3>Feedback geben</h3>
+    <textarea id="feedbackText" placeholder="Dein Feedback..."></textarea>
+    <button onclick="submitFeedback()">Senden</button>
+</div>
+
+<script>
+let feedbacks = [];
+
+function openFeedback(){
+    document.getElementById("feedbackPanel").classList.remove("hidden");
+}
+
+function closeFeedback(){
+    document.getElementById("feedbackPanel").classList.add("hidden");
+}
+
+function submitFeedback(){
+    let text = document.getElementById("feedbackText").value.trim();
+    if(!text) return alert("Feedback ist leer");
+    feedbacks.push({user: currentUser, text: text, time: Date.now()});
+    document.getElementById("feedbackText").value = "";
+    alert("Feedback gesendet");
+    closeFeedback();
+}
+</script>
+
+<style>
+#feedbackPanel{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:300px;
+    background:#1f2937;
+    padding:15px;
+    border-radius:10px;
+    color:white;
+    z-index:999;
+}
+#feedbackPanel textarea{
+    width:100%;
+    height:80px;
+    border:none;
+    border-radius:8px;
+    background:#111827;
+    color:white;
+    padding:8px;
+    margin-bottom:8px;
+    resize:none;
+}
+#feedbackPanel button{
+    width:100%;
+    padding:8px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}
+#feedbackPanel button:hover{
+    background:#1e40af;
+}
+</style>
+
+<!-- =========================
+TARIFF MANAGEMENT & LIMITS
+========================= -->
+
+<script>
+function upgradeTariff(user,tariff){
+    if(!users[user]) return;
+    users[user].plan = tariff;
+    saveUsers();
+    if(user === currentUser) updatePlan();
+}
+
+function checkUserLimit(user){
+    let plan = users[user].plan;
+    return users[user].messages < plans[plan].limit;
+}
+</script>
+
+<!-- =========================
+USER ONLINE STATUS
+========================= -->
+
+<script>
+let onlineUsers = {};
+
+function setUserOnline(user){
+    onlineUsers[user] = true;
+    updateOnlineCount();
+}
+
+function setUserOffline(user){
+    delete onlineUsers[user];
+    updateOnlineCount();
+}
+
+function updateOnlineCount(){
+    stats.usersOnline = Object.keys(onlineUsers).length;
+    updateStats();
+}
+
+if(currentUser){
+    setUserOnline(currentUser);
+    window.addEventListener("beforeunload", ()=> setUserOffline(currentUser));
+}
+</script>
+
+<!-- =========================
+ADVANCED CHAT FEATURES
+========================= -->
+
+<script>
+function editMessage(chatId,msgIndex,newText){
+    if(!currentUser) return;
+    if(!users[currentUser].chats[chatId]) return;
+    users[currentUser].chats[chatId].messages[msgIndex].text = newText;
+    saveUsers();
+    renderMessages();
+}
+
+function deleteMessage(chatId,msgIndex){
+    if(!currentUser) return;
+    if(!users[currentUser].chats[chatId]) return;
+    users[currentUser].chats[chatId].messages.splice(msgIndex,1);
+    saveUsers();
+    renderMessages();
+}
+
+function highlightMessage(msgIndex){
+    let chatDiv = document.getElementById("chat");
+    let children = chatDiv.children;
+    if(children[msgIndex]) children[msgIndex].style.background = "#444";
+}
+</script>
+
+<!-- =========================
+SEARCH & FILTER MESSAGES
+========================= -->
+
+<script>
+function filterMessages(keyword){
+    let chatDiv = document.getElementById("chat");
+    chatDiv.innerHTML = "";
+    if(!currentChat) return;
+    users[currentUser].chats[currentChat].messages.forEach((m,i)=>{
+        if(m.text.toLowerCase().includes(keyword.toLowerCase())){
+            let div = document.createElement("div");
+            div.className = "message " + m.role;
+            div.innerText = m.text;
+            chatDiv.appendChild(div);
+        }
+    });
+}
+</script>
+
+<!-- =========================
+PART 3 END
+========================= -->
+
+<!-- =========================
+MULTI-LANGUAGE SUPPORT
+========================= -->
+
+<script>
+const languages = {
+    de: "Deutsch",
+    en: "English",
+    fr: "Français",
+    es: "Español",
+    it: "Italiano",
+    ru: "Русский",
+    tr: "Türkçe",
+    pl: "Polski",
+    nl: "Nederlands",
+    pt: "Português"
+};
+
+function changeLanguage(){
+    let sel = document.getElementById("languageSelect");
+    currentLanguage = sel.value;
+    localStorage.setItem("nano_language", currentLanguage);
+    applyLanguage();
+}
+
+function applyLanguage(){
+    // Minimal example: change placeholder
+    document.getElementById("prompt").placeholder = {
+        de: "Nachricht schreiben...",
+        en: "Write a message...",
+        fr: "Écrire un message...",
+        es: "Escribe un mensaje...",
+        it: "Scrivi un messaggio...",
+        ru: "Напишите сообщение...",
+        tr: "Mesaj yaz...",
+        pl: "Napisz wiadomość...",
+        nl: "Bericht schrijven...",
+        pt: "Escreva uma mensagem..."
+    }[currentLanguage] || "Write a message...";
+}
+</script>
+
+<!-- =========================
+CUSTOM CHAT STYLES
+========================= -->
+
+<style>
+.message.user{
+    border-left:3px solid #60a5fa;
+    padding-left:10px;
+}
+.message.ai{
+    border-left:3px solid #22c55e;
+    padding-left:10px;
+}
+.message.system{
+    border-left:3px solid #facc15;
+    padding-left:10px;
+    font-style:italic;
+}
+</style>
+
+<!-- =========================
+AUTOMATIC SCROLL & TYPING EFFECT
+========================= -->
+
+<script>
+function typeText(container, text, callback){
+    container.innerText = "";
+    let i = 0;
+    let interval = setInterval(()=>{
+        container.innerText += text.charAt(i);
+        i++;
+        container.scrollIntoView({behavior:"smooth"});
+        if(i >= text.length){
+            clearInterval(interval);
+            if(callback) callback();
+        }
+    }, 20);
+}
+
+function sendPromptWithTyping(){
+    let input = document.getElementById("prompt");
+    let text = input.value.trim();
+    if(!text || !currentChat) return;
+
+    users[currentUser].chats[currentChat].messages.push({role:"user", text});
+    renderMessages();
+    input.value = "";
+
+    let chatDiv = document.getElementById("chat");
+    let botDiv = document.createElement("div");
+    botDiv.className = "message ai";
+    let dots = document.createElement("span");
+    dots.className = "dots";
+    for(let d=0; d<3; d++){
+        let dot = document.createElement("span");
+        dot.className="dot";
+        dots.appendChild(dot);
+    }
+    botDiv.appendChild(dots);
+    chatDiv.appendChild(botDiv);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+
+    fetch(API_URL, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({prompt:text, language:currentLanguage})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        botDiv.removeChild(dots);
+        typeText(botDiv, data.text, ()=>{
+            users[currentUser].chats[currentChat].messages.push({role:"ai", text:data.text});
+            saveUsers();
+        });
+    })
+    .catch(()=>{botDiv.innerText="Server Fehler";});
+}
+</script>
+
+<!-- =========================
+DARK/LIGHT THEME TOGGLE
+========================= -->
+
+<div style="position:absolute;top:10px;right:10px;">
+    <button onclick="setThemeDark()">Dark</button>
+    <button onclick="setThemeLight()">Light</button>
+</div>
+
+<!-- =========================
+PART 4 END
+========================= -->
+<!-- =========================
+USER INTERACTIONS & EMOJI SUPPORT
+========================= -->
+
+<script>
+const emojis = ["😀","😂","😎","😢","😡","👍","👎","❤️","🔥","🎉"];
+
+function appendEmoji(emoji){
+    let input = document.getElementById("prompt");
+    input.value += emoji;
+    input.focus();
+}
+
+function renderEmojiPanel(){
+    let panel = document.getElementById("emojiPanel");
+    panel.innerHTML = "";
+    emojis.forEach(e=>{
+        let btn = document.createElement("button");
+        btn.innerText = e;
+        btn.onclick = ()=> appendEmoji(e);
+        panel.appendChild(btn);
+    });
+}
+</script>
+
+<style>
+#emojiPanel{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    background:#1f2937;
+    padding:5px;
+    border-radius:8px;
+    margin-top:5px;
+}
+#emojiPanel button{
+    background:#2563eb;
+    border:none;
+    border-radius:6px;
+    padding:4px 6px;
+    cursor:pointer;
+    color:white;
+    font-size:18px;
+}
+#emojiPanel button:hover{
+    background:#1e40af;
+}
+</style>
+
+<div id="emojiPanel"></div>
+<script>renderEmojiPanel();</script>
+
+<!-- =========================
+NOTIFICATIONS SYSTEM
+========================= -->
+
+<script>
+function notifyUser(title, message){
+    if(Notification.permission === "granted"){
+        new Notification(title, {body: message});
+    }else if(Notification.permission !== "denied"){
+        Notification.requestPermission().then(permission=>{
+            if(permission === "granted") new Notification(title,{body: message});
+        });
+    }
+}
+
+function notifyNewMessage(msg){
+    if(msg.role === "ai") return;
+    notifyUser("Neue Nachricht", msg.text);
+}
+</script>
+
+<!-- =========================
+AUTOSAVE & LOCAL BACKUP
+========================= -->
+
+<script>
+function autosaveChats(){
+    if(currentUser){
+        saveUsers();
+        setTimeout(autosaveChats, 5000); // alle 5 Sekunden speichern
+    }
+}
+autosaveChats();
+</script>
+
+<!-- =========================
+FINAL TOUCHES
+========================= -->
+
+<style>
+body::-webkit-scrollbar{
+    width:10px;
+}
+body::-webkit-scrollbar-thumb{
+    background:#2563eb;
+    border-radius:10px;
+}
+body::-webkit-scrollbar-track{
+    background:#111827;
+}
+</style>
+
+<script>
+console.log("Nano AI Chat fully loaded. Owner: Lobi, Co-Owner: Jovi");
+</script>
+
+<!-- =========================
+PART 5 END
+========================= -->
