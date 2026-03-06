@@ -10,10 +10,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <style>
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 
-/* SIDEBAR */
+/* ============================================
+   SIDEBAR
+   ============================================ */
 .sidebar{width:280px;background:#111827;display:flex;flex-direction:column;padding:20px;border-right:1px solid #1f2937;}
 .logo{display:flex;align-items:center;margin-bottom:20px;}
 .logo img{height:50px;width:50px;object-fit:contain;border-radius:12px;margin-right:10px;}
@@ -27,10 +32,14 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 .chat-actions button{background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;margin-left:5px;transition:0.2s;}
 .chat-actions button:hover{color:white;}
 
-/* MAIN */
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
 .main{flex:1;display:flex;flex-direction:column;}
 
-/* TOPBAR */
+/* ============================================
+   TOPBAR
+   ============================================ */
 .topbar{height:60px;background:#111827;display:flex;justify-content:space-between;align-items:center;padding:0 20px;position:relative;border-bottom:1px solid #1f2937;}
 .profile{cursor:pointer;background:#2563eb;padding:8px 14px;border-radius:20px;user-select:none;}
 .plan-badge{background:#1f2937;padding:6px 12px;border-radius:14px;font-size:13px;}
@@ -39,7 +48,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 .dropdown select{appearance:none;}
 .dropdown button:hover{background:#2563eb;}
 
-/* CHAT */
+/* ============================================
+   CHAT AREA
+   ============================================ */
 .chat{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .message{padding:12px;border-radius:14px;word-wrap:break-word;max-width:70%;line-height:1.5;position:relative;}
 .user{text-align:right;color:#60a5fa;background:rgba(96,165,250,0.15);align-self:flex-end;}
@@ -50,7 +61,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 .edit-btn{position:absolute;top:5px;right:5px;background:#2563eb;border:none;color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:14px;text-align:center;line-height:22px;transition:0.2s;}
 .edit-btn:hover{background:#1e40af;}
 
-/* INPUT */
+/* ============================================
+   INPUT AREA
+   ============================================ */
 .input-area{display:flex;flex-direction:column;padding:15px;background:#111827;border-top:1px solid #1f2937;}
 .input-row{display:flex;gap:10px;}
 .input-row input{flex:1;padding:12px;border-radius:14px;border:none;outline:none;background:#1f2937;color:white;}
@@ -60,7 +73,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 #emojiPanel button{background:#1f2937;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;color:white;font-size:18px;transition:0.2s;}
 #emojiPanel button:hover{background:#2563eb;}
 
-/* LOGIN */
+/* ============================================
+   LOGIN SCREEN
+   ============================================ */
 #loginScreen{position:absolute;inset:0;background:#0f172a;display:flex;justify-content:center;align-items:center;z-index:2000;}
 .login-box{background:#111827;padding:40px;border-radius:12px;width:320px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
 .login-box h2{margin-bottom:20px;color:#60a5fa;}
@@ -72,14 +87,18 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 .login-box button.secondary:hover{background:#374151;}
 .login-error{color:#ef4444;font-size:13px;margin-top:5px;display:none;}
 
-/* MAINTENANCE */
+/* ============================================
+   MAINTENANCE SCREEN
+   ============================================ */
 #maintenanceScreen{position:absolute;inset:0;background:#0f172a;display:none;justify-content:center;align-items:center;z-index:3000;text-align:center;}
 .maintenance-box{background:#111827;padding:60px;border-radius:16px;max-width:500px;}
 .maintenance-box h1{color:#ef4444;margin-bottom:15px;font-size:28px;}
 .maintenance-box p{color:#aaa;margin-bottom:20px;}
 .maintenance-icon{font-size:64px;margin-bottom:20px;}
 
-/* MODAL */
+/* ============================================
+   MODAL SYSTEM
+   ============================================ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:1500;backdrop-filter:blur(4px);}
 .modal{background:#111827;border-radius:16px;padding:20px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto;border:1px solid #1f2937;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #1f2937;}
@@ -126,6 +145,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 .store-card .plan-features li{padding:5px 0;color:#aaa;font-size:13px;}
 .store-card .plan-features li::before{content:"✓ ";color:#22c55e;}
 .store-card button{width:100%;margin-top:10px;}
+.user-result{padding:10px;background:#111827;border-radius:8px;margin:5px 0;cursor:pointer;transition:0.2s;}
+.user-result:hover{background:#2563eb;}
+.user-result.selected{background:#2563eb;border:2px solid #60a5fa;}
 ::-webkit-scrollbar{width:8px;height:8px;}
 ::-webkit-scrollbar-track{background:#111827;}
 ::-webkit-scrollbar-thumb{background:#2563eb;border-radius:4px;}
@@ -135,7 +157,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ============================================
+     LOGIN SCREEN
+     ============================================ -->
 <div id="loginScreen">
     <div class="login-box">
         <h2>Nano AI Chat 1.3.1v</h2>
@@ -147,7 +171,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- MAINTENANCE SCREEN -->
+<!-- ============================================
+     MAINTENANCE SCREEN
+     ============================================ -->
 <div id="maintenanceScreen">
     <div class="maintenance-box">
         <div class="maintenance-icon">🔧</div>
@@ -157,7 +183,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- SIDEBAR -->
+<!-- ============================================
+     SIDEBAR
+     ============================================ -->
 <div class="sidebar">
     <div class="logo">
         <img src="Nano-AI.png" alt="Nano AI" onerror="this.style.display='none'">
@@ -167,7 +195,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     <div class="chat-list" id="chatList"></div>
 </div>
 
-<!-- MAIN -->
+<!-- ============================================
+     MAIN CONTENT
+     ============================================ -->
 <div class="main">
     <div class="topbar">
         <div style="display:flex;gap:10px;align-items:center;">
@@ -206,7 +236,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- PROFILE MODAL -->
+<!-- ============================================
+     PROFILE MODAL
+     ============================================ -->
 <div id="profileModal" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -265,7 +297,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- STORE MODAL -->
+<!-- ============================================
+     STORE MODAL
+     ============================================ -->
 <div id="storeModal" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -311,7 +345,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- ADMIN MODAL -->
+<!-- ============================================
+     ADMIN MODAL
+     ============================================ -->
 <div id="adminModal" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -385,7 +421,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- SETTINGS MODAL -->
+<!-- ============================================
+     SETTINGS MODAL
+     ============================================ -->
 <div id="settingsModal" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -413,7 +451,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
-<!-- CONFIRM MODAL -->
+<!-- ============================================
+     CONFIRM MODAL
+     ============================================ -->
 <div id="confirmModal" class="modal-overlay">
     <div class="modal confirm-modal">
         <div class="modal-header">
@@ -428,6 +468,9 @@ body{display:flex;height:100vh;background:#0f172a;color:white;overflow:hidden;}
     </div>
 </div>
 
+<!-- ============================================
+     JAVASCRIPT CODE
+     ============================================ -->
 <script>
 // ============================================
 // FIREBASE CONFIGURATION
@@ -481,10 +524,11 @@ const storeText = {
 };
 
 // ============================================
-// INIT
+// INITIALIZATION
 // ============================================
 async function init(){
     try{
+        console.log("Nano AI Chat " + VERSION + " starting...");
         await checkMaintenance();
         currentUser = localStorage.getItem("nano_currentUser");
         if(currentUser){
@@ -492,9 +536,22 @@ async function init(){
         } else {
             document.getElementById("loginScreen").style.display = "flex";
         }
+        
+        // Button Event Listeners
+        const loginBtn = document.querySelector("#loginScreen button[onclick='handleLogin()']");
+        const registerBtn = document.querySelector("#loginScreen button[onclick='handleRegister()']");
+        
+        if(loginBtn){
+            loginBtn.addEventListener("click", handleLogin);
+        }
+        if(registerBtn){
+            registerBtn.addEventListener("click", handleRegister);
+        }
+        
         document.getElementById("username")?.addEventListener("keypress", e => {if(e.key==="Enter")handleLogin();});
         document.getElementById("password")?.addEventListener("keypress", e => {if(e.key==="Enter")handleLogin();});
-        console.log("Nano AI Chat " + VERSION + " initialized");
+        
+        console.log("Nano AI Chat initialized successfully");
     } catch(err){
         console.error("Init error:", err);
         showError("Fehler beim Starten.");
@@ -521,49 +578,97 @@ async function checkMaintenance(){
 }
 
 async function getUserData(username){
-    const doc = await db.collection("users").doc(username).get();
-    if(doc.exists) return doc.data();
-    return null;
+    try{
+        const doc = await db.collection("users").doc(username).get();
+        if(doc.exists) return doc.data();
+        return null;
+    } catch(e){
+        console.error("Get user error:", e);
+        return null;
+    }
 }
 
 async function saveUserData(username, data){
-    await db.collection("users").doc(username).set(data, {merge: true});
+    try{
+        await db.collection("users").doc(username).set(data, {merge: true});
+        return true;
+    } catch(e){
+        console.error("Save user error:", e);
+        return false;
+    }
 }
 
 async function createUser(username, password){
-    await db.collection("users").doc(username).set({
-        password: password,
-        plan: "free",
-        banned: false,
-        warnings: 0,
-        chats: {},
-        messages: 0,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    try{
+        await db.collection("users").doc(username).set({
+            password: password,
+            plan: "free",
+            banned: false,
+            warnings: 0,
+            chats: {},
+            messages: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return true;
+    } catch(e){
+        console.error("Create user error:", e);
+        return false;
+    }
 }
 
 async function getAllUsers(){
-    const snapshot = await db.collection("users").get();
-    const users = {};
-    snapshot.forEach(doc => {users[doc.id] = doc.data();});
-    return users;
+    try{
+        const snapshot = await db.collection("users").get();
+        const users = {};
+        snapshot.forEach(doc => {users[doc.id] = doc.data();});
+        return users;
+    } catch(e){
+        console.error("Get all users error:", e);
+        return {};
+    }
 }
 
 // ============================================
-// AUTH
+// AUTHENTICATION
 // ============================================
+function showError(msg){
+    const err = document.getElementById("loginError");
+    if(err){
+        err.innerText = msg;
+        err.style.display = "block";
+        setTimeout(()=>{err.style.display="none";}, 3000);
+    }
+}
+
 async function handleRegister(){
-    const u = document.getElementById("username")?.value.trim() || "";
-    const p = document.getElementById("password")?.value.trim() || "";
-    if(!u || !p) return showError("Bitte Username und Passwort eingeben");
-    if(u.length < 3) return showError("Username zu kurz (min. 3 Zeichen)");
-    if(p.length < 6) return showError("Passwort zu kurz (min. 6 Zeichen)");
     try{
+        const u = document.getElementById("username")?.value.trim() || "";
+        const p = document.getElementById("password")?.value.trim() || "";
+        
+        console.log("Register attempt:", u);
+        
+        if(!u || !p){
+            return showError("Bitte Username und Passwort eingeben");
+        }
+        if(u.length < 3){
+            return showError("Username zu kurz (min. 3 Zeichen)");
+        }
+        if(p.length < 6){
+            return showError("Passwort zu kurz (min. 6 Zeichen)");
+        }
+        
         const existing = await getUserData(u);
-        if(existing) return showError("Username bereits vergeben");
-        await createUser(u, p);
-        showError("Registriert! Jetzt einloggen.");
-        document.getElementById("password").value = "";
+        if(existing){
+            return showError("Username bereits vergeben");
+        }
+        
+        const success = await createUser(u, p);
+        if(success){
+            showError("Registriert! Jetzt einloggen.");
+            document.getElementById("password").value = "";
+        } else {
+            showError("Registrierung fehlgeschlagen");
+        }
     } catch(e){
         console.error("Register error:", e);
         showError("Registrierung fehlgeschlagen");
@@ -571,14 +676,27 @@ async function handleRegister(){
 }
 
 async function handleLogin(){
-    const u = document.getElementById("username")?.value.trim() || "";
-    const p = document.getElementById("password")?.value.trim() || "";
-    if(!u || !p) return showError("Bitte alle Felder ausfüllen");
     try{
+        const u = document.getElementById("username")?.value.trim() || "";
+        const p = document.getElementById("password")?.value.trim() || "";
+        
+        console.log("Login attempt:", u);
+        
+        if(!u || !p){
+            return showError("Bitte alle Felder ausfüllen");
+        }
+        
         const data = await getUserData(u);
-        if(!data) return showError("User nicht gefunden");
-        if(data.password !== p) return showError("Falsches Passwort");
-        if(data.banned) return showError("Account wurde gebannt");
+        if(!data){
+            return showError("User nicht gefunden");
+        }
+        if(data.password !== p){
+            return showError("Falsches Passwort");
+        }
+        if(data.banned){
+            return showError("Account wurde gebannt");
+        }
+        
         currentUser = u;
         userData = data;
         localStorage.setItem("nano_currentUser", currentUser);
@@ -600,7 +718,7 @@ async function loadUserData(){
             document.getElementById("loginScreen").style.display = "flex";
         }
     } catch(e){
-        console.error("Load error:", e);
+        console.error("Load user error:", e);
         document.getElementById("loginScreen").style.display = "flex";
     }
 }
@@ -612,15 +730,6 @@ function handleLogout(){
     location.reload();
 }
 
-function showError(msg){
-    const err = document.getElementById("loginError");
-    if(err){
-        err.innerText = msg;
-        err.style.display = "block";
-        setTimeout(()=>{err.style.display="none";}, 3000);
-    }
-}
-
 // ============================================
 // APP START
 // ============================================
@@ -628,8 +737,12 @@ function startApp(){
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("profileName").innerText = currentUser;
     document.getElementById("profileNameDisplay").innerText = currentUser;
+    
     const adminBtn = document.getElementById("adminBtn");
-    if(adminBtn) adminBtn.style.display = (currentUser===OWNER||currentUser===COOWNER) ? "block" : "none";
+    if(adminBtn){
+        adminBtn.style.display = (currentUser===OWNER||currentUser===COOWNER) ? "block" : "none";
+    }
+    
     document.getElementById("languageSelect").value = currentLanguage;
     applyLanguage();
     updateStoreLanguage();
@@ -638,40 +751,63 @@ function startApp(){
     renderChats();
     renderMessages();
     renderEmojiPanel();
+    
     if(settings.theme === 'light') setTheme('light');
+    
+    console.log("App started for:", currentUser);
 }
 
 // ============================================
 // UI FUNCTIONS
 // ============================================
-function openModal(id){document.getElementById(id).style.display="flex";}
-function closeModal(id){document.getElementById(id).style.display="none";}
+function openModal(id){
+    const modal = document.getElementById(id);
+    if(modal) modal.style.display = "flex";
+}
+
+function closeModal(id){
+    const modal = document.getElementById(id);
+    if(modal) modal.style.display = "none";
+}
+
 function switchTab(modalId, tabName){
     const modal = document.getElementById(modalId);
     if(!modal) return;
+    
     modal.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
     modal.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+    
     event.target.classList.add("active");
     const content = document.getElementById(`${modalId.replace('Modal','')}-${tabName}`);
     if(content) content.classList.add("active");
+    
     if(modalId==="profileModal" && tabName==="info") updateProfileStats();
     if(modalId==="adminModal" && tabName==="stats") updateAdminStats();
 }
+
 function confirmAction(action, text){
     document.getElementById("confirmText").innerText = text;
     confirmCallback = action;
     openModal("confirmModal");
 }
-function cancelConfirm(){closeModal("confirmModal"); confirmCallback=null;}
+
+function cancelConfirm(){
+    closeModal("confirmModal");
+    confirmCallback = null;
+}
+
 function executeConfirm(){
     const action = confirmCallback;
     closeModal("confirmModal");
+    
     if(action==="deleteChat" && currentChat) deleteChat(currentChat);
     else if(action==="renameChat" && currentChat) renameChat(currentChat);
     else if(action==="deleteAccount") deleteAccount();
     else if(action==="clearData") clearUserData();
+    
     confirmCallback = null;
 }
+
 function toggleDropdown(){
     const d = document.getElementById("dropdown");
     if(d) d.style.display = (d.style.display==="flex") ? "none" : "flex";
@@ -686,11 +822,24 @@ function changeLanguage(){
     applyLanguage();
     updateStoreLanguage();
 }
+
 function applyLanguage(){
-    const ph = {de:"Nachricht schreiben...",en:"Write a message...",fr:"Écrire un message...",es:"Escribe un mensaje...",it:"Scrivi un messaggio...",ru:"Напишите сообщение...",tr:"Mesaj yaz...",pl:"Napisz wiadomość...",nl:"Bericht schrijven...",pt:"Escreva uma mensagem..."};
+    const ph = {
+        de:"Nachricht schreiben...",
+        en:"Write a message...",
+        fr:"Écrire un message...",
+        es:"Escribe un mensaje...",
+        it:"Scrivi un messaggio...",
+        ru:"Напишите сообщение...",
+        tr:"Mesaj yaz...",
+        pl:"Napisz wiadomość...",
+        nl:"Bericht schrijven...",
+        pt:"Escreva uma mensagem..."
+    };
     const prompt = document.getElementById("prompt");
     if(prompt) prompt.placeholder = ph[currentLanguage] || "Write a message...";
 }
+
 function updateStoreLanguage(){
     const t = storeText[currentLanguage] || storeText.en;
     document.getElementById("storeTitle").innerText = t.title;
@@ -708,6 +857,7 @@ function updatePlan(){
     if(badge) badge.innerText = plans[p]?.name || "Free";
     if(planDisplay) planDisplay.innerText = plans[p]?.name || "Free";
 }
+
 function updateProfileStats(){
     if(!userData) return;
     const chatCount = Object.keys(userData.chats||{}).length;
@@ -718,6 +868,7 @@ function updateProfileStats(){
     document.getElementById("statUsed").innerText = userData.messages || 0;
     document.getElementById("currentPlanInfo").innerText = `${plans[userData.plan]?.name} - ${plans[userData.plan]?.limit} Nachrichten/Monat`;
 }
+
 async function selectPlan(plan){
     if(!currentUser) return;
     userData.plan = plan;
@@ -734,7 +885,7 @@ async function selectPlan(plan){
 }
 
 // ============================================
-// CHAT
+// CHAT FUNCTIONS
 // ============================================
 function createChat(){
     if(!userData) return;
@@ -745,7 +896,13 @@ function createChat(){
     renderChats();
     renderMessages();
 }
-function selectChat(id){currentChat = id; renderChats(); renderMessages();}
+
+function selectChat(id){
+    currentChat = id;
+    renderChats();
+    renderMessages();
+}
+
 function renameChat(id){
     const name = prompt("Neuer Chat-Name:", userData.chats[id].name);
     if(name && name.trim()){
@@ -754,6 +911,7 @@ function renameChat(id){
         renderChats();
     }
 }
+
 function deleteChat(id){
     delete userData.chats[id];
     if(currentChat === id) currentChat = null;
@@ -761,39 +919,49 @@ function deleteChat(id){
     renderChats();
     renderMessages();
 }
+
 function renderChats(){
     const list = document.getElementById("chatList");
     if(!list || !userData) return;
     list.innerHTML = "";
+    
     Object.entries(userData.chats).forEach(([id,chat])=>{
         const div = document.createElement("div");
         div.className = "chat-item" + (id===currentChat ? " active" : "");
+        
         const title = document.createElement("span");
         title.innerText = chat.name;
         title.style.flex = "1";
         title.style.cursor = "pointer";
         title.onclick = () => selectChat(id);
+        
         const actions = document.createElement("div");
         actions.className = "chat-actions";
+        
         const ren = document.createElement("button");
         ren.innerHTML = "✏";
         ren.onclick = e => {e.stopPropagation(); renameChat(id);};
+        
         const del = document.createElement("button");
         del.innerHTML = "🗑";
         del.onclick = e => {e.stopPropagation(); confirmAction('deleteChat','Chat "'+chat.name+'" löschen?');};
+        
         actions.append(ren,del);
         div.append(title,actions);
         list.appendChild(div);
     });
 }
+
 function renderMessages(){
     const chatDiv = document.getElementById("chat");
     if(!chatDiv || !currentChat || !userData?.chats[currentChat]) return;
     chatDiv.innerHTML = "";
+    
     userData.chats[currentChat].messages.forEach((m,index)=>{
         const div = document.createElement("div");
         div.className = "message " + (m.role==="ai"?"ai":"user");
         div.innerText = m.text;
+        
         if(m.role==="user"){
             const edit = document.createElement("button");
             edit.className = "edit-btn";
@@ -812,38 +980,61 @@ function renderMessages(){
     });
     chatDiv.scrollTop = chatDiv.scrollHeight;
 }
+
 function typeText(container,text,callback){
-    if(!settings.typingEffect){container.innerText=text;if(callback)callback();return;}
+    if(!settings.typingEffect){
+        container.innerText=text;
+        if(callback) callback();
+        return;
+    }
     container.innerText = "";
     let i = 0;
     const int = setInterval(()=>{
         container.innerText += text.charAt(i);
         i++;
         container.scrollIntoView({behavior:"smooth"});
-        if(i>=text.length){clearInterval(int);if(callback)callback();}
+        if(i>=text.length){
+            clearInterval(int);
+            if(callback) callback();
+        }
     },20);
 }
+
 async function sendPrompt(){
     const input = document.getElementById("prompt");
     const text = input?.value.trim() || "";
     if(!text || !currentChat || !userData) return;
+    
     const plan = userData.plan;
-    if(userData.messages >= plans[plan].limit) return alert("Limit erreicht!");
+    if(userData.messages >= plans[plan].limit){
+        return alert("Limit erreicht!");
+    }
+    
     userData.chats[currentChat].messages.push({role:"user",text});
     userData.messages++;
     renderMessages();
     if(input) input.value = "";
+    
     const chatDiv = document.getElementById("chat");
     const botDiv = document.createElement("div");
     botDiv.className = "message ai";
     const dots = document.createElement("span");
     dots.className = "dots";
-    for(let d=0;d<3;d++){const dot=document.createElement("span");dot.className="dot";dots.appendChild(dot);}
+    for(let d=0;d<3;d++){
+        const dot=document.createElement("span");
+        dot.className="dot";
+        dots.appendChild(dot);
+    }
     botDiv.appendChild(dots);
     chatDiv.appendChild(botDiv);
     chatDiv.scrollTop = chatDiv.scrollHeight;
+    
     try{
-        const res = await fetch(API_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({prompt:text,language:currentLanguage})});
+        const res = await fetch(API_URL, {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({prompt:text,language:currentLanguage})
+        });
         const data = await res.json();
         if(dots.parentNode) botDiv.removeChild(dots);
         typeText(botDiv, data.text, ()=>{
@@ -854,6 +1045,7 @@ async function sendPrompt(){
         botDiv.innerText = "Server-Fehler";
     }
 }
+
 async function saveToFirebase(){
     if(!currentUser) return;
     await saveUserData(currentUser, userData);
@@ -870,13 +1062,19 @@ function renderEmojiPanel(){
     emojis.forEach(e=>{
         const btn = document.createElement("button");
         btn.innerText = e;
-        btn.onclick = ()=>{const inp=document.getElementById("prompt");if(inp){inp.value+=e;inp.focus();}};
+        btn.onclick = ()=>{
+            const inp=document.getElementById("prompt");
+            if(inp){
+                inp.value+=e;
+                inp.focus();
+            }
+        };
         panel.appendChild(btn);
     });
 }
 
 // ============================================
-// ADMIN
+// ADMIN FUNCTIONS
 // ============================================
 async function searchUsers(){
     try{
@@ -884,16 +1082,16 @@ async function searchUsers(){
         const q = document.getElementById("adminUserSearch").value.toLowerCase();
         const res = document.getElementById("adminUserResults");
         res.innerHTML = "";
+        
         Object.keys(allUsers).filter(u=>u.toLowerCase().includes(q)).slice(0,10).forEach(u=>{
-            const btn = document.createElement("button");
+            const btn = document.createElement("div");
+            btn.className = "user-result";
             btn.innerText = u + (allUsers[u].banned ? " 🚫" : "");
-            btn.style.width = "100%";
-            btn.style.margin = "2px 0";
-            btn.style.background = allUsers[u].banned ? "#ef4444" : "#1f2937";
-            btn.style.textAlign = "left";
             btn.onclick = ()=>{
+                document.querySelectorAll(".user-result").forEach(r=>r.classList.remove("selected"));
+                btn.classList.add("selected");
                 document.getElementById("selectedUser").value = u;
-                document.getElementById("selectedUserInfo").innerText = `Ausgewählt: ${u} | Plan: ${allUsers[u].plan}`;
+                document.getElementById("selectedUserInfo").innerText = `Ausgewählt: ${u} | Plan: ${allUsers[u].plan} | Nachrichten: ${allUsers[u].messages||0}`;
             };
             res.appendChild(btn);
         });
@@ -901,6 +1099,7 @@ async function searchUsers(){
         console.error("Search error:", e);
     }
 }
+
 async function banUser(){
     const u = document.getElementById("selectedUser")?.value;
     if(!u) return alert("User auswählen");
@@ -909,6 +1108,7 @@ async function banUser(){
     alert(`${u} gebannt`);
     searchUsers();
 }
+
 async function unbanUser(){
     const u = document.getElementById("selectedUser")?.value;
     if(!u) return alert("User auswählen");
@@ -916,20 +1116,25 @@ async function unbanUser(){
     alert(`${u} entbannt`);
     searchUsers();
 }
+
 async function warnUser(){
     const u = document.getElementById("selectedUser")?.value;
     if(!u) return alert("User auswählen");
-    const currentWarnings = userData.warnings || 0;
+    const data = await getUserData(u);
+    const currentWarnings = data?.warnings || 0;
     await saveUserData(u, {warnings: currentWarnings + 1});
-    alert(`${u} wurde verwarnt`);
+    alert(`${u} wurde verwarnt (Warnungen: ${currentWarnings + 1})`);
     searchUsers();
 }
+
 async function resetUserLimit(){
     const u = document.getElementById("selectedUser")?.value;
     if(!u) return alert("User auswählen");
     await saveUserData(u, {messages:0});
     alert(`Limit für ${u} zurückgesetzt`);
+    searchUsers();
 }
+
 async function deleteUser(){
     const u = document.getElementById("selectedUser")?.value;
     if(!u) return alert("User auswählen");
@@ -939,15 +1144,19 @@ async function deleteUser(){
     searchUsers();
     updateAdminStats();
 }
+
 async function giftTariff(){
     const u = document.getElementById("giftUser")?.value.trim();
     const t = document.getElementById("giftTariff")?.value;
-    if(!u || !users[u]) return alert("User nicht gefunden");
+    if(!u) return alert("Username eingeben");
+    const data = await getUserData(u);
+    if(!data) return alert("User nicht gefunden");
     if(!plans[t]) return alert("Ungültiger Tarif");
     await saveUserData(u, {plan:t, messages:0});
     alert(`${t} an ${u} verschenkt!`);
     document.getElementById("giftUser").value = "";
 }
+
 async function updateAdminStats(){
     try{
         const allUsers = await getAllUsers();
@@ -963,6 +1172,7 @@ async function updateAdminStats(){
         console.error("Stats error:", e);
     }
 }
+
 async function toggleMaintenance(){
     const chk = document.getElementById("maintMode");
     maintenanceMode = chk.checked;
@@ -973,6 +1183,7 @@ async function toggleMaintenance(){
         status.innerHTML = 'Status: <strong style="color:#22c55e;">Deaktiviert</strong>';
     }
 }
+
 async function saveAdminSettings(){
     try{
         await db.collection("settings").doc("maintenance").set({enabled: maintenanceMode});
@@ -995,6 +1206,7 @@ function setTheme(t){
         document.body.style.color = "white";
     }
 }
+
 function changePassword(){
     const oldP = document.getElementById("oldPass")?.value || "";
     const newP = document.getElementById("newPass")?.value || "";
@@ -1010,11 +1222,13 @@ function changePassword(){
     document.getElementById("newPass").value = "";
     document.getElementById("confirmPass").value = "";
 }
+
 function deleteAccount(){
     if(!confirm("WIRKLICH löschen?")) return;
     alert("Account gelöscht");
     handleLogout();
 }
+
 function clearUserData(){
     if(!confirm("Alle Daten löschen?")) return;
     userData.chats = {};
@@ -1026,6 +1240,7 @@ function clearUserData(){
     alert("Daten gelöscht!");
     closeModal("profileModal");
 }
+
 function exportData(){
     let data = `Nano AI Export - ${currentUser}\n${"=".repeat(40)}\n\n`;
     Object.entries(userData.chats||{}).forEach(([id,c])=>{
@@ -1041,14 +1256,19 @@ function exportData(){
 }
 
 // ============================================
-// INIT ON LOAD
+// EVENT LISTENERS
 // ============================================
 window.addEventListener("DOMContentLoaded", init);
+
 document.addEventListener("click",(e)=>{
     const dd = document.getElementById("dropdown");
     const pr = document.querySelector(".profile");
-    if(dd && pr && !dd.contains(e.target) && !pr.contains(e.target)) dd.style.display = "none";
-    document.querySelectorAll(".modal-overlay").forEach(m=>{if(e.target===m)m.style.display="none";});
+    if(dd && pr && !dd.contains(e.target) && !pr.contains(e.target)){
+        dd.style.display = "none";
+    }
+    document.querySelectorAll(".modal-overlay").forEach(m=>{
+        if(e.target===m) m.style.display="none";
+    });
 });
 </script>
 </body>
