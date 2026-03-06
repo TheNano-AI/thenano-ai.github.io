@@ -16,3 +16,4 @@ Das Angebot richtet sich an alle, die KI nutzen möchten – egal ob Einsteiger,
 Im Mittelpunkt stehen Benutzerfreundlichkeit, Transparenz und praktische Lösungen, die echten Mehrwert bieten.
 
 TheNano-AI verbindet Innovation mit Zugänglichkeit und macht künstliche Intelligenz für jeden nutzbar.
+# THeNano-AI
