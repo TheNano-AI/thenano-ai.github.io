@@ -3479,60 +3479,68 @@ const div = document.createElement('div');
 div.textContent = text;
 return div.innerHTML;
 }
-// AI API Call mit besserem Error-Handling
+async function sendMessage() {
+const input = document.getElementById("messageInput");
+const text = input.value.trim();
+if (!text || !currentChat || !userData) return;
+// Check limit
+const plan = userData.plan || "free";
+const limit = plans[plan]?.limit || 50;
+if (userData.messages >= limit) {
+alert(getText('limitReached', { limit: limit }));
+return;
+}
+// Save user message
+userData.chats[currentChat].messages.push({
+role: "user",
+text: text,
+timestamp: new Date().toISOString()
+});
+userData.messages++;
+renderMessages();
+input.value = "";
+autoResize(input);
+// Show typing indicator
+showTypingIndicator();
+// Disable send button
+const sendBtn = document.getElementById("sendBtn");
+if (sendBtn) sendBtn.disabled = true;
+// AI API Call
 try {
-    console.log("📤 Sende an API:", API_URL);
-    
-    const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            prompt: text,
-            language: currentLanguage
-        })
-    });
-    
-    console.log("📥 Response Status:", response.status);
-    
-    const data = await response.json();
-    console.log("📥 Response Data:", data);
-    
-    // Remove typing indicator
-    removeTypingIndicator();
-    
-    // Save AI response mit besserer Prüfung
-    let aiText = "";
-    if (data.text && data.text.length > 0) {
-        aiText = data.text;
-    } else if (data.error) {
-        aiText = "⚠️ API Fehler: " + data.error;
-    } else {
-        aiText = "❌ Keine Antwort von der AI. Backend prüfen!";
-    }
-    
-    userData.chats[currentChat].messages.push({
-        role: "ai",
-        text: aiText,
-        timestamp: new Date().toISOString()
-    });
-    await saveToFirebase();
-    renderMessages();
-    
+const response = await fetch(API_URL, {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+prompt: text,
+language: currentLanguage
+})
+});
+const data = await response.json();
+// Remove typing indicator
+removeTypingIndicator();
+// Save AI response
+userData.chats[currentChat].messages.push({
+role: "ai",
+text: data.text || "Entschuldigung, ich konnte deine Frage nicht verstehen.",
+timestamp: new Date().toISOString()
+});
+await saveToFirebase();
+renderMessages();
 } catch (error) {
-    console.error("❌ API Error:", error);
-    removeTypingIndicator();
-    
-    userData.chats[currentChat].messages.push({
-        role: "ai",
-        text: "❌ Verbindungsfehler: " + error.message,
-        timestamp: new Date().toISOString()
-    });
-    await saveToFirebase();
-    renderMessages();
+console.error("❌ API Error:", error);
+removeTypingIndicator();
+// Error message
+userData.chats[currentChat].messages.push({
+role: "ai",
+text: getText('serverError'),
+timestamp: new Date().toISOString()
+});
+await saveToFirebase();
+renderMessages();
 } finally {
-    if (sendBtn) sendBtn.disabled = false;
+if (sendBtn) sendBtn.disabled = false;
 }
 }
 function showTypingIndicator() {
