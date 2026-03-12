@@ -1,20 +1,26 @@
 {
-  "name": "Nano AI",
-  "short_name": "Nano",
-  "start_url": "./index.html",
+  "name": "nano.ai – Intelligent Systems",
+  "short_name": "nano.ai",
+  "description": "Skalierbare KI-Plattform für Assistenzsysteme",
+  "start_url": "/Nano-AI/ai.html",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#0b1220",
+  "background_color": "#0a0f1c",
+  "theme_color": "#0066ff",
+  "orientation": "any",
   "icons": [
     {
-      "src": "Nano-AI.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "Nano-AI.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "de-DE"
 }
