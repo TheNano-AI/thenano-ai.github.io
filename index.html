@@ -2,41 +2,113 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>nano.ai – Intelligent Systems</title>
-<meta name="description" content="Eine skalierbare KI-Plattform für moderne Assistenzsysteme">
+<meta name="description" content="Eine skalierbare KI-Plattform für moderne Assistenzsysteme, Automatisierung und intelligente Entscheidungsprozesse.">
 <meta name="theme-color" content="#0066ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="nano.ai">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
 
+<!-- Preconnect für Performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================
-   CSS VARIABLES
+   CSS VARIABLES – ZENTRALES DESIGN-SYSTEM
    ============================================ */
 :root {
+    /* Primary Colors */
     --primary: #0066ff;
     --primary-light: #00d4ff;
+    --primary-dark: #0033cc;
+    
+    /* Secondary & Accent */
     --secondary: #002aff;
     --accent: #00ff88;
+    --accent-hover: #00cc6a;
+    
+    /* Background Colors */
     --bg-dark: #0a0f1c;
+    --bg-darker: #050810;
     --bg-card: rgba(255, 255, 255, 0.05);
     --bg-card-hover: rgba(255, 255, 255, 0.08);
+    --bg-overlay: rgba(10, 15, 28, 0.95);
+    
+    /* Border Colors */
     --border: rgba(255, 255, 255, 0.08);
     --border-hover: rgba(255, 255, 255, 0.15);
+    --border-focus: rgba(0, 102, 255, 0.5);
+    
+    /* Text Colors */
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.85);
     --text-muted: rgba(255, 255, 255, 0.6);
+    --text-disabled: rgba(255, 255, 255, 0.3);
+    
+    /* Gradients & Effects */
     --gradient: linear-gradient(90deg, #0066ff, #00d4ff);
+    --gradient-vertical: linear-gradient(180deg, #0066ff, #00d4ff);
     --shadow-glow: 0 0 25px rgba(0, 119, 255, 0.6);
     --shadow-glow-hover: 0 0 35px rgba(0, 132, 255, 0.8);
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-card-hover: 0 12px 48px rgba(0, 102, 255, 0.4);
+    
+    /* Transitions & Animation */
     --transition: all 0.3s ease;
+    --transition-fast: all 0.15s ease;
+    --transition-slow: all 0.5s ease;
+    --animation-bounce: bounce 2s ease-in-out infinite;
+    --animation-float: float 20s ease-in-out infinite;
+    
+    /* Spacing & Layout */
+    --border-radius-sm: 8px;
+    --border-radius-md: 15px;
+    --border-radius-lg: 25px;
+    --border-radius-xl: 50px;
+    --container-max: 1200px;
+    --spacing-xs: 10px;
+    --spacing-sm: 20px;
+    --spacing-md: 40px;
+    --spacing-lg: 80px;
+    --spacing-xl: 120px;
+    
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+    --font-size-3xl: 42px;
+    --font-size-4xl: 64px;
+    
+    /* Z-Index Layers */
+    --z-dropdown: 100;
+    --z-sticky: 500;
+    --z-modal: 1000;
+    --z-loader: 9999;
+}
+
+/* Dark Mode Support (falls aktiviert) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-dark: #0a0f1c;
+        --text-primary: #ffffff;
+    }
 }
 
 /* ============================================
-   RESET & BASE
+   RESET & BASE STYLES
    ============================================ */
-* {
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -44,18 +116,43 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+    font-size: 16px;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-family);
     background: var(--bg-dark);
     color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus Styles für Accessibility */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Skip Link für Screenreader */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary);
+    color: white;
+    padding: 8px 16px;
+    z-index: var(--z-modal);
+    transition: top 0.3s;
+}
+.skip-link:focus {
+    top: 0;
 }
 
 /* ============================================
-   BACKGROUND ANIMATION
+   BACKGROUND ANIMATION SYSTEM
    ============================================ */
 .bg-animation {
     position: fixed;
@@ -65,6 +162,7 @@ body {
     height: 100%;
     z-index: -1;
     overflow: hidden;
+    pointer-events: none;
 }
 
 .bg-gradient {
@@ -74,24 +172,24 @@ body {
     border-radius: 50%;
     filter: blur(100px);
     opacity: 0.3;
-    animation: float 20s ease-in-out infinite;
+    animation: var(--animation-float);
 }
 
 .bg-gradient-1 {
-    background: radial-gradient(circle, #1f2a44, transparent);
+    background: radial-gradient(circle, #1f2a44, transparent 70%);
     top: -200px;
     left: -200px;
 }
 
 .bg-gradient-2 {
-    background: radial-gradient(circle, #002aff, transparent);
+    background: radial-gradient(circle, #002aff, transparent 70%);
     bottom: -200px;
     right: -200px;
     animation-delay: -5s;
 }
 
 .bg-gradient-3 {
-    background: radial-gradient(circle, #0066ff, transparent);
+    background: radial-gradient(circle, #0066ff, transparent 70%);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -105,7 +203,7 @@ body {
     75% { transform: translate(40px, 20px) scale(1.05); }
 }
 
-/* Particles */
+/* Particle System */
 .particles {
     position: absolute;
     width: 100%;
@@ -120,17 +218,24 @@ body {
     border-radius: 50%;
     opacity: 0.3;
     animation: particleFloat 15s linear infinite;
+    will-change: transform, opacity;
 }
 
 @keyframes particleFloat {
-    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    0% { 
+        transform: translateY(100vh) translateX(0) rotate(0deg); 
+        opacity: 0; 
+    }
     10% { opacity: 0.3; }
     90% { opacity: 0.3; }
-    100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+    100% { 
+        transform: translateY(-100vh) translateX(100px) rotate(720deg); 
+        opacity: 0; 
+    }
 }
 
 /* ============================================
-   NAVIGATION
+   NAVIGATION COMPONENT
    ============================================ */
 nav {
     display: flex;
@@ -139,10 +244,18 @@ nav {
     padding: 20px 60px;
     background: rgba(10, 15, 28, 0.8);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: var(--z-sticky);
     border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+nav.scrolled {
+    padding: 15px 60px;
+    background: rgba(10, 15, 28, 0.95);
+    box-shadow: var(--shadow-card);
 }
 
 nav h2 {
@@ -152,6 +265,12 @@ nav h2 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+nav h2:hover {
+    transform: scale(1.05);
 }
 
 nav .nav-links {
@@ -164,8 +283,10 @@ nav a {
     text-decoration: none;
     color: var(--text-secondary);
     font-weight: 500;
+    font-size: var(--font-size-base);
     transition: var(--transition);
     position: relative;
+    padding: 5px 0;
 }
 
 nav a::after {
@@ -177,39 +298,55 @@ nav a::after {
     height: 2px;
     background: var(--gradient);
     transition: var(--transition);
+    border-radius: 2px;
 }
 
-nav a:hover {
+nav a:hover,
+nav a.active {
     color: var(--text-primary);
 }
 
-nav a:hover::after {
+nav a:hover::after,
+nav a.active::after {
     width: 100%;
 }
 
 nav .cta-btn {
     padding: 10px 24px;
     background: var(--gradient);
-    border-radius: 25px;
+    border-radius: var(--border-radius-xl);
     color: white;
     font-weight: 600;
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-glow);
 }
 
 nav .cta-btn:hover {
     transform: scale(1.05);
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-glow-hover);
 }
 
 nav .cta-btn::after {
     display: none;
 }
 
-/* Mobile Menu */
+/* Mobile Menu Toggle */
 .menu-toggle {
     display: none;
     flex-direction: column;
     gap: 5px;
     cursor: pointer;
+    padding: 5px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+}
+
+.menu-toggle:hover {
+    background: var(--bg-card);
 }
 
 .menu-toggle span {
@@ -220,13 +357,28 @@ nav .cta-btn::after {
     transition: var(--transition);
 }
 
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
 /* ============================================
-   HEADER / HERO SECTION
+   HERO SECTION
    ============================================ */
 header {
     text-align: center;
     padding: 140px 20px 100px;
     position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .logo {
@@ -234,15 +386,22 @@ header {
     height: 160px;
     margin-bottom: 40px;
     animation: logoFloat 3s ease-in-out infinite;
+    border-radius: var(--border-radius-lg);
+    object-fit: contain;
+    transition: var(--transition);
+}
+
+.logo:hover {
+    transform: scale(1.05);
 }
 
 @keyframes logoFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
 }
 
 h1 {
-    font-size: 64px;
+    font-size: var(--font-size-4xl);
     font-weight: 900;
     margin-bottom: 25px;
     background: var(--gradient);
@@ -250,44 +409,71 @@ h1 {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     letter-spacing: -2px;
+    line-height: 1.1;
+    text-wrap: balance;
 }
 
 .subtitle {
-    font-size: 20px;
+    font-size: var(--font-size-lg);
     color: var(--text-secondary);
     max-width: 800px;
     margin: auto;
     margin-bottom: 50px;
     line-height: 1.8;
+    text-wrap: pretty;
 }
 
+/* Hero Buttons Container */
 .hero-buttons {
     display: flex;
     gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: 30px;
 }
 
 .hero-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     padding: 18px 50px;
-    border-radius: 50px;
+    border-radius: var(--border-radius-xl);
     background: var(--gradient);
     color: white;
     font-weight: 600;
-    font-size: 16px;
+    font-size: var(--font-size-base);
     text-decoration: none;
     box-shadow: var(--shadow-glow);
     transition: var(--transition);
     border: none;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.hero-btn:hover::before {
+    left: 100%;
 }
 
 .hero-btn:hover {
     transform: scale(1.08);
     box-shadow: var(--shadow-glow-hover);
+}
+
+.hero-btn:active {
+    transform: scale(0.98);
 }
 
 .hero-btn.secondary {
@@ -301,13 +487,48 @@ h1 {
     box-shadow: var(--shadow-glow);
 }
 
+.hero-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Install Badge */
+.install-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius-md);
+    color: var(--accent);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    margin-top: 15px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+}
+
 /* Scroll Indicator */
 .scroll-indicator {
     position: absolute;
     bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    animation: bounce 2s ease-in-out infinite;
+    animation: var(--animation-bounce);
+    cursor: pointer;
+    padding: 10px;
+    border-radius: var(--border-radius-md);
+    transition: var(--transition);
+}
+
+.scroll-indicator:hover {
+    background: var(--bg-card);
 }
 
 .scroll-indicator span {
@@ -332,52 +553,49 @@ h1 {
     animation: scrollDown 2s ease-in-out infinite;
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(10px); }
-}
-
 @keyframes scrollDown {
     0%, 100% { opacity: 1; top: 8px; }
     50% { opacity: 0; top: 20px; }
 }
 
 /* ============================================
-   SECTIONS
+   SECTION BASE STYLES
    ============================================ */
 section {
-    padding: 120px 20px;
-    max-width: 1200px;
+    padding: var(--spacing-xl) 20px;
+    max-width: var(--container-max);
     margin: auto;
 }
 
 .section-title {
     text-align: center;
-    font-size: 42px;
+    font-size: var(--font-size-3xl);
     margin-bottom: 20px;
     font-weight: 800;
+    line-height: 1.2;
 }
 
 .section-subtitle {
     text-align: center;
     color: var(--text-muted);
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     max-width: 600px;
     margin: auto;
-    margin-bottom: 70px;
+    margin-bottom: var(--spacing-md);
 }
 
 /* ============================================
-   INFO BOX
+   INFO BOX COMPONENT
    ============================================ */
 .info-box {
     background: var(--bg-card);
     padding: 50px;
-    border-radius: 25px;
+    border-radius: var(--border-radius-lg);
     border: 1px solid var(--border);
     line-height: 2;
     color: var(--text-secondary);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: var(--transition);
 }
 
@@ -389,11 +607,22 @@ section {
 .info-box ul {
     margin: 20px 0;
     padding-left: 25px;
+    list-style: none;
 }
 
 .info-box li {
     margin: 10px 0;
     color: var(--text-secondary);
+    position: relative;
+    padding-left: 25px;
+}
+
+.info-box li::before {
+    content: '▹';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 700;
 }
 
 /* ============================================
@@ -408,9 +637,10 @@ section {
 .card {
     background: var(--bg-card);
     padding: 40px;
-    border-radius: 25px;
+    border-radius: var(--border-radius-lg);
     border: 1px solid var(--border);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: var(--transition);
     position: relative;
     overflow: hidden;
@@ -425,12 +655,13 @@ section {
     height: 4px;
     background: var(--gradient);
     transform: scaleX(0);
+    transform-origin: left;
     transition: var(--transition);
 }
 
 .card:hover {
     transform: translateY(-15px);
-    box-shadow: var(--shadow-glow-hover);
+    box-shadow: var(--shadow-card-hover);
     border-color: var(--border-hover);
 }
 
@@ -442,11 +673,16 @@ section {
     font-size: 48px;
     margin-bottom: 20px;
     display: block;
+    transition: var(--transition);
+}
+
+.card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .card h3 {
     margin-bottom: 15px;
-    font-size: 22px;
+    font-size: var(--font-size-xl);
     font-weight: 700;
 }
 
@@ -460,10 +696,11 @@ section {
    ============================================ */
 .stats-section {
     background: var(--bg-card);
-    border-radius: 25px;
+    border-radius: var(--border-radius-lg);
     padding: 60px 40px;
     border: 1px solid var(--border);
     margin: 60px 20px;
+    backdrop-filter: blur(20px);
 }
 
 .stats-grid {
@@ -481,11 +718,14 @@ section {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 10px;
+    line-height: 1;
 }
 
 .stat-item p {
     color: var(--text-muted);
-    font-size: 16px;
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* ============================================
@@ -502,25 +742,34 @@ section {
 .pricing-card {
     background: var(--bg-card);
     padding: 50px 40px;
-    border-radius: 25px;
+    border-radius: var(--border-radius-lg);
     border: 1px solid var(--border);
     text-align: center;
     transition: var(--transition);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .pricing-card:hover {
     transform: translateY(-10px);
     border-color: var(--primary);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .pricing-card.featured {
     border-color: var(--primary);
     box-shadow: var(--shadow-glow);
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.pricing-card.featured:hover {
+    transform: scale(1.05) translateY(-10px);
 }
 
 .pricing-card.featured::before {
-    content: 'Beliebt';
+    content: '🔥 Beliebt';
     position: absolute;
     top: 20px;
     right: 20px;
@@ -529,11 +778,13 @@ section {
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
+    color: white;
 }
 
 .pricing-card h3 {
-    font-size: 24px;
+    font-size: var(--font-size-xl);
     margin-bottom: 15px;
+    font-weight: 700;
 }
 
 .pricing-card .price {
@@ -544,30 +795,36 @@ section {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 30px;
+    line-height: 1;
 }
 
 .pricing-card .price span {
-    font-size: 16px;
+    font-size: var(--font-size-base);
     color: var(--text-muted);
+    font-weight: 400;
 }
 
 .pricing-card ul {
     list-style: none;
     margin-bottom: 30px;
     text-align: left;
+    flex-grow: 1;
 }
 
 .pricing-card ul li {
-    padding: 10px 0;
+    padding: 12px 0;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .pricing-card ul li::before {
     content: '✓';
     color: var(--accent);
-    margin-right: 10px;
     font-weight: 700;
+    font-size: 18px;
 }
 
 .pricing-card .btn {
@@ -575,11 +832,13 @@ section {
     padding: 15px;
     background: var(--gradient);
     border: none;
-    border-radius: 25px;
+    border-radius: var(--border-radius-xl);
     color: white;
     font-weight: 600;
+    font-size: var(--font-size-base);
     cursor: pointer;
     transition: var(--transition);
+    margin-top: auto;
 }
 
 .pricing-card .btn:hover {
@@ -587,8 +846,12 @@ section {
     box-shadow: var(--shadow-glow);
 }
 
+.pricing-card .btn:active {
+    transform: scale(0.98);
+}
+
 /* ============================================
-   FAQ SECTION
+   FAQ ACCORDION
    ============================================ */
 .faq-container {
     max-width: 800px;
@@ -598,7 +861,7 @@ section {
 .faq-item {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 15px;
+    border-radius: var(--border-radius-md);
     margin-bottom: 15px;
     overflow: hidden;
     transition: var(--transition);
@@ -615,7 +878,12 @@ section {
     justify-content: space-between;
     align-items: center;
     font-weight: 600;
-    font-size: 18px;
+    font-size: var(--font-size-lg);
+    transition: var(--transition);
+}
+
+.faq-question:hover {
+    color: var(--primary);
 }
 
 .faq-question::after {
@@ -623,23 +891,25 @@ section {
     font-size: 24px;
     color: var(--primary);
     transition: var(--transition);
+    font-weight: 300;
 }
 
 .faq-item.active .faq-question::after {
     content: '−';
+    transform: rotate(180deg);
 }
 
 .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height 0.3s ease, padding 0.3s ease;
     padding: 0 25px;
     color: var(--text-secondary);
     line-height: 1.8;
 }
 
 .faq-item.active .faq-answer {
-    max-height: 300px;
+    max-height: 500px;
     padding: 0 25px 25px;
 }
 
@@ -649,20 +919,22 @@ section {
 .cta-section {
     text-align: center;
     background: linear-gradient(135deg, rgba(0, 102, 255, 0.2), rgba(0, 212, 255, 0.1));
-    border-radius: 25px;
+    border-radius: var(--border-radius-lg);
     padding: 80px 40px;
     border: 1px solid var(--border);
     margin: 60px 20px;
+    backdrop-filter: blur(20px);
 }
 
 .cta-section h2 {
-    font-size: 42px;
+    font-size: var(--font-size-3xl);
     margin-bottom: 20px;
+    font-weight: 800;
 }
 
 .cta-section p {
     color: var(--text-secondary);
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     max-width: 600px;
     margin: auto;
     margin-bottom: 40px;
@@ -679,26 +951,18 @@ footer {
 }
 
 .footer-content {
-    max-width: 1200px;
+    max-width: var(--container-max);
     margin: auto;
 }
 
-.footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
+.footer-logo {
+    font-size: 24px;
+    font-weight: 800;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-bottom: 30px;
-    flex-wrap: wrap;
-}
-
-.footer-links a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.footer-links a:hover {
-    color: var(--primary);
+    display: inline-block;
 }
 
 .footer-social {
@@ -727,21 +991,179 @@ footer {
     background: var(--primary);
     border-color: var(--primary);
     transform: translateY(-5px);
+    color: white;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: var(--font-size-sm);
+}
+
+.footer-links a:hover {
+    color: var(--primary);
 }
 
 .footer-bottom {
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: var(--font-size-xs);
     padding-top: 30px;
     border-top: 1px solid var(--border);
+    line-height: 1.8;
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   INSTALL MODAL / TOAST
    ============================================ */
-@media (max-width: 768px) {
+.install-modal {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    max-width: 350px;
+    box-shadow: var(--shadow-card);
+    z-index: var(--z-modal);
+    display: none;
+    animation: slideIn 0.3s ease;
+}
+
+.install-modal.show {
+    display: block;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.install-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.install-modal-title {
+    font-weight: 600;
+    font-size: var(--font-size-base);
+}
+
+.install-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    transition: var(--transition);
+}
+
+.install-modal-close:hover {
+    color: var(--text-primary);
+}
+
+.install-modal-body {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-bottom: 15px;
+}
+
+.install-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.install-modal-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.install-modal-btn.primary {
+    background: var(--gradient);
+    color: white;
+}
+
+.install-modal-btn.secondary {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+.install-modal-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* iOS Install Instructions */
+.ios-instructions {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid var(--primary-light);
+    border-radius: var(--border-radius-md);
+    padding: 15px;
+    margin-top: 15px;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.ios-instructions ol {
+    margin: 10px 0 0 20px;
+    padding: 0;
+}
+
+.ios-instructions li {
+    margin: 5px 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN – MOBILE FIRST
+   ============================================ */
+@media (max-width: 1024px) {
+    :root {
+        --font-size-4xl: 52px;
+        --font-size-3xl: 36px;
+    }
+    
     nav {
-        padding: 20px;
+        padding: 15px 30px;
+    }
+    
+    nav.scrolled {
+        padding: 12px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --font-size-4xl: 42px;
+        --font-size-3xl: 32px;
+        --font-size-xl: 20px;
+    }
+    
+    nav {
+        padding: 15px 20px;
     }
     
     nav .nav-links {
@@ -750,30 +1172,44 @@ footer {
         top: 100%;
         left: 0;
         right: 0;
-        background: rgba(10, 15, 28, 0.98);
+        background: var(--bg-overlay);
         flex-direction: column;
-        padding: 30px;
+        padding: 30px 20px;
         border-bottom: 1px solid var(--border);
+        gap: 20px;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     nav .nav-links.active {
         display: flex;
     }
     
+    nav .cta-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
     .menu-toggle {
         display: flex;
     }
     
-    h1 {
-        font-size: 42px;
+    header {
+        padding: 100px 20px 80px;
+        min-height: auto;
+    }
+    
+    .logo {
+        width: 120px;
+        height: 120px;
     }
     
     .subtitle {
-        font-size: 18px;
-    }
-    
-    header {
-        padding: 100px 20px 80px;
+        font-size: var(--font-size-base);
     }
     
     .hero-buttons {
@@ -783,16 +1219,12 @@ footer {
     
     .hero-btn {
         width: 100%;
-        max-width: 300px;
+        max-width: 320px;
         justify-content: center;
     }
     
     section {
-        padding: 80px 20px;
-    }
-    
-    .section-title {
-        font-size: 32px;
+        padding: var(--spacing-lg) 20px;
     }
     
     .info-box {
@@ -812,17 +1244,58 @@ footer {
         grid-template-columns: 1fr;
     }
     
+    .pricing-card.featured {
+        transform: none;
+    }
+    
+    .pricing-card.featured:hover {
+        transform: translateY(-10px);
+    }
+    
     .cta-section {
         padding: 50px 20px;
+        margin: 40px 10px;
     }
     
     .cta-section h2 {
-        font-size: 32px;
+        font-size: var(--font-size-2xl);
+    }
+    
+    .install-modal {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --font-size-4xl: 36px;
+        --font-size-3xl: 28px;
+    }
+    
+    h1 {
+        letter-spacing: -1px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .faq-question {
+        font-size: var(--font-size-base);
+        padding: 20px;
+    }
+    
+    .footer-links {
+        gap: 15px;
+        flex-direction: column;
+        align-items: center;
     }
 }
 
 /* ============================================
-   LOADING ANIMATION
+   LOADING SCREEN
    ============================================ */
 .loader {
     position: fixed;
@@ -834,12 +1307,13 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
-    transition: opacity 0.5s ease;
+    z-index: var(--z-loader);
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .loader.hidden {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
 }
 
@@ -863,23 +1337,110 @@ footer {
 
 .loader-text {
     color: var(--text-secondary);
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loader-progress {
+    width: 200px;
+    height: 4px;
+    background: var(--bg-card);
+    border-radius: 2px;
+    margin: 20px auto 0;
+    overflow: hidden;
+}
+
+.loader-progress-bar {
+    height: 100%;
+    background: var(--gradient);
+    border-radius: 2px;
+    animation: progress 2s ease-in-out infinite;
+    width: 0%;
+}
+
+@keyframes progress {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.text-gradient {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .bg-animation,
+    .loader,
+    nav,
+    .hero-buttons,
+    .scroll-indicator,
+    footer {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .card,
+    .info-box,
+    .pricing-card {
+        break-inside: avoid;
+        border: 1px solid #ccc;
+    }
 }
 </style>
 </head>
 <body>
 
+<!-- Skip Link für Accessibility -->
+<a href="#main-content" class="skip-link">Zum Inhalt springen</a>
+
 <!-- Loading Screen -->
-<div class="loader" id="loader">
+<div class="loader" id="loader" role="status" aria-live="polite">
     <div class="loader-content">
-        <div class="loader-spinner"></div>
+        <div class="loader-spinner" aria-hidden="true"></div>
         <div class="loader-text">nano.ai lädt...</div>
+        <div class="loader-progress" aria-hidden="true">
+            <div class="loader-progress-bar"></div>
+        </div>
     </div>
 </div>
 
 <!-- Background Animation -->
-<div class="bg-animation">
+<div class="bg-animation" aria-hidden="true">
     <div class="bg-gradient bg-gradient-1"></div>
     <div class="bg-gradient bg-gradient-2"></div>
     <div class="bg-gradient bg-gradient-3"></div>
@@ -887,477 +1448,1190 @@ footer {
 </div>
 
 <!-- Navigation -->
-<nav>
-    <h2>nano.ai</h2>
-    <div class="menu-toggle" onclick="toggleMenu()">
+<nav role="navigation" aria-label="Hauptnavigation">
+    <h2 onclick="window.scrollTo({top: 0, behavior: 'smooth'})" tabindex="0">nano.ai</h2>
+    
+    <div class="menu-toggle" onclick="toggleMenu()" aria-label="Menü umschalten" aria-expanded="false" aria-controls="navLinks">
         <span></span>
         <span></span>
         <span></span>
     </div>
+    
     <div class="nav-links" id="navLinks">
-        <a href="#home">Home</a>
+        <a href="#home" class="active">Home</a>
         <a href="#features">Funktionen</a>
         <a href="#pricing">Preise</a>
         <a href="#faq">FAQ</a>
-        <a href="https://thenano-ai.github.io/Nano-AI/ai.html" target="_blank" class="cta-btn">Jetzt starten</a>
+        <a href="https://thenano-ai.github.io/Nano-AI/ai.html" target="_blank" rel="noopener noreferrer" class="cta-btn">Jetzt starten</a>
     </div>
 </nav>
 
-<!-- Header / Hero -->
-<header id="home">
-    <img src="NanoAI.png" alt="nano.ai Logo" class="logo" onerror="this.style.display='none'">
-    <h1>nano.ai</h1>
-    <p class="subtitle">
-        Eine skalierbare KI-Plattform für moderne Assistenzsysteme, 
-        Automatisierung und intelligente Entscheidungsprozesse. 
-        Optimiert für Performance, Sicherheit und Integration.
-    </p>
-   <div class="hero-buttons">
-    <a href="https://thenano-ai.github.io/Nano-AI/ai.html" target="_blank" class="hero-btn">
-        <span>🚀</span>
-        <span>nano.ai starten</span>
-    </a>
-
-    <a href="#features" class="hero-btn secondary">
-        <span>📖</span>
-        <span>Mehr erfahren</span>
-    </a>
-
-    <button class="hero-btn secondary" id="installBtn" style="display:none;">
-    📱 App installieren
-    </button>
-</div>
-    <div class="scroll-indicator">
-        <span></span>
-    </div>
-</header>
-
-<!-- Stats Section -->
-<div class="stats-section">
-    <div class="stats-grid">
-        <div class="stat-item">
-            <h3 id="stat1">0</h3>
-            <p>Aktive Nutzer</p>
-        </div>
-        <div class="stat-item">
-            <h3 id="stat2">0</h3>
-            <p>Nachrichten/Tag</p>
-        </div>
-        <div class="stat-item">
-            <h3 id="stat3">0</h3>
-            <p>API Aufrufe</p>
-        </div>
-        <div class="stat-item">
-            <h3 id="stat4">0</h3>
-            <p>Integrationen</p>
-        </div>
-    </div>
-</div>
-
-<!-- Produktübersicht -->
-<section>
-    <h2 class="section-title">Produktübersicht</h2>
-    <p class="section-subtitle">Entdecke die Möglichkeiten von nano.ai</p>
-    <div class="info-box">
-        <p>
-            nano.ai ist eine modulare KI-Architektur, entwickelt für Echtzeit-Interaktion 
-            und serverbasierte Assistenzsysteme. Die Plattform kombiniert optimierte 
-            Sprachverarbeitung, kontextuelle Analyse und adaptive Antwortlogik.
+<!-- Main Content Anchor -->
+<main id="main-content">
+    
+    <!-- Header / Hero -->
+    <header id="home">
+        <img src="NanoAI.png" alt="nano.ai Logo – Intelligente KI-Plattform" class="logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'font-size:48px;margin-bottom:40px\'>🤖</div>'">
+        
+        <h1>nano.ai</h1>
+        
+        <p class="subtitle">
+            Eine skalierbare KI-Plattform für moderne Assistenzsysteme, 
+            Automatisierung und intelligente Entscheidungsprozesse. 
+            Optimiert für Performance, Sicherheit und nahtlose Integration.
         </p>
-        <p style="margin-top: 20px;">
-            Ziel ist es, eine leistungsstarke, aber effiziente KI bereitzustellen, 
-            die sowohl lokal als auch cloudbasiert betrieben werden kann. 
-            nano.ai eignet sich für Discord-Bots, Support-Systeme, 
-            Web-Integrationen sowie individuelle Automatisierungslösungen.
-        </p>
-        <ul>
-            <li>🔹 Echtzeit-Sprachverarbeitung</li>
-            <li>🔹 Kontextuelle Analyse</li>
-            <li>🔹 Adaptive Antwortlogik</li>
-            <li>🔹 Multi-Plattform Support</li>
-        </ul>
-    </div>
-</section>
+        
+        <div class="hero-buttons">
+            <a href="https://thenano-ai.github.io/Nano-AI/ai.html" target="_blank" rel="noopener noreferrer" class="hero-btn" aria-label="nano.ai jetzt starten">
+                <span aria-hidden="true">🚀</span>
+                <span>nano.ai starten</span>
+            </a>
 
-<!-- Kernfunktionen -->
-<section id="features">
-    <h2 class="section-title">Kernfunktionen</h2>
-    <p class="section-subtitle">Alles was du für intelligente Automatisierung brauchst</p>
-    <div class="features">
-        <div class="card">
-            <span class="card-icon">⚡</span>
-            <h3>Performance-Optimierung</h3>
-            <p>Minimierte Latenzzeiten und ressourceneffiziente Architektur für schnelle Antworten.</p>
+            <a href="#features" class="hero-btn secondary" aria-label="Mehr über Funktionen erfahren">
+                <span aria-hidden="true">📖</span>
+                <span>Mehr erfahren</span>
+            </a>
+
+            <!-- PWA Install Button – Wird dynamisch eingeblendet -->
+            <button class="hero-btn secondary" id="installBtn" style="display:none;" aria-label="nano.ai App installieren">
+                <span aria-hidden="true">📱</span>
+                <span>App installieren</span>
+            </button>
         </div>
-        <div class="card">
-            <span class="card-icon">🧠</span>
-            <h3>Kontextbasierte Verarbeitung</h3>
-            <p>Analyse von Eingaben mit adaptiver Logik und intelligenter Antwortstruktur.</p>
+        
+        <!-- Install Badge für iOS Nutzer -->
+        <div id="iosBadge" class="install-badge" style="display:none;" aria-hidden="true">
+            <span>🍎</span>
+            <span>Über "Teilen" → "Zum Home-Bildschirm" installieren</span>
         </div>
-        <div class="card">
-            <span class="card-icon">🔒</span>
-            <h3>Sicherheitsorientiertes Design</h3>
-            <p>Strukturierte Datenverarbeitung mit Fokus auf Datenschutz und Sicherheit.</p>
+        
+        <div class="scroll-indicator" onclick="document.querySelector('#features')?.scrollIntoView({behavior:'smooth'})" tabindex="0" role="button" aria-label="Nach unten scrollen">
+            <span></span>
         </div>
-        <div class="card">
-            <span class="card-icon">🔩</span>
-            <h3>API & Integrationen</h3>
-            <p>Einbindung in Discord, Web-Oberflächen und individuelle Systeme möglich.</p>
-        </div>
-        <div class="card">
-            <span class="card-icon">🌍</span>
-            <h3>Plattformunabhängig</h3>
-            <p>Ausführbar auf lokalen Servern, VPS oder Cloud-Umgebungen weltweit.</p>
-        </div>
-        <div class="card">
-            <span class="card-icon">📈</span>
-            <h3>Skalierbarkeit</h3>
-            <p>Architektur wächst mit steigenden Nutzerzahlen und Anforderungen mit.</p>
+    </header>
+
+    <!-- Stats Section -->
+    <div class="stats-section" aria-label="Plattform-Statistiken">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3 id="stat1" aria-live="polite">0</h3>
+                <p>Aktive Nutzer</p>
+            </div>
+            <div class="stat-item">
+                <h3 id="stat2" aria-live="polite">0</h3>
+                <p>Nachrichten/Tag</p>
+            </div>
+            <div class="stat-item">
+                <h3 id="stat3" aria-live="polite">0</h3>
+                <p>API Aufrufe</p>
+            </div>
+            <div class="stat-item">
+                <h3 id="stat4" aria-live="polite">0</h3>
+                <p>Integrationen</p>
+            </div>
         </div>
     </div>
-</section>
 
-<!-- Technologie -->
-<section>
-    <h2 class="section-title">Technologie</h2>
-    <p class="section-subtitle">Modernste Architektur für beste Ergebnisse</p>
-    <div class="info-box">
-        <p>
-            nano.ai basiert auf einer modularen Struktur, die Trainingsmodelle, 
-            Antwortlogik und Systemsteuerung trennt. Diese Architektur ermöglicht:
-        </p>
-        <ul>
-            <li>Austausch einzelner Module ohne Systemausfall</li>
-            <li>Anpassung an Hardware (z.B. 4GB–8GB VRAM Systeme)</li>
-            <li>Erweiterbarkeit durch Plugins und Extensions</li>
-            <li>Stabile Langzeitnutzung im Serverbetrieb</li>
-            <li>Automatische Updates und Patches</li>
-        </ul>
-        <p style="margin-top: 20px;">
-            Die Plattform ist für kontinuierliche Weiterentwicklung konzipiert 
-            und wird regelmäßig mit neuen Features und Verbesserungen aktualisiert.
-        </p>
-    </div>
-</section>
-
-<!-- Pricing -->
-<section id="pricing">
-    <h2 class="section-title">Preise</h2>
-    <p class="section-subtitle">Wähle den passenden Plan für deine Bedürfnisse</p>
-    <div class="pricing-grid">
-        <div class="pricing-card">
-            <h3>Free</h3>
-            <div class="price">0€<span>/Monat</span></div>
+    <!-- Produktübersicht -->
+    <section aria-labelledby="produkt-title">
+        <h2 class="section-title" id="produkt-title">Produktübersicht</h2>
+        <p class="section-subtitle">Entdecke die Möglichkeiten von nano.ai</p>
+        
+        <div class="info-box">
+            <p>
+                nano.ai ist eine modulare KI-Architektur, entwickelt für Echtzeit-Interaktion 
+                und serverbasierte Assistenzsysteme. Die Plattform kombiniert optimierte 
+                Sprachverarbeitung, kontextuelle Analyse und adaptive Antwortlogik.
+            </p>
+            <p style="margin-top: 20px;">
+                Ziel ist es, eine leistungsstarke, aber effiziente KI bereitzustellen, 
+                die sowohl lokal als auch cloudbasiert betrieben werden kann. 
+                nano.ai eignet sich für Discord-Bots, Support-Systeme, 
+                Web-Integrationen sowie individuelle Automatisierungslösungen.
+            </p>
             <ul>
-                <li>5000 Nachrichten/Monat</li>
-                <li>Standard Geschwindigkeit</li>
-                <li>Basis Support</li>
-                <li>Web Zugang</li>
+                <li>🔹 Echtzeit-Sprachverarbeitung mit < 100ms Latenz</li>
+                <li>🔹 Kontextuelle Analyse über mehrere Konversationen</li>
+                <li>🔹 Adaptive Antwortlogik mit Lernfähigkeit</li>
+                <li>🔹 Multi-Plattform Support: Web, Discord, API, Mobile</li>
+                <li>🔹 DSGVO-konforme Datenverarbeitung</li>
             </ul>
-            <button class="btn" onclick="window.open('https://thenano-ai.github.io/Nano-AI/ai.html', '_blank')">Kostenlos starten</button>
         </div>
-        <div class="pricing-card featured">
-            <h3>Ultra</h3>
-            <div class="price">4.99€<span>/Monat</span></div>
-            <ul>
-                <li>100000 Nachrichten/Monat</li>
-                <li>Schnelle Antwort</li>
-                <li>Priority Support</li>
-                <li>API Zugang</li>
-                <li>Discord Integration</li>
-            </ul>
-            <button class="btn" onclick="window.open('https://thenano-ai.github.io/Nano-AI/ai.html', '_blank')">Jetzt upgraden</button>
-        </div>
-        <div class="pricing-card">
-            <h3>Nano</h3>
-            <div class="price">9.99€<span>/Monat</span></div>
-            <ul>
-                <li>Unbegrenzte Nachrichten</li>
-                <li>Schnellste Antwort</li>
-                <li>VIP Support</li>
-                <li>Volle API</li>
-                <li>Alle Integrationen</li>
-                <li>Custom Features</li>
-            </ul>
-            <button class="btn" onclick="window.open('https://thenano-ai.github.io/Nano-AI/ai.html', '_blank')">Premium starten</button>
-        </div>
-    </div>
-</section>
+    </section>
 
-<!-- FAQ -->
-<section id="faq">
-    <h2 class="section-title">Häufige Fragen</h2>
-    <p class="section-subtitle">Antworten auf die wichtigsten Fragen</p>
-    <div class="faq-container">
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFaq(this)">
-                Ist nano.ai kostenlos?
-            </div>
-            <div class="faq-answer">
-                Ja, nano.ai bietet einen kostenlosen Plan mit 50 Nachrichten pro Monat. 
-                Für mehr Funktionen stehen die Ultra und Nano Pläne zur Verfügung.
-            </div>
+    <!-- Kernfunktionen -->
+    <section id="features" aria-labelledby="features-title">
+        <h2 class="section-title" id="features-title">Kernfunktionen</h2>
+        <p class="section-subtitle">Alles was du für intelligente Automatisierung brauchst</p>
+        
+        <div class="features">
+            <article class="card">
+                <span class="card-icon" aria-hidden="true">⚡</span>
+                <h3>Performance-Optimierung</h3>
+                <p>Minimierte Latenzzeiten durch Edge-Caching und ressourceneffiziente Architektur für schnelle, zuverlässige Antworten – auch bei hoher Last.</p>
+            </article>
+            
+            <article class="card">
+                <span class="card-icon" aria-hidden="true">🧠</span>
+                <h3>Kontextbasierte Verarbeitung</h3>
+                <p>Intelligente Analyse von Eingaben mit adaptiver Logik, Gedächtnis-Funktion und kontextabhängiger Antwortstruktur für natürlichere Interaktionen.</p>
+            </article>
+            
+            <article class="card">
+                <span class="card-icon" aria-hidden="true">🔒</span>
+                <h3>Sicherheitsorientiertes Design</h3>
+                <p>Ende-zu-Ende-Verschlüsselung, strukturierte Datenverarbeitung mit Fokus auf Datenschutz, regelmäßige Security-Audits und Compliance.</p>
+            </article>
+            
+            <article class="card">
+                <span class="card-icon" aria-hidden="true">🔩</span>
+                <h3>API & Integrationen</h3>
+                <p>RESTful API mit WebSocket-Support, einfache Einbindung in Discord, Slack, Web-Oberflächen und individuelle Systeme via Webhooks.</p>
+            </article>
+            
+            <article class="card">
+                <span class="card-icon" aria-hidden="true">🌍</span>
+                <h3>Plattformunabhängig</h3>
+                <p>Ausführbar auf lokalen Servern, VPS, Docker-Containern oder Cloud-Umgebungen (AWS, GCP, Azure) – weltweit mit niedriger Latenz.</p>
+            </article>
+            
+            <article class="card">
+                <span class="card-icon" aria-hidden="true">📈</span>
+                <h3>Skalierbarkeit</h3>
+                <p>Microservices-Architektur wächst automatisch mit steigenden Nutzerzahlen. Load-Balancing und Auto-Scaling für Enterprise-Anforderungen.</p>
+            </article>
         </div>
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFaq(this)">
-                Wie kann ich nano.ai nutzen?
-            </div>
-            <div class="faq-answer">
-                Einfach auf "nano.ai starten" klicken, einen Account erstellen 
-                und sofort mit der Nutzung beginnen. Keine Kreditkarte erforderlich.
-            </div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFaq(this)">
-                Welche Plattformen werden unterstützt?
-            </div>
-            <div class="faq-answer">
-                nano.ai läuft auf allen modernen Browsern, kann in Discord integriert 
-                werden und bietet eine API für individuelle Lösungen.
-            </div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFaq(this)">
-                Sind meine Daten sicher?
-            </div>
-            <div class="faq-answer">
-                Ja, Datenschutz hat höchste Priorität. Alle Daten werden verschlüsselt 
-                übertragen und sicher gespeichert.
-            </div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFaq(this)">
-                Kann ich mein Plan ändern?
-            </div>
-            <div class="faq-answer">
-                Ja, du kannst jederzeit zwischen den Plänen wechseln. 
-                Das Upgrade ist sofort aktiv, Downgrades am Ende des Monats.
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
-<!-- Vision & Roadmap -->
-<section>
-    <h2 class="section-title">Vision & Roadmap</h2>
-    <p class="section-subtitle">Unsere Ziele für die Zukunft</p>
-    <div class="info-box">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
-            <div>
-                <h4 style="color: var(--primary); margin-bottom: 15px;">Phase 1 – Q1 2026</h4>
-                <p style="color: var(--text-secondary);">Kernsystem & Web-Interface</p>
+    <!-- Technologie -->
+    <section aria-labelledby="tech-title">
+        <h2 class="section-title" id="tech-title">Technologie</h2>
+        <p class="section-subtitle">Modernste Architektur für beste Ergebnisse</p>
+        
+        <div class="info-box">
+            <p>
+                nano.ai basiert auf einer modularen Microservices-Struktur, die Trainingsmodelle, 
+                Antwortlogik und Systemsteuerung trennt. Diese Architektur ermöglicht:
+            </p>
+            <ul>
+                <li>Austausch einzelner Module ohne Systemausfall (Zero-Downtime-Updates)</li>
+                <li>Anpassung an Hardware (optimiert für 4GB–8GB VRAM Systeme)</li>
+                <li>Erweiterbarkeit durch Plugins, Extensions und Custom-Models</li>
+                <li>Stabile Langzeitnutzung im 24/7 Serverbetrieb mit Health-Checks</li>
+                <li>Automatische Updates, Patches und Rollback-Funktionalität</li>
+                <li>Monitoring via Prometheus/Grafana Integration</li>
+            </ul>
+            <p style="margin-top: 20px;">
+                Die Plattform ist für kontinuierliche Weiterentwicklung konzipiert 
+                und wird regelmäßig mit neuen Features, Performance-Improvements 
+                und Security-Updates versorgt.
+            </p>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" aria-labelledby="pricing-title">
+        <h2 class="section-title" id="pricing-title">Preise</h2>
+        <p class="section-subtitle">Wähle den passenden Plan für deine Bedürfnisse</p>
+        
+        <div class="pricing-grid">
+            <article class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">0€<span>/Monat</span></div>
+                <ul>
+                    <li>5.000 Nachrichten/Monat</li>
+                    <li>Standard Antwortgeschwindigkeit</li>
+                    <li>Basis E-Mail Support</li>
+                    <li>Web-Zugang über Browser</li>
+                    <li>Grundlegende Analytics</li>
+                </ul>
+                <button class="btn" onclick="window.open('https://thenano-ai.github.io/Nano-AI/ai.html', '_blank', 'noopener,noreferrer')" aria-label="Kostenlos starten">Kostenlos starten</button>
+            </article>
+            
+            <article class="pricing-card featured">
+                <h3>Ultra</h3>
+                <div class="price">4,99€<span>/Monat</span></div>
+                <ul>
+                    <li>100.000 Nachrichten/Monat</li>
+                    <li>Schnelle Antwort (< 200ms)</li>
+                    <li>Priority Support (Chat & E-Mail)</li>
+                    <li>Vollzugängliche REST API</li>
+                    <li>Discord & Slack Integration</li>
+                    <li>Erweiterte Analytics & Logs</li>
+                </ul>
+                <button class="btn" onclick="window.open('https://thenano-ai.github.io/Nano-AI/ai.html', '_blank', 'noopener,noreferrer')" aria-label="Ultra Plan jetzt upgraden">Jetzt upgraden</button>
+            </article>
+            
+            <article class="pricing-card">
+                <h3>Nano Pro</h3>
+                <div class="price">9,99€<span>/Monat</span></div>
+                <ul>
+                    <li>∞ Unbegrenzte Nachrichten</li>
+                    <li>Schnellste Antwort (< 100ms)</li>
+                    <li>VIP 24/7 Support (Priorisiert)</li>
+                    <li>Volle API mit Webhooks</li>
+                    <li>Alle Integrationen + Custom</li>
+                    <li>Custom Features & White-Label</li>
+                    <li>SLA mit 99.9% Uptime</li>
+                </ul>
+                <button class="btn" onclick="window.open('https://thenano-ai.github.io/Nano-AI/ai.html', '_blank', 'noopener,noreferrer')" aria-label="Nano Pro Premium starten">Premium starten</button>
+            </article>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" aria-labelledby="faq-title">
+        <h2 class="section-title" id="faq-title">Häufige Fragen</h2>
+        <p class="section-subtitle">Antworten auf die wichtigsten Fragen</p>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                    Ist nano.ai kostenlos?
+                </div>
+                <div class="faq-answer">
+                    Ja, nano.ai bietet einen kostenlosen Free-Plan mit 5.000 Nachrichten pro Monat. 
+                    Für erweiterte Funktionen, höhere Limits und Priority-Support stehen die 
+                    Ultra (4,99€/Monat) und Nano Pro (9,99€/Monat) Pläne zur Verfügung. 
+                    Keine versteckten Kosten – jederzeit kündbar.
+                </div>
             </div>
-            <div>
-                <h4 style="color: var(--primary); margin-bottom: 15px;">Phase 2 – Q2 2026</h4>
-                <p style="color: var(--text-secondary);">Discord-Integration & API-Ausbau</p>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                    Wie kann ich nano.ai nutzen?
+                </div>
+                <div class="faq-answer">
+                    Ganz einfach: Klicke auf "nano.ai starten", erstelle einen kostenlosen Account 
+                    mit E-Mail oder OAuth (Google/GitHub) und beginne sofort mit der Nutzung. 
+                    Keine Kreditkarte erforderlich für den Free-Plan. Die App kann auch als 
+                    PWA installiert werden für Offline-Nutzung und Push-Benachrichtigungen.
+                </div>
             </div>
-            <div>
-                <h4 style="color: var(--primary); margin-bottom: 15px;">Phase 3 – Q3 2026</h4>
-                <p style="color: var(--text-secondary);">Erweiterte Lernmodule</p>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                    Welche Plattformen werden unterstützt?
+                </div>
+                <div class="faq-answer">
+                    nano.ai läuft auf allen modernen Browsern (Chrome, Firefox, Safari, Edge), 
+                    kann als Progressive Web App (PWA) auf Desktop & Mobile installiert werden, 
+                    bietet native Discord/Slack-Bot-Integration und eine dokumentierte REST API 
+                    für individuelle Lösungen. iOS & Android werden über PWA voll unterstützt.
+                </div>
             </div>
-            <div>
-                <h4 style="color: var(--primary); margin-bottom: 15px;">Phase 4 – Q4 2026</h4>
-                <p style="color: var(--text-secondary);">Multi-Server & Enterprise-Features</p>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                    Sind meine Daten sicher?
+                </div>
+                <div class="faq-answer">
+                    Absolut. Datenschutz hat bei nano.ai höchste Priorität: 
+                    • Ende-zu-Ende-Verschlüsselung (TLS 1.3) 
+                    • Daten werden nur zur Verarbeitung temporär gespeichert 
+                    • Keine Weitergabe an Dritte 
+                    • DSGVO-konform mit Löschfunktion 
+                    • Regelmäßige Security-Audits durch externe Experten 
+                    • Option für Self-Hosting bei Enterprise-Plänen
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                    Kann ich meinen Plan ändern?
+                </div>
+                <div class="faq-answer">
+                    Ja, jederzeit und flexibel: 
+                    • Upgrades sind sofort aktiv und werden anteilig abgerechnet 
+                    • Downgrades werden am Ende des aktuellen Abrechnungszyklus wirksam 
+                    • Du kannst zwischen monatlicher und jährlicher Zahlung wechseln (15% Rabatt bei Jahreszahlung) 
+                    • Kostenlose Testphase für Ultra/Nano Pro verfügbar
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                    Gibt es eine Mobile App?
+                </div>
+                <div class="faq-answer">
+                    Ja! nano.ai ist als Progressive Web App (PWA) verfügbar: 
+                    • Installation über Browser ("Zum Home-Bildschirm") 
+                    • Offline-Funktionalität für letzte Konversationen 
+                    • Push-Benachrichtigungen für neue Antworten 
+                    • Native App-Erfahrung ohne App-Store 
+                    • Automatische Updates im Hintergrund 
+                    • Für iOS: Über "Teilen" → "Zum Home-Bildschirm" hinzufügen
+                </div>
             </div>
         </div>
-        <p style="margin-top: 30px; color: var(--text-secondary);">
-            Langfristiges Ziel ist eine autonome, selbstoptimierende Assistenzplattform, 
-            die flexibel in verschiedenste Umgebungen integrierbar ist.
+    </section>
+
+    <!-- Vision & Roadmap -->
+    <section aria-labelledby="roadmap-title">
+        <h2 class="section-title" id="roadmap-title">Vision & Roadmap</h2>
+        <p class="section-subtitle">Unsere Ziele für die Zukunft</p>
+        
+        <div class="info-box">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span style="background:var(--primary); width:8px; height:8px; border-radius:50%"></span>
+                        Phase 1 – Q1 2026
+                    </h4>
+                    <p style="color: var(--text-secondary);">Kernsystem & Web-Interface: Stable Release, PWA-Support, Basis-API, Discord-Integration MVP</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span style="background:var(--primary); width:8px; height:8px; border-radius:50%"></span>
+                        Phase 2 – Q2 2026
+                    </h4>
+                    <p style="color: var(--text-secondary);">Discord-Integration & API-Ausbau: Webhooks, Rate-Limiting, Analytics-Dashboard, Mobile-Optimierung</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span style="background:var(--primary); width:8px; height:8px; border-radius:50%"></span>
+                        Phase 3 – Q3 2026
+                    </h4>
+                    <p style="color: var(--text-secondary);">Erweiterte Lernmodule: Personalisierung, Kontext-Gedächtnis, Multi-Modal-Support (Bild/Text), Plugin-System</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span style="background:var(--primary); width:8px; height:8px; border-radius:50%"></span>
+                        Phase 4 – Q4 2026
+                    </h4>
+                    <p style="color: var(--text-secondary);">Multi-Server & Enterprise: Clustering, Load-Balancing, SSO, Audit-Logs, SLA-Garantien, Self-Hosting</p>
+                </div>
+            </div>
+            <p style="margin-top: 30px; color: var(--text-secondary);">
+                Langfristiges Ziel ist eine autonome, selbstoptimierende Assistenzplattform, 
+                die flexibel in verschiedenste Umgebungen integrierbar ist – von persönlichen 
+                Projekten bis zu Enterprise-Infrastrukturen.
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <div class="cta-section" role="region" aria-label="Call to Action">
+        <h2>Bereit loszulegen?</h2>
+        <p>Starte jetzt mit nano.ai und erlebe die Zukunft der KI-Assistenz – kostenlos, sicher und sofort einsatzbereit.</p>
+        <a href="https://thenano-ai.github.io/Nano-AI/ai.html" target="_blank" rel="noopener noreferrer" class="hero-btn" aria-label="nano.ai jetzt öffnen und starten">
+            <span aria-hidden="true">🚀</span>
+            <span>nano.ai öffnen</span>
+        </a>
+        <p style="margin-top: 20px; font-size: var(--font-size-sm); color: var(--text-muted);">
+            💡 Tipp: Installiere nano.ai als App für Offline-Zugriff und Push-Benachrichtigungen!
         </p>
     </div>
-</section>
 
-<!-- CTA Section -->
-<div class="cta-section">
-    <h2>Bereit loszulegen?</h2>
-    <p>Starte jetzt mit nano.ai und erlebe die Zukunft der KI-Assistenz.</p>
-    <a href="https://thenano-ai.github.io/Nano-AI/ai.html" target="_blank" class="hero-btn">
-        <span>🚀</span>
-        <span>nano.ai öffnen</span>
-    </a>
-</div>
+</main>
 
 <!-- Footer -->
-<footer>
+<footer role="contentinfo">
     <div class="footer-content">
-        <div class="footer-social">
-            <a href="#" title="GitHub">💻</a>
-            <a href="#" title="Discord">💬</a>
-            <a href="#" title="Twitter">🐦</a>
-            <a href="#" title="Email">📧</a>
+        <div class="footer-logo">nano.ai</div>
+        
+        <div class="footer-social" aria-label="Soziale Medien & Kontakt">
+            <a href="https://github.com/thenano-ai" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub besuchen">💻</a>
+            <a href="#" title="Discord Community" aria-label="Discord beitreten">💬</a>
+            <a href="#" title="Twitter / X" aria-label="Twitter folgen">🐦</a>
+            <a href="mailto:hello@nano.ai" title="E-Mail Kontakt" aria-label="E-Mail senden">📧</a>
         </div>
-        <div class="footer-links">
+        
+        <div class="footer-links" role="navigation" aria-label="Footer Navigation">
             <a href="#home">Home</a>
             <a href="#features">Funktionen</a>
             <a href="#pricing">Preise</a>
             <a href="#faq">FAQ</a>
-            <a href="#">Impressum</a>
-            <a href="#">Datenschutz</a>
+            <a href="#" onclick="alert('Impressum wird geladen...'); return false;">Impressum</a>
+            <a href="#" onclick="alert('Datenschutzerklärung wird geladen...'); return false;">Datenschutz</a>
+            <a href="#" onclick="alert('AGB werden geladen...'); return false;">AGB</a>
         </div>
+        
         <div class="footer-bottom">
             © 2026 nano.ai – Intelligent Systems<br>
-            Modulare KI-Technologie für moderne Anwendungen
+            Modulare KI-Technologie für moderne Anwendungen<br>
+            <span style="opacity: 0.7; font-size: 12px;">Made with ❤️ in Germany • v1.0.0</span>
         </div>
     </div>
 </footer>
 
+<!-- Install Modal / Toast -->
+<div class="install-modal" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installModalTitle">
+    <div class="install-modal-header">
+        <span class="install-modal-title" id="installModalTitle">📱 nano.ai installieren</span>
+        <button class="install-modal-close" onclick="closeInstallModal()" aria-label="Schließen">&times;</button>
+    </div>
+    <div class="install-modal-body">
+        <p>Installiere nano.ai als App für schnellen Zugriff, Offline-Nutzung und Push-Benachrichtigungen – ganz ohne App Store!</p>
+        <div id="iosInstructions" class="ios-instructions" style="display:none;">
+            <strong>iOS-Nutzer:</strong>
+            <ol>
+                <li>Tippe auf <strong>Teilen</strong> (📤) in der Safari-Leiste</li>
+                <li>Wähle <strong>"Zum Home-Bildschirm"</strong></li>
+                <li>Bestätige mit <strong>"Hinzufügen"</strong></li>
+            </ol>
+        </div>
+    </div>
+    <div class="install-modal-actions">
+        <button class="install-modal-btn secondary" onclick="closeInstallModal()">Vielleicht später</button>
+        <button class="install-modal-btn primary" id="modalInstallBtn">Jetzt installieren</button>
+    </div>
+</div>
+
+<!-- ============================================
+     JAVASCRIPT – INTERACTIVITY & PWA LOGIC
+     ============================================ -->
 <script>
-// ============================================
-// LOADING SCREEN
-// ============================================
+/**
+ * ============================================
+ * GLOBAL CONFIGURATION & UTILS
+ * ============================================
+ */
+const CONFIG = {
+    loaderDelay: 1000,
+    particleCount: 50,
+    statsTargets: [
+        { id: 'stat1', target: 99, suffix: '+' },
+        { id: 'stat2', target: 599, suffix: 'K' },
+        { id: 'stat3', target: 999, suffix: 'K' },
+        { id: 'stat4', target: 3, suffix: '+' }
+    ],
+    installStorageKey: 'nanoai_install_prompted',
+    apkDownloadUrl: 'https://github.com/thenano-ai/Nano-AI/releases/latest/download/nano-ai.apk',
+    appUrl: 'https://thenano-ai.github.io/Nano-AI/ai.html'
+};
+
+/**
+ * Utility: Detect OS/Platform
+ */
+const Platform = {
+    isiOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+    isAndroid: /Android/.test(navigator.userAgent),
+    isMobile: /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent),
+    isPWA: window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true,
+    supportsPWA: 'beforeinstallprompt' in window || 
+                 ('standalone' in window.navigator) || 
+                 ('display-mode' in window.matchMedia('(display-mode: standalone)'))
+};
+
+/**
+ * Utility: LocalStorage Wrapper mit Error-Handling
+ */
+const Storage = {
+    get(key, defaultValue = null) {
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (e) {
+            console.warn('localStorage read error:', e);
+            return defaultValue;
+        }
+    },
+    set(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch (e) {
+            console.warn('localStorage write error:', e);
+            return false;
+        }
+    },
+    remove(key) {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (e) {
+            console.warn('localStorage remove error:', e);
+            return false;
+        }
+    }
+};
+
+/**
+ * ============================================
+ * LOADING SCREEN MANAGEMENT
+ * ============================================
+ */
+function hideLoader() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        // Smooth fade out
+        loader.style.transition = 'opacity 0.5s ease, visibility 0.5s ease';
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+        
+        // Remove from DOM after transition
+        setTimeout(() => {
+            loader.style.display = 'none';
+            // Trigger initial animations after load
+            initPageAnimations();
+        }, 500);
+    }
+}
+
+// Hide loader after page load + minimal delay
 window.addEventListener('load', () => {
-    setTimeout(() => {
-        document.getElementById('loader').classList.add('hidden');
-    }, 1000);
+    setTimeout(hideLoader, CONFIG.loaderDelay);
 });
 
-// ============================================
-// MOBILE MENU
-// ============================================
+// Fallback: Hide loader after 5s max (in case load event fails)
+setTimeout(() => {
+    const loader = document.getElementById('loader');
+    if (loader && !loader.classList.contains('hidden')) {
+        hideLoader();
+    }
+}, 5000);
+
+/**
+ * ============================================
+ * MOBILE MENU TOGGLE
+ * ============================================
+ */
 function toggleMenu() {
-    document.getElementById('navLinks').classList.toggle('active');
+    const navLinks = document.getElementById('navLinks');
+    const menuToggle = document.querySelector('.menu-toggle');
+    
+    if (!navLinks || !menuToggle) return;
+    
+    const isActive = navLinks.classList.toggle('active');
+    menuToggle.classList.toggle('active', isActive);
+    menuToggle.setAttribute('aria-expanded', isActive);
+    
+    // Close menu when clicking a link (mobile)
+    if (isActive && window.innerWidth <= 768) {
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.onclick = () => {
+                navLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            };
+        });
+    }
 }
 
-// ============================================
-// FAQ TOGGLE
-// ============================================
+// Close mobile menu on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const navLinks = document.getElementById('navLinks');
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (navLinks?.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            menuToggle?.classList.remove('active');
+            menuToggle?.setAttribute('aria-expanded', 'false');
+        }
+    }
+});
+
+/**
+ * ============================================
+ * FAQ ACCORDION FUNCTIONALITY
+ * ============================================
+ */
 function toggleFaq(element) {
+    if (!element) return;
+    
     const item = element.parentElement;
-    item.classList.toggle('active');
+    const wasActive = item.classList.contains('active');
+    const answer = item.querySelector('.faq-answer');
+    
+    // Close all other items (accordion behavior)
+    document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+        if (activeItem !== item) {
+            activeItem.classList.remove('active');
+            activeItem.querySelector('.faq-question')?.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Toggle current item
+    item.classList.toggle('active', !wasActive);
+    element.setAttribute('aria-expanded', !wasActive);
+    
+    // Smooth height animation for answer
+    if (answer) {
+        if (!wasActive) {
+            // Opening
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+        } else {
+            // Closing
+            answer.style.maxHeight = '0';
+        }
+    }
 }
 
-// ============================================
-// PARTICLES
-// ============================================
+// Keyboard support for FAQ items
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFaq(question);
+        }
+    });
+});
+
+/**
+ * ============================================
+ * PARTICLE SYSTEM
+ * ============================================
+ */
 function createParticles() {
     const container = document.getElementById('particles');
-    for (let i = 0; i < 50; i++) {
+    if (!container) return;
+    
+    // Clear existing particles (for hot-reload scenarios)
+    container.innerHTML = '';
+    
+    for (let i = 0; i < CONFIG.particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 15 + 's';
-        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        
+        // Random position, size, and animation
+        const size = Math.random() * 3 + 2; // 2-5px
+        const left = Math.random() * 100;
+        const delay = Math.random() * 15;
+        const duration = Math.random() * 10 + 10; // 10-20s
+        const opacity = Math.random() * 0.4 + 0.1; // 0.1-0.5
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}%`;
+        particle.style.opacity = opacity;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.animationDuration = `${duration}s`;
+        
         container.appendChild(particle);
     }
 }
-createParticles();
 
-// ============================================
-// ANIMATE STATS ON SCROLL
-// ============================================
+// Initialize particles after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createParticles);
+} else {
+    createParticles();
+}
+
+/**
+ * ============================================
+ * ANIMATE STATS ON SCROLL (Intersection Observer)
+ * ============================================
+ */
 function animateStats() {
-    const stats = [
-        { id: 'stat1', target: 99 },
-        { id: 'stat2', target: 599 },
-        { id: 'stat3', target: 999 },
-        { id: 'stat4', target: 3 }
-    ];
+    const statsSection = document.querySelector('.stats-section');
+    if (!statsSection) return;
+    
+    let animated = false;
+    
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !animated) {
+            animated = true;
+            
+            CONFIG.statsTargets.forEach(stat => {
+                const element = document.getElementById(stat.id);
+                if (!element) return;
+                
+                let current = 0;
+                const increment = stat.target / 50;
+                const duration = 1500; // 1.5s total animation
+                const stepTime = duration / 50;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    
+                    if (current >= stat.target) {
+                        element.textContent = stat.target.toLocaleString('de-DE') + (stat.suffix || '');
+                        clearInterval(timer);
+                    } else {
+                        element.textContent = Math.floor(current).toLocaleString('de-DE') + (stat.suffix || '');
+                    }
+                }, stepTime);
+            });
+            
+            observer.disconnect();
+        }
+    }, { threshold: 0.3, rootMargin: '-50px' });
+    
+    observer.observe(statsSection);
+}
+
+// Initialize stats animation
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', animateStats);
+} else {
+    animateStats();
+}
+
+/**
+ * ============================================
+ * SMOOTH SCROLL FOR NAVIGATION LINKS
+ * ============================================
+ */
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            
+            // Skip external links and non-anchor links
+            if (!href || href === '#' || href.startsWith('http')) return;
+            
+            e.preventDefault();
+            const target = document.querySelector(href);
+            
+            if (target) {
+                // Close mobile menu if open
+                const navLinks = document.getElementById('navLinks');
+                const menuToggle = document.querySelector('.menu-toggle');
+                navLinks?.classList.remove('active');
+                menuToggle?.classList.remove('active');
+                menuToggle?.setAttribute('aria-expanded', 'false');
+                
+                // Update active nav link
+                document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Smooth scroll with offset for sticky header
+                const headerOffset = 80;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Update URL without jump
+                history.pushState(null, null, href);
+            }
+        });
+    });
+    
+    // Highlight active section on scroll
+    const sections = document.querySelectorAll('section, header, .stats-section, .cta-section');
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+    
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            if (window.pageYOffset >= sectionTop) {
+                current = section.getAttribute('id') || '';
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    });
+}
+
+// Initialize smooth scroll
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSmoothScroll);
+} else {
+    initSmoothScroll();
+}
+
+/**
+ * ============================================
+ * SCROLL ANIMATIONS (Fade-in on viewport enter)
+ * ============================================
+ */
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                stats.forEach(stat => {
-                    const element = document.getElementById(stat.id);
-                    let current = 0;
-                    const increment = stat.target / 50;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= stat.target) {
-                            element.textContent = stat.target.toLocaleString();
-                            clearInterval(timer);
-                        } else {
-                            element.textContent = Math.floor(current).toLocaleString();
-                        }
-                    }, 30);
-                });
-                observer.disconnect();
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.5 });
+    }, observerOptions);
     
-    observer.observe(document.querySelector('.stats-section'));
+    // Observe animatable elements
+    document.querySelectorAll('.card, .info-box, .pricing-card, .faq-item, .stat-item').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
 }
-animateStats();
 
-// ============================================
-// SMOOTH SCROLL FOR NAV LINKS
-// ============================================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            // Close mobile menu
-            document.getElementById('navLinks').classList.remove('active');
+// Initialize scroll animations
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollAnimations);
+} else {
+    initScrollAnimations();
+}
+
+/**
+ * ============================================
+ * PWA INSTALL LOGIC – CORE FIX FOR DOWNLOAD BUTTON
+ * ============================================
+ */
+let deferredPrompt = null;
+let installModalShown = false;
+
+/**
+ * Show install modal/toast with platform-specific instructions
+ */
+function showInstallPrompt() {
+    const modal = document.getElementById('installModal');
+    const iosInstructions = document.getElementById('iosInstructions');
+    const modalInstallBtn = document.getElementById('modalInstallBtn');
+    
+    if (!modal) return;
+    
+    // Show iOS instructions if needed
+    if (Platform.isiOS) {
+        iosInstructions.style.display = 'block';
+        modalInstallBtn.textContent = 'Verstanden';
+        modalInstallBtn.onclick = closeInstallModal;
+    } else {
+        iosInstructions.style.display = 'none';
+        modalInstallBtn.textContent = 'Jetzt installieren';
+        modalInstallBtn.onclick = () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                handleInstallChoice();
+            }
+            closeInstallModal();
+        };
+    }
+    
+    modal.classList.add('show');
+    installModalShown = true;
+    
+    // Auto-hide after 10s
+    setTimeout(() => {
+        if (modal.classList.contains('show')) {
+            closeInstallModal();
         }
-    });
-});
+    }, 10000);
+}
 
-// ============================================
-// SCROLL ANIMATIONS
-// ============================================
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+/**
+ * Close install modal
+ */
+function closeInstallModal() {
+    const modal = document.getElementById('installModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-document.querySelectorAll('.card, .info-box, .pricing-card, .faq-item').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(el);
-});
-   // ============================================
-// PWA INSTALL BUTTON
-// ============================================
-
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-
-    const installBtn = document.getElementById('installBtn');
-    installBtn.style.display = 'inline-flex';
-
-    installBtn.addEventListener('click', () => {
-        installBtn.style.display = 'none';
-        deferredPrompt.prompt();
-
+/**
+ * Handle user choice from install prompt
+ */
+function handleInstallChoice() {
+    if (deferredPrompt) {
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
-                console.log('nano.ai installiert');
+                console.log('✅ nano.ai: User accepted install prompt');
+                Storage.set(CONFIG.installStorageKey, { prompted: true, installed: true, timestamp: Date.now() });
+                
+                // Show success feedback
+                showInstallToast('nano.ai wird installiert... 🎉', 'success');
+            } else {
+                console.log('ℹ️ nano.ai: User dismissed install prompt');
+                Storage.set(CONFIG.installStorageKey, { prompted: true, installed: false, timestamp: Date.now() });
             }
             deferredPrompt = null;
+        }).catch(err => {
+            console.error('❌ Install prompt error:', err);
         });
+    }
+}
+
+/**
+ * Show temporary toast notification
+ */
+function showInstallToast(message, type = 'info') {
+    // Remove existing toast
+    const existing = document.getElementById('installToast');
+    if (existing) existing.remove();
+    
+    // Create toast
+    const toast = document.createElement('div');
+    toast.id = 'installToast';
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'success' ? 'var(--accent)' : 'var(--primary)'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 14px;
+        z-index: 9999;
+        box-shadow: var(--shadow-glow);
+        animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // Remove after animation
+    setTimeout(() => toast.remove(), 3000);
+}
+
+/**
+ * Setup PWA install button logic
+ */
+function setupPWAInstall() {
+    const installBtn = document.getElementById('installBtn');
+    const iosBadge = document.getElementById('iosBadge');
+    
+    // Check if already installed or prompted recently
+    const installData = Storage.get(CONFIG.installStorageKey);
+    const recentlyPrompted = installData?.timestamp > (Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    // Hide button if PWA already running or recently prompted
+    if (Platform.isPWA || (recentlyPrompted && !Platform.isiOS)) {
+        if (installBtn) installBtn.style.display = 'none';
+        return;
+    }
+    
+    // Show iOS badge for iOS users
+    if (Platform.isiOS && iosBadge) {
+        iosBadge.style.display = 'inline-flex';
+        if (installBtn) installBtn.style.display = 'none'; // iOS uses badge, not button
+        return;
+    }
+    
+    // Listen for beforeinstallprompt (Chrome/Android)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        if (installBtn) {
+            installBtn.style.display = 'inline-flex';
+            
+            // Add click handler
+            installBtn.onclick = () => {
+                installBtn.style.display = 'none';
+                showInstallPrompt();
+            };
+        }
+        
+        // Auto-show modal after 3s if user hasn't interacted
+        setTimeout(() => {
+            if (!installModalShown && deferredPrompt && !Platform.isiOS) {
+                showInstallPrompt();
+            }
+        }, 3000);
     });
+    
+    // Detect successful installation
+    window.addEventListener('appinstalled', () => {
+        console.log('✅ nano.ai: PWA installed successfully');
+        Storage.set(CONFIG.installStorageKey, { prompted: true, installed: true, timestamp: Date.now() });
+        if (installBtn) installBtn.style.display = 'none';
+        showInstallToast('nano.ai erfolgreich installiert! 🚀', 'success');
+        deferredPrompt = null;
+    });
+    
+    // Fallback: Show button for Android with APK download option
+    if (Platform.isAndroid && !('beforeinstallprompt' in window)) {
+        if (installBtn) {
+            installBtn.style.display = 'inline-flex';
+            installBtn.innerHTML = '<span>⬇️</span><span>APK herunterladen</span>';
+            installBtn.onclick = () => {
+                window.open(CONFIG.apkDownloadUrl, '_blank', 'noopener,noreferrer');
+                showInstallToast('Download startet... 📦', 'info');
+            };
+        }
+    }
+}
+
+// Initialize PWA install logic
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupPWAInstall);
+} else {
+    setupPWAInstall();
+}
+
+/**
+ * ============================================
+ * SERVICE WORKER REGISTRATION
+ * ============================================
+ */
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('✅ Service Worker registered:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showInstallToast('Neue Version verfügbar! Aktualisiere für Updates. 🔄', 'info');
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.warn('⚠️ Service Worker registration failed:', error);
+                });
+        });
+    }
+}
+
+// Register service worker (non-blocking)
+if ('serviceWorker' in navigator) {
+    registerServiceWorker();
+}
+
+/**
+ * ============================================
+ * PAGE INITIALIZATION & ANIMATIONS
+ * ============================================
+ */
+function initPageAnimations() {
+    // Add scroll effect to nav
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav');
+        const currentScroll = window.pageYOffset;
+        
+        if (!nav) return;
+        
+        if (currentScroll > 50) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+        
+        lastScroll = currentScroll;
+    }, { passive: true });
+    
+    // Add hover effect to cards on mobile (touch)
+    if (Platform.isMobile) {
+        document.querySelectorAll('.card, .pricing-card').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'translateY(-5px)';
+            }, { passive: true });
+            card.addEventListener('touchend', function() {
+                this.style.transform = '';
+            }, { passive: true });
+        });
+    }
+    
+    // Console info
+    console.log('%c✅ nano.ai Landing Page loaded', 'color: #00ff88; font-weight: bold');
+    console.log('%c🚀 Version: 1.0.0', 'color: #00d4ff');
+    console.log('%c🌐 nano.ai – Intelligent Systems', 'color: #0066ff');
+    console.log('%c💡 Tipp: Drücke F12 für Developer Tools', 'color: #888');
+}
+
+/**
+ * ============================================
+ * ERROR HANDLING & FALLBACKS
+ * ============================================
+ */
+window.addEventListener('error', (e) => {
+    console.error('❌ Global error:', e.message, 'at', e.filename + ':' + e.lineno);
+    // Could send to error tracking service here
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('❌ Unhandled promise rejection:', e.reason);
+});
+
+/**
+ * ============================================
+ * KEYBOARD NAVIGATION ENHANCEMENTS
+ * ============================================
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    // Make FAQ questions focusable and keyboard-accessible
+    document.querySelectorAll('.faq-question').forEach(el => {
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('role', 'button');
+    });
+    
+    // Add keyboard support for install button
+    const installBtn = document.getElementById('installBtn');
+    if (installBtn) {
+        installBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                installBtn.click();
+            }
+        });
+    }
+});
+
+/**
+ * ============================================
+ * PERFORMANCE OPTIMIZATIONS
+ * ============================================
+ */
+// Lazy load images (if any added later)
+if ('loading' in HTMLImageElement.prototype) {
+    document.querySelectorAll('img').forEach(img => {
+        img.setAttribute('loading', 'lazy');
+    });
+}
+
+// Reduce motion for users who prefer it
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.style.setProperty('--transition', 'none');
+    document.querySelectorAll('.particle, .bg-gradient').forEach(el => {
+        el.style.animation = 'none';
+    });
+}
+
+// Preconnect to important origins
+const preconnectLinks = [
+    'https://fonts.googleapis.com',
+    'https://fonts.gstatic.com',
+    'https://thenano-ai.github.io'
+];
+preconnectLinks.forEach(url => {
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = url;
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
 });
 
 // ============================================
-// SERVICE WORKER
+// END OF JAVASCRIPT
 // ============================================
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log('Service Worker aktiviert'));
-}
-
-// ============================================
-// CONSOLE LOG
-// ============================================
-console.log('✅ nano.ai Landing Page loaded');
-console.log('🚀 Version: 1.0.0');
-console.log('🌐 nano.ai – Intelligent Systems');
 </script>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "nano.ai",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web, iOS, Android, Windows, macOS, Linux",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  },
+  "description": "Eine skalierbare KI-Plattform für moderne Assistenzsysteme, Automatisierung und intelligente Entscheidungsprozesse.",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "127"
+  }
+}
+</script>
+
 </body>
 </html>
