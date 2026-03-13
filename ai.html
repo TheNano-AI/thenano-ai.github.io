@@ -2565,9 +2565,9 @@ const db = firebase.firestore();
 const DISCORD_CONFIG = {
     // 🔐 WICHTIG: Verwende einen Proxy-Server für Production!
     // Für Tests kannst du temporär den direkten Webhook nutzen
-    webhookProxy: '', // ← Deine Proxy-URL hier (z.B. Cloudflare Worker)
-    webhookUrl: '', // ← Discord Webhook URL (NUR FÜR TESTS!)
-    botName: 'nano.ai Community',
+    webhookProxy: 'nano-discord-webhook.leano-breitling.workers.dev', // ← Deine Proxy-URL hier (z.B. Cloudflare Worker)
+    webhookUrl: 'https://discord.com/api/webhooks/1481993473136791592/a7yuhwItsg8JEZWwTLoipP6svLMFna2Qk463Gc4DI3kGkVqmKwkZwOG30hIFy28tyiiL', // ← Discord Webhook URL (NUR FÜR TESTS!)
+    botName: 'NanoAI-Chat',
     botAvatar: 'https://thenano-ai.github.io/Nano-AI/NanoAI.png',
     enabled: true, // Discord-Sync aktivieren/deaktivieren
     formatMessage: true // [Rank | Tarif] Name: Nachricht Format
