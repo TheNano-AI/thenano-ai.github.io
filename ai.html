@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nano AI Chat 1.5.0v – Groq Integration</title>
-<meta name="description" content="Professional AI Chat Application with Community, Team & Discord Integration">
+<meta name="description" content="Professional AI Chat Application with Groq API, Community, Team & Discord Integration">
 <meta name="theme-color" content="#2563eb">
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -2300,7 +2300,7 @@ const db = firebase.firestore();
 // ⚡ GROQ API CONFIGURATION (NEU!)
 // ============================================
 const GROQ_CONFIG = {
-    apiKey: "gsk_YOUR_GROQ_API_KEY_HERE", // 🔐 HIER DEINEN GROQ KEY EINFÜGEN!
+    apiKey: "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", // 🔐 HIER DEINEN GROQ KEY EINFÜGEN!
     model: "llama-3.3-70b-versatile",
     apiUrl: "https://api.groq.com/openai/v1/chat/completions",
     maxTokens: 1024,
@@ -2311,4 +2311,1636 @@ const GROQ_CONFIG = {
 // DISCORD WEBHOOK CONFIG – SICHERHEIT!
 // ============================================
 const DISCORD_CONFIG = {
-webhookProxy: 'nano-discord-webhook.leano-breitling.work
+webhookProxy: 'nano-discord-webhook.leano-breitling.workers.dev',
+webhookUrl: '',
+botName: 'NanoAI-Chat',
+botAvatar: 'https://thenano-ai.github.io/Nano-AI/NanoAI.png',
+enabled: true,
+formatMessage: true
+};
+
+// ============================================
+// CONFIG
+// ============================================
+const OWNER = "Lobi";
+const COOWNER = "Jovi";
+const VERSION = "1.5.0v-Groq";
+// ============================================
+// ROLES & PERMISSIONS
+// ============================================
+const ROLES = {
+owner: { level: 100, name: "Owner", color: "owner", canBan: true, canDelete: true, canWarn: true, canReset: true, canAssignRole: true, canSettings: true, canTariffs: true },
+admin: { level: 90, name: "Admin", color: "admin", canBan: true, canDelete: true, canWarn: true, canReset: true, canAssignRole: true, canSettings: false, canTariffs: true },
+mod: { level: 80, name: "Mod", color: "mod", canBan: true, canDelete: false, canWarn: true, canReset: true, canAssignRole: false, canSettings: false, canTariffs: false },
+helper: { level: 70, name: "Helper", color: "helper", canBan: false, canDelete: false, canWarn: true, canReset: true, canAssignRole: false, canSettings: false, canTariffs: false },
+team: { level: 60, name: "Team", color: "team", canBan: false, canDelete: false, canWarn: false, canReset: false, canAssignRole: false, canSettings: false, canTariffs: false },
+sponsor: { level: 50, name: "Sponsor", color: "sponsor", canBan: false, canDelete: false, canWarn: false, canReset: false, canAssignRole: false, canSettings: false, canTariffs: false },
+user: { level: 0, name: "User", color: "user", canBan: false, canDelete: false, canWarn: false, canReset: false, canAssignRole: false, canSettings: false, canTariffs: false }
+};
+// ============================================
+// STATE
+// ============================================
+let currentUser = null;
+let userData = null;
+let currentChat = null;
+let currentLanguage = localStorage.getItem("nano_language") || "de";
+let confirmCallback = null;
+let settings = JSON.parse(localStorage.getItem("nano_settings")) || {
+typingEffect: true,
+showEmoji: true,
+theme: 'dark'
+};
+let maintenanceMode = false;
+let currentChatTab = 'private';
+let communityUnsubscribe = null;
+let teamUnsubscribe = null;
+const plans = {
+free: { name: "Free", limit: 5000, icon: "🆓", color: "free" },
+ultra: { name: "Ultra", limit: 100000, icon: "🚀", color: "ultra" },
+nano: { name: "Nano", limit: 999999999999999999, icon: "👑", color: "nano" }
+};
+const emojis = ["😀","😂","😍","😢","😡","👍","👎","❤️","🔥","🎉","✨","🤖","💬","✅","❌","🚀","💡"];
+const languages = {
+de: { code: "DE", name: "Deutsch", flag: "🇩🇪" },
+en: { code: "EN", name: "English", flag: "🇬🇧" },
+fr: { code: "FR", name: "Français", flag: "🇫🇷" },
+es: { code: "ES", name: "Español", flag: "🇪🇸" },
+it: { code: "IT", name: "Italiano", flag: "🇮🇹" },
+ru: { code: "RU", name: "Русский", flag: "🇷🇺" },
+tr: { code: "TR", name: "Türkçe", flag: "🇹🇷" },
+pl: { code: "PL", name: "Polski", flag: "🇵🇱" },
+nl: { code: "NL", name: "Nederlands", flag: "🇳🇱" },
+pt: { code: "PT", name: "Português", flag: "🇵🇹" }
+};
+const storeText = {
+de: { title: "Wähle deinen Plan", desc: "Alle Preise sind aktuell 0€ - Limited Offer!" },
+en: { title: "Choose your plan", desc: "All prices currently 0€ - Limited Offer!" },
+fr: { title: "Choisissez votre plan", desc: "Tous les prix actuellement 0€ - Offre limitée!" },
+es: { title: "Elige tu plan", desc: "¡Todos los precios actualmente 0€ - Oferta limitada!" },
+it: { title: "Scegli il tuo piano", desc: "Tutti i prezzi attualmente 0€ - Offerta limitata!" },
+ru: { title: "Выберите план", desc: "Все цены сейчас 0€ - Ограниченное предложение!" },
+tr: { title: "Planınızı seçin", desc: "Tüm fiyatlar şu anda 0€ - Sınırlı teklif!" },
+pl: { title: "Wybierz swój plan", desc: "Wszystkie ceny obecnie 0€ - Oferta limitowana!" },
+nl: { title: "Kies je plan", desc: "Alle prijzen momenteel 0€ - Beperkte aanbieding!" },
+pt: { title: "Escolha seu plano", desc: "Todos os preços atualmente 0€ - Oferta limitada!" }
+};
+const uiText = {
+de: { placeholder: "Nachricht schreiben...", send: "Senden", newChat: "Neuer Chat", profile: "Profil", logout: "Logout", settings: "Einstellungen", store: "Store", admin: "Admin", welcome: "Willkommen bei Nano AI!", welcomeDesc: "Starte einen neuen Chat oder wähle einen bestehenden.", limitReached: "⚠️ Limit erreicht! Dein Plan erlaubt {limit} Nachrichten pro Monat.", serverError: "❌ Server-Fehler. Bitte versuche es erneut.", typing: "schreibt..." },
+en: { placeholder: "Write a message...", send: "Send", newChat: "New Chat", profile: "Profile", logout: "Logout", settings: "Settings", store: "Store", admin: "Admin", welcome: "Welcome to Nano AI!", welcomeDesc: "Start a new chat or select an existing one.", limitReached: "⚠️ Limit reached! Your plan allows {limit} messages per month.", serverError: "❌ Server error. Please try again.", typing: "typing..." },
+fr: { placeholder: "Écrire un message...", send: "Envoyer", newChat: "Nouveau Chat", profile: "Profil", logout: "Déconnexion", settings: "Paramètres", store: "Boutique", admin: "Admin", welcome: "Bienvenue sur Nano AI!", welcomeDesc: "Commencez un nouveau chat ou sélectionnez-en un existant.", limitReached: "⚠️ Limite atteinte! Votre plan permet {limit} messages par mois.", serverError: "❌ Erreur serveur. Veuillez réessayer.", typing: "écrit..." },
+es: { placeholder: "Escribe un mensaje...", send: "Enviar", newChat: "Nuevo Chat", profile: "Perfil", logout: "Cerrar sesión", settings: "Configuración", store: "Tienda", admin: "Admin", welcome: "¡Bienvenido a Nano AI!", welcomeDesc: "Inicia un nuevo chat o selecciona uno existente.", limitReached: "⚠️ ¡Límite alcanzado! Tu plan permite {limit} mensajes por mes.", serverError: "❌ Error del servidor. Por favor inténtalo de nuevo.", typing: "escribiendo..." },
+it: { placeholder: "Scrivi un messaggio...", send: "Invia", newChat: "Nuova Chat", profile: "Profilo", logout: "Esci", settings: "Impostazioni", store: "Negozio", admin: "Admin", welcome: "Benvenuto su Nano AI!", welcomeDesc: "Inizia una nuova chat o selezionane una esistente.", limitReached: "⚠️ Limite raggiunto! Il tuo piano permette {limit} messaggi al mese.", serverError: "❌ Errore server. Riprova.", typing: "sta scrivendo..." },
+ru: { placeholder: "Напишите сообщение...", send: "Отправить", newChat: "Новый чат", profile: "Профиль", logout: "Выйти", settings: "Настройки", store: "Магазин", admin: "Админ", welcome: "Добро пожаловать в Nano AI!", welcomeDesc: "Начните новый чат или выберите существующий.", limitReached: "⚠️ Лимит достигнут! Ваш план позволяет {limit} сообщений в месяц.", serverError: "❌ Ошибка сервера. Пожалуйста, попробуйте снова.", typing: "пишет..." },
+tr: { placeholder: "Mesaj yaz...", send: "Gönder", newChat: "Yeni Sohbet", profile: "Profil", logout: "Çıkış", settings: "Ayarlar", store: "Mağaza", admin: "Yönetici", welcome: "Nano AI'ye hoş geldiniz!", welcomeDesc: "Yeni bir sohbet başlat veya mevcut birini seç.", limitReached: "⚠️ Limit ulaşıldı! Planın aylık {limit} mesaja izin veriyor.", serverError: "❌ Sunucu hatası. Lütfen tekrar dene.", typing: "yazıyor..." },
+pl: { placeholder: "Napisz wiadomość...", send: "Wyślij", newChat: "Nowy Czat", profile: "Profil", logout: "Wyloguj", settings: "Ustawienia", store: "Sklep", admin: "Admin", welcome: "Witaj w Nano AI!", welcomeDesc: "Rozpocznij nowy czat lub wybierz istniejący.", limitReached: "⚠️ Osiągnięto limit! Twój plan pozwala na {limit} wiadomości miesięcznie.", serverError: "❌ Błąd serwera. Spróbuj ponownie.", typing: "pisze..." },
+nl: { placeholder: "Bericht schrijven...", send: "Verzenden", newChat: "Nieuwe Chat", profile: "Profiel", logout: "Uitloggen", settings: "Instellingen", store: "Winkel", admin: "Admin", welcome: "Welkom bij Nano AI!", welcomeDesc: "Start een nieuwe chat of selecteer een bestaande.", limitReached: "⚠️ Limiet bereikt! Je plan staat {limit} berichten per maand toe.", serverError: "❌ Serverfout. Probeer het opnieuw.", typing: "typt..." },
+pt: { placeholder: "Escreva uma mensagem...", send: "Enviar", newChat: "Novo Chat", profile: "Perfil", logout: "Sair", settings: "Configurações", store: "Loja", admin: "Admin", welcome: "Bem-vindo ao Nano AI!", welcomeDesc: "Inicie um novo chat ou selecione um existente.", limitReached: "⚠️ Limite atingido! Seu plano permite {limit} mensagens por mês.", serverError: "❌ Erro do servidor. Tente novamente.", typing: "digitando..." }
+};
+
+// ============================================
+// INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+console.log("🚀 Nano AI Chat v" + VERSION + " initializing...");
+console.log("🔥 Firebase: Connected");
+console.log("⚡ Groq API: Configured");
+console.log("🌍 Language: " + currentLanguage);
+console.log("🎨 Theme: " + settings.theme);
+console.log("💬 Discord Integration: " + (DISCORD_CONFIG.enabled ? "Active" : "Disabled"));
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+if (usernameInput) {
+usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+}
+if (passwordInput) {
+passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+}
+currentUser = localStorage.getItem("nano_currentUser");
+if (currentUser) {
+await loadUserData();
+} else {
+document.getElementById("loginScreen").style.display = "flex";
+}
+renderEmojiBar();
+applyTheme(settings.theme);
+if (window.innerWidth <= 768) {
+document.getElementById('menuBtn').style.display = 'flex';
+}
+console.log("✅ Nano AI Chat ready!");
+});
+
+// ============================================
+// FIREBASE FUNCTIONS
+// ============================================
+async function checkMaintenance() {
+try {
+const doc = await db.collection("settings").doc("maintenance").get();
+if (doc.exists && doc.data().enabled) {
+maintenanceMode = true;
+document.getElementById("maintenanceScreen").style.display = "flex";
+document.getElementById("loginScreen").style.display = "none";
+return true;
+}
+} catch (e) {
+console.log("⚠️ Maintenance check skipped:", e.message);
+}
+return false;
+}
+async function getUserData(username) {
+try {
+const doc = await db.collection("users").doc(username).get();
+if (doc.exists) { return doc.data(); }
+return null;
+} catch (e) {
+console.error("❌ Get User Error:", e);
+return null;
+}
+}
+async function saveUserData(username, data) {
+try {
+await db.collection("users").doc(username).set(data, { merge: true });
+return true;
+} catch (e) {
+console.error("❌ Save User Error:", e);
+return false;
+}
+}
+async function createUser(username, password) {
+try {
+await db.collection("users").doc(username).set({
+password: password,
+plan: "free",
+role: "user",
+banned: false,
+warnings: 0,
+chats: {},
+messages: 0,
+createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+lastActive: firebase.firestore.FieldValue.serverTimestamp()
+});
+return true;
+} catch (e) {
+console.error("❌ Create User Error:", e);
+return false;
+}
+}
+async function getAllUsers() {
+try {
+const snapshot = await db.collection("users").get();
+const users = {};
+snapshot.forEach(doc => { users[doc.id] = doc.data(); });
+return users;
+} catch (e) {
+console.error("❌ Get All Users Error:", e);
+return {};
+}
+}
+async function deleteUserFromFirebase(username) {
+try {
+await db.collection("users").doc(username).delete();
+return true;
+} catch (e) {
+console.error("❌ Delete User Error:", e);
+return false;
+}
+}
+
+// ============================================
+// ⚡ GROQ API FUNCTIONS (NEU!)
+// ============================================
+async function callGroqAPI(userMessage) {
+    try {
+        const response = await fetch(GROQ_CONFIG.apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GROQ_CONFIG.apiKey}`
+            },
+            body: JSON.stringify({
+                model: GROQ_CONFIG.model,
+                messages: [
+                    {
+                        role: "system",
+                        content: "Du bist Nano-AI, ein fortschrittlicher KI-Support-Assistent. Dein Name ist ausschließlich Nano-AI. Antworte hilfsbereit und freundlich auf Deutsch."
+                    },
+                    {
+                        role: "user",
+                        content: userMessage
+                    }
+                ],
+                max_tokens: GROQ_CONFIG.maxTokens,
+                temperature: GROQ_CONFIG.temperature
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Groq API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error("❌ Groq API Error:", error);
+        return "❌ Verbindungsfehler zur KI. Bitte versuche es erneut.";
+    }
+}
+
+// ============================================
+// DISCORD WEBHOOK FUNCTIONS
+// ============================================
+async function sendToDiscordWebhook(messageData) {
+if (!DISCORD_CONFIG.enabled) return { success: false, reason: 'disabled' };
+const { username, text, plan, role } = messageData;
+const planName = plans[plan]?.name || "Free";
+const roleName = (ROLES[role] || ROLES.user).name;
+const formattedText = DISCORD_CONFIG.formatMessage
+? `[${roleName} | ${planName}] ${username}: ${text}`
+: text;
+try {
+if (DISCORD_CONFIG.webhookProxy && !DISCORD_CONFIG.webhookProxy.includes('your-proxy')) {
+const response = await fetch(DISCORD_CONFIG.webhookProxy, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+content: formattedText,
+username: DISCORD_CONFIG.botName,
+avatar_url: DISCORD_CONFIG.botAvatar,
+embeds: [{
+color: 0x2563eb,
+fields: [
+{ name: '👤 Nutzer', value: `\`${username}\``, inline: true },
+{ name: '🎫 Tarif', value: `\`${planName}\``, inline: true },
+{ name: '🛡️ Rolle', value: `\`${roleName}\``, inline: true }
+],
+timestamp: new Date().toISOString(),
+footer: { text: 'nano.ai Community Chat', icon_url: DISCORD_CONFIG.botAvatar }
+}]
+})
+});
+if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+console.log('✅ An Discord gesendet (Proxy)');
+return { success: true, method: 'proxy' };
+}
+if (DISCORD_CONFIG.webhookUrl && !DISCORD_CONFIG.webhookUrl.includes('YOUR')) {
+console.warn('⚠️ WARNING: Direct webhook call - Use proxy for production!');
+const response = await fetch(DISCORD_CONFIG.webhookUrl, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+content: formattedText,
+username: DISCORD_CONFIG.botName,
+avatar_url: DISCORD_CONFIG.botAvatar
+})
+});
+if (!response.ok) throw new Error(`Discord error: ${response.status}`);
+console.log('✅ An Discord gesendet (Direkt)');
+return { success: true, method: 'direct' };
+}
+console.warn('⚠️ No webhook configured');
+return { success: false, reason: 'no_config' };
+} catch (error) {
+console.error('❌ Discord Webhook Error:', error);
+return { success: false, error: error.message };
+}
+}
+function updateDiscordSyncStatus(status) {
+const indicator = document.getElementById('discordSyncStatus');
+if (indicator) {
+if (status === 'online') {
+indicator.textContent = '🟢 Discord';
+indicator.style.color = 'var(--success-500)';
+} else if (status === 'offline') {
+indicator.textContent = '🔴 Discord';
+indicator.style.color = 'var(--danger-500)';
+} else {
+indicator.textContent = '🟡 Discord';
+indicator.style.color = 'var(--warning-500)';
+}
+}
+}
+
+// ============================================
+// COMMUNITY & TEAM CHAT FUNCTIONS
+// ============================================
+async function loadCommunityMessages() {
+try {
+const messagesDiv = document.getElementById("communityMessages");
+if (!messagesDiv) return;
+if (communityUnsubscribe) {
+communityUnsubscribe();
+communityUnsubscribe = null;
+}
+updateDiscordSyncStatus('connecting');
+communityUnsubscribe = db.collection("community")
+.orderBy("timestamp", "desc")
+.limit(50)
+.onSnapshot((snapshot) => {
+messagesDiv.innerHTML = "";
+snapshot.forEach(doc => {
+const msg = doc.data();
+const msgDiv = document.createElement("div");
+msgDiv.className = "community-message";
+const planColor = plans[msg.plan]?.color || "free";
+const time = msg.timestamp ?
+new Date(msg.timestamp.toDate()).toLocaleTimeString(
+currentLanguage === 'de' ? 'de-DE' : 'en-US',
+{ hour: '2-digit', minute: '2-digit' }
+) : '';
+const role = msg.role || 'user';
+const roleData = ROLES[role] || ROLES.user;
+msgDiv.innerHTML = `
+<span class="rank rank-${planColor}">${plans[msg.plan]?.name || "Free"}</span>
+<span class="role-badge ${roleData.color}">${roleData.name}</span>
+<span class="username">${escapeHtml(msg.username)}</span>
+<span class="text">${escapeHtml(msg.text)}</span>
+<div class="time">${time}</div>
+${msg.discordSent ? '<div class="discord-status">✅ Discord</div>' : ''}
+`;
+messagesDiv.appendChild(msgDiv);
+});
+messagesDiv.scrollTop = 0;
+updateDiscordSyncStatus('online');
+console.log('📬 Community Chat geladen:', snapshot.size, 'Nachrichten');
+}, (error) => {
+console.error('❌ Community Listener Error:', error);
+updateDiscordSyncStatus('offline');
+});
+} catch (e) {
+console.error("❌ Load Community Messages Error:", e);
+updateDiscordSyncStatus('offline');
+}
+}
+async function sendCommunityMessage() {
+const input = document.getElementById("communityInput");
+const sendBtn = document.getElementById("communitySendBtn");
+const text = input.value.trim();
+if (!text || !currentUser || !userData) return;
+if (sendBtn) {
+sendBtn.disabled = true;
+sendBtn.textContent = 'Senden...';
+}
+try {
+const docRef = await db.collection("community").add({
+username: currentUser,
+text: text,
+plan: userData.plan || "free",
+role: userData.role || "user",
+timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+discordSent: false
+});
+input.value = "";
+const discordResult = await sendToDiscordWebhook({
+username: currentUser,
+text: text,
+plan: userData.plan || "free",
+role: userData.role || "user"
+});
+if (discordResult.success) {
+await db.collection("community").doc(docRef.id).update({ discordSent: true });
+}
+console.log('📤 Community Nachricht gesendet');
+} catch (e) {
+console.error("❌ Send Community Message Error:", e);
+alert("Fehler beim Senden");
+} finally {
+if (sendBtn) {
+sendBtn.disabled = false;
+sendBtn.textContent = 'Senden';
+}
+}
+}
+async function loadTeamMessages() {
+try {
+const messagesDiv = document.getElementById("teamMessages");
+if (!messagesDiv) return;
+if (teamUnsubscribe) {
+teamUnsubscribe();
+teamUnsubscribe = null;
+}
+teamUnsubscribe = db.collection("team_messages")
+.orderBy("timestamp", "desc")
+.limit(50)
+.onSnapshot((snapshot) => {
+messagesDiv.innerHTML = "";
+snapshot.forEach(doc => {
+const msg = doc.data();
+const msgDiv = document.createElement("div");
+msgDiv.className = "community-message";
+const planColor = plans[msg.plan]?.color || "free";
+const time = msg.timestamp ?
+new Date(msg.timestamp.toDate()).toLocaleTimeString(
+currentLanguage === 'de' ? 'de-DE' : 'en-US',
+{ hour: '2-digit', minute: '2-digit' }
+) : '';
+const role = msg.role || 'user';
+const roleData = ROLES[role] || ROLES.user;
+msgDiv.innerHTML = `
+<span class="rank rank-${planColor}">${plans[msg.plan]?.name || "Free"}</span>
+<span class="role-badge ${roleData.color}">${roleData.name}</span>
+<span class="username">${escapeHtml(msg.username)}</span>
+<span class="text">${escapeHtml(msg.text)}</span>
+<div class="time">${time}</div>
+`;
+messagesDiv.appendChild(msgDiv);
+});
+messagesDiv.scrollTop = 0;
+});
+} catch (e) {
+console.error("❌ Load Team Messages Error:", e);
+}
+}
+async function sendTeamMessage() {
+const input = document.getElementById("teamInput");
+const sendBtn = document.getElementById("teamSendBtn");
+const text = input.value.trim();
+if (!text || !currentUser || !userData) return;
+const userRole = userData.role || 'user';
+if (!['owner','admin','mod','helper','team'].includes(userRole)) {
+alert("❌ Kein Zugriff auf Team Chat");
+return;
+}
+if (sendBtn) {
+sendBtn.disabled = true;
+sendBtn.textContent = 'Senden...';
+}
+try {
+await db.collection("team_messages").add({
+username: currentUser,
+text: text,
+plan: userData.plan || "free",
+role: userData.role || "user",
+timestamp: firebase.firestore.FieldValue.serverTimestamp()
+});
+input.value = "";
+console.log('📤 Team Nachricht gesendet');
+} catch (e) {
+console.error("❌ Send Team Message Error:", e);
+alert("Fehler beim Senden");
+} finally {
+if (sendBtn) {
+sendBtn.disabled = false;
+sendBtn.textContent = 'Senden';
+}
+}
+}
+function switchChatTab(tab) {
+if (communityUnsubscribe) {
+communityUnsubscribe();
+communityUnsubscribe = null;
+}
+if (teamUnsubscribe) {
+teamUnsubscribe();
+teamUnsubscribe = null;
+}
+currentChatTab = tab;
+document.querySelectorAll(".chat-tab").forEach(t => t.classList.remove("active"));
+document.getElementById("tab" + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add("active");
+const privateList = document.getElementById("privateChatList");
+const communityChat = document.getElementById("communityChat");
+const teamChat = document.getElementById("teamChat");
+const newChatBtn = document.getElementById("newChatBtn");
+if (tab === "private") {
+privateList.style.display = "block";
+communityChat.classList.remove("active");
+teamChat.classList.remove("active");
+if (newChatBtn) newChatBtn.style.display = "flex";
+} else if (tab === "community") {
+privateList.style.display = "none";
+communityChat.classList.add("active");
+teamChat.classList.remove("active");
+if (newChatBtn) newChatBtn.style.display = "none";
+loadCommunityMessages();
+} else if (tab === "team") {
+privateList.style.display = "none";
+communityChat.classList.remove("active");
+teamChat.classList.add("active");
+if (newChatBtn) newChatBtn.style.display = "none";
+loadTeamMessages();
+}
+}
+
+// ============================================
+// AUTHENTICATION
+// ============================================
+function showError(message) {
+const errorDiv = document.getElementById("loginError");
+const errorText = document.getElementById("errorText");
+if (errorDiv && errorText) {
+errorText.textContent = message;
+errorDiv.classList.add("show");
+setTimeout(() => { errorDiv.classList.remove("show"); }, 5000);
+}
+}
+function setLoading(buttonId, loading) {
+const btn = document.getElementById(buttonId);
+if (btn) {
+if (loading) {
+btn.classList.add('btn-loading');
+btn.disabled = true;
+} else {
+btn.classList.remove('btn-loading');
+btn.disabled = false;
+}
+}
+}
+async function handleRegister() {
+const username = document.getElementById("username").value.trim();
+const password = document.getElementById("password").value.trim();
+console.log("📝 Registration attempt:", username);
+if (!username || !password) { return showError("❌ Bitte alle Felder ausfüllen"); }
+if (username.length < 3) { return showError("❌ Username zu kurz (min. 3 Zeichen)"); }
+if (password.length < 6) { return showError("❌ Passwort zu kurz (min. 6 Zeichen)"); }
+setLoading('registerBtn', true);
+try {
+const existing = await getUserData(username);
+if (existing) {
+setLoading('registerBtn', false);
+return showError("❌ Username bereits vergeben");
+}
+const success = await createUser(username, password);
+setLoading('registerBtn', false);
+if (success) {
+showError("✅ Registriert! Jetzt einloggen.");
+document.getElementById("password").value = "";
+} else {
+showError("❌ Registrierung fehlgeschlagen");
+}
+} catch (e) {
+console.error("❌ Register Error:", e);
+setLoading('registerBtn', false);
+showError("❌ Registrierung fehlgeschlagen");
+}
+}
+async function handleLogin() {
+const username = document.getElementById("username").value.trim();
+const password = document.getElementById("password").value.trim();
+console.log("🔐 Login attempt:", username);
+if (!username || !password) { return showError("❌ Bitte alle Felder ausfüllen"); }
+setLoading('loginBtn', true);
+try {
+await checkMaintenance();
+if (maintenanceMode && username !== OWNER && username !== COOWNER) {
+setLoading('loginBtn', false);
+return showError("❌ Wartungsmodus aktiv");
+}
+const data = await getUserData(username);
+if (!data) {
+setLoading('loginBtn', false);
+return showError("❌ User nicht gefunden");
+}
+if (data.password !== password) {
+setLoading('loginBtn', false);
+return showError("❌ Falsches Passwort");
+}
+if (data.banned) {
+setLoading('loginBtn', false);
+return showError("❌ Account wurde gebannt");
+}
+currentUser = username;
+userData = data;
+if (!userData.role) {
+if (username === OWNER || username === COOWNER) {
+userData.role = 'owner';
+} else {
+userData.role = 'user';
+}
+await saveUserData(currentUser, { role: userData.role });
+}
+localStorage.setItem("nano_currentUser", currentUser);
+await saveUserData(currentUser, {
+lastActive: firebase.firestore.FieldValue.serverTimestamp()
+});
+setLoading('loginBtn', false);
+startApp();
+} catch (e) {
+console.error("❌ Login Error:", e);
+setLoading('loginBtn', false);
+showError("❌ Login fehlgeschlagen");
+}
+}
+async function loadUserData() {
+try {
+const data = await getUserData(currentUser);
+if (data) {
+userData = data;
+if (!userData.role) {
+if (currentUser === OWNER || currentUser === COOWNER) {
+userData.role = 'owner';
+} else {
+userData.role = 'user';
+}
+await saveUserData(currentUser, { role: userData.role });
+}
+startApp();
+} else {
+localStorage.removeItem("nano_currentUser");
+document.getElementById("loginScreen").style.display = "flex";
+}
+} catch (e) {
+console.error("❌ Load User Error:", e);
+document.getElementById("loginScreen").style.display = "flex";
+}
+}
+function handleLogout() {
+if (communityUnsubscribe) {
+communityUnsubscribe();
+communityUnsubscribe = null;
+}
+if (teamUnsubscribe) {
+teamUnsubscribe();
+teamUnsubscribe = null;
+}
+localStorage.removeItem("nano_currentUser");
+currentUser = null;
+userData = null;
+currentChat = null;
+location.reload();
+}
+
+// ============================================
+// APP START
+// ============================================
+function startApp() {
+console.log("✅ App started for:", currentUser);
+document.getElementById("loginScreen").style.display = "none";
+document.getElementById("appContainer").classList.remove("hidden");
+document.getElementById("profileName").textContent = currentUser;
+document.getElementById("profileNameDisplay").textContent = currentUser;
+const adminBtn = document.getElementById("adminBtn");
+const userRole = userData.role || 'user';
+const roleData = ROLES[userRole] || ROLES.user;
+if (adminBtn) {
+adminBtn.style.display = (roleData.level > 0 && userRole !== 'sponsor') ? "flex" : "none";
+}
+const teamTab = document.getElementById("tabTeam");
+if (teamTab) {
+teamTab.style.display = ['owner','admin','mod','helper','team'].includes(userRole) ? "flex" : "none";
+}
+updatePlan();
+updateProfileStats();
+updateRoleBadges();
+renderChatList();
+renderMessages();
+updateStoreLanguage();
+applyLanguage();
+applyTheme(settings.theme);
+const typingToggle = document.getElementById('typingEffectToggle');
+const emojiToggle = document.getElementById('emojiBarToggle');
+if (typingToggle) typingToggle.checked = settings.typingEffect;
+if (emojiToggle) emojiToggle.checked = settings.showEmoji;
+}
+
+// ============================================
+// UI FUNCTIONS
+// ============================================
+function openModal(modalId) {
+const modal = document.getElementById(modalId);
+if (modal) {
+modal.classList.add("active");
+closeModal('dropdownMenu');
+if (modalId === 'adminModal') {
+setupAdminPanel();
+updateAdminStats();
+}
+}
+}
+function closeModal(modalId) {
+const modal = document.getElementById(modalId);
+if (modal) {
+modal.classList.remove("active");
+}
+}
+function toggleDropdown() {
+const dropdown = document.getElementById("dropdownMenu");
+if (dropdown) {
+dropdown.classList.toggle("show");
+}
+}
+function toggleSidebar() {
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("sidebarOverlay");
+if (sidebar && overlay) {
+sidebar.classList.toggle("open");
+overlay.classList.toggle("show");
+}
+}
+function switchTab(category, tabName) {
+const modalId = category + "Modal";
+const modal = document.getElementById(modalId);
+if (!modal) return;
+const tabButtons = modal.querySelectorAll(".tab-button");
+tabButtons.forEach(btn => btn.classList.remove("active"));
+const tabPanels = modal.querySelectorAll(".tab-panel");
+tabPanels.forEach(panel => panel.classList.remove("active"));
+event.target.classList.add("active");
+const panelId = category + "-" + tabName;
+const panel = document.getElementById(panelId);
+if (panel) {
+panel.classList.add("active");
+}
+if (category === "profile" && tabName === "info") {
+updateProfileStats();
+}
+if (category === "admin" && tabName === "stats") {
+updateAdminStats();
+}
+}
+function confirmAction(action, text) {
+const confirmText = document.getElementById("confirmText");
+if (confirmText) {
+confirmText.textContent = text;
+}
+confirmCallback = action;
+openModal("confirmModal");
+}
+function cancelConfirm() {
+closeModal("confirmModal");
+confirmCallback = null;
+}
+function executeConfirm() {
+const action = confirmCallback;
+closeModal("confirmModal");
+switch(action) {
+case "deleteChat":
+if (currentChat) deleteChat(currentChat);
+break;
+case "renameChat":
+if (currentChat) renameChat(currentChat);
+break;
+case "deleteAccount":
+deleteAccount();
+break;
+case "clearData":
+clearUserData();
+break;
+}
+confirmCallback = null;
+}
+
+// ============================================
+// LANGUAGE FUNCTIONS
+// ============================================
+function changeLanguage() {
+const langCodes = Object.keys(languages);
+const currentIndex = langCodes.indexOf(currentLanguage);
+const nextIndex = (currentIndex + 1) % langCodes.length;
+currentLanguage = langCodes[nextIndex];
+localStorage.setItem("nano_language", currentLanguage);
+updateStoreLanguage();
+applyLanguage();
+renderChatList();
+renderMessages();
+}
+function applyLanguage() {
+const lang = languages[currentLanguage];
+const texts = uiText[currentLanguage] || uiText.en;
+const langDisplay = document.getElementById("langDisplay");
+if (langDisplay) {
+langDisplay.textContent = lang.code;
+}
+const input = document.getElementById("messageInput");
+if (input) {
+input.placeholder = texts.placeholder;
+}
+const sendBtn = document.getElementById("sendBtn");
+if (sendBtn && sendBtn.querySelectorAll('span')[1]) {
+sendBtn.querySelectorAll('span')[1].textContent = texts.send;
+}
+}
+function updateStoreLanguage() {
+const text = storeText[currentLanguage] || storeText.en;
+const storeTitle = document.getElementById("storeTitle");
+const storeDesc = document.getElementById("storeDesc");
+if (storeTitle) storeTitle.textContent = text.title;
+if (storeDesc) storeDesc.textContent = text.desc;
+}
+function getText(key, params = {}) {
+const texts = uiText[currentLanguage] || uiText.en;
+let text = texts[key] || uiText.en[key] || key;
+Object.keys(params).forEach(param => {
+text = text.replace(`{${param}}`, params[param]);
+});
+return text;
+}
+
+// ============================================
+// PLAN & STORE FUNCTIONS
+// ============================================
+function updatePlan() {
+if (!userData) return;
+const plan = userData.plan || "free";
+const planData = plans[plan];
+const badge = document.getElementById("planBadge");
+const planBadge = document.getElementById("profilePlanBadge");
+if (badge) {
+badge.innerHTML = `<span>${planData.icon}</span><span>${planData.name}</span>`;
+badge.className = `plan-badge ${planData.color}`;
+}
+if (planBadge) {
+planBadge.innerHTML = `<span>${planData.icon}</span><span>${planData.name}</span>`;
+planBadge.className = `profile-plan-badge ${planData.color}`;
+}
+}
+function updateRoleBadges() {
+if (!userData) return;
+const role = userData.role || 'user';
+const roleData = ROLES[role] || ROLES.user;
+const badge = document.getElementById("profileRoleBadge");
+if (badge) {
+badge.textContent = roleData.name;
+badge.className = `role-badge ${roleData.color}`;
+}
+}
+function updateProfileStats() {
+if (!userData) return;
+const chats = Object.keys(userData.chats || {}).length;
+const messages = Object.values(userData.chats || {}).reduce((sum, chat) => {
+return sum + (chat.messages || []).length;
+}, 0);
+const plan = userData.plan || "free";
+const limit = plans[plan]?.limit || 50;
+const used = userData.messages || 0;
+const statChats = document.getElementById("statChats");
+const statMsgs = document.getElementById("statMsgs");
+const statLimit = document.getElementById("statLimit");
+const statUsed = document.getElementById("statUsed");
+const currentPlanInfo = document.getElementById("currentPlanInfo");
+if (statChats) statChats.textContent = chats;
+if (statMsgs) statMsgs.textContent = messages;
+if (statLimit) statLimit.textContent = limit;
+if (statUsed) statUsed.textContent = used;
+if (currentPlanInfo) {
+currentPlanInfo.textContent = `${plans[plan]?.name} - ${limit} Nachrichten/Monat`;
+}
+}
+async function selectPlan(plan) {
+if (!currentUser) return;
+const confirmed = confirm(`Möchtest du wirklich zu ${plans[plan]?.name} wechseln?`);
+if (!confirmed) return;
+userData.plan = plan;
+userData.messages = 0;
+const success = await saveUserData(currentUser, { plan: plan, messages: 0 });
+if (success) {
+alert(`✅ Plan zu ${plans[plan]?.name} geändert!`);
+closeModal("storeModal");
+updatePlan();
+updateProfileStats();
+} else {
+alert("❌ Fehler beim Plan-Wechsel");
+}
+}
+
+// ============================================
+// CHAT FUNCTIONS
+// ============================================
+function createChat() {
+if (!userData) return;
+const id = Date.now().toString();
+userData.chats[id] = {
+name: getText('newChat'),
+messages: [],
+createdAt: new Date().toISOString()
+};
+currentChat = id;
+saveToFirebase();
+renderChatList();
+renderMessages();
+if (window.innerWidth <= 768) {
+toggleSidebar();
+}
+}
+function selectChat(chatId) {
+currentChat = chatId;
+renderChatList();
+renderMessages();
+if (window.innerWidth <= 768) {
+toggleSidebar();
+}
+}
+function renameChat(chatId) {
+if (!userData.chats[chatId]) return;
+const currentName = userData.chats[chatId].name;
+const newName = prompt("Neuer Chat-Name:", currentName);
+if (newName && newName.trim()) {
+userData.chats[chatId].name = newName.trim();
+saveToFirebase();
+renderChatList();
+}
+}
+function deleteChat(chatId) {
+if (!userData.chats[chatId]) return;
+delete userData.chats[chatId];
+if (currentChat === chatId) { currentChat = null; }
+saveToFirebase();
+renderChatList();
+renderMessages();
+}
+function renderChatList() {
+const listContainer = document.getElementById("chatList");
+if (!listContainer || !userData) return;
+listContainer.innerHTML = "";
+const chats = userData.chats || {};
+const chatIds = Object.keys(chats).sort((a, b) => {
+return new Date(chats[b].createdAt || 0) - new Date(chats[a].createdAt || 0);
+});
+if (chatIds.length === 0) {
+listContainer.innerHTML = `
+<div style="text-align: center; padding: 30px 20px; color: var(--text-muted);">
+<div style="font-size: 40px; margin-bottom: 12px;">📭</div>
+<div style="font-weight: 600;">Noch keine Chats</div>
+<div style="font-size: 13px; margin-top: 4px;">Starte einen neuen Chat!</div>
+</div>
+`;
+return;
+}
+chatIds.forEach(chatId => {
+const chat = chats[chatId];
+const messageCount = chat.messages?.length || 0;
+const lastMessage = chat.messages?.[chat.messages.length - 1];
+const chatItem = document.createElement("div");
+chatItem.className = `chat-item ${chatId === currentChat ? "active" : ""}`;
+chatItem.onclick = () => selectChat(chatId);
+const preview = lastMessage ?
+(lastMessage.text.substring(0, 30) + (lastMessage.text.length > 30 ? '...' : '')) :
+'Keine Nachrichten';
+chatItem.innerHTML = `
+<span class="chat-item-icon">💬</span>
+<div class="chat-item-content">
+<div class="chat-item-title">${chat.name}</div>
+<div class="chat-item-preview">${preview}</div>
+</div>
+<div class="chat-item-actions">
+<button class="chat-action-button" onclick="event.stopPropagation(); renameChat('${chatId}')" title="Umbenennen">✏️</button>
+<button class="chat-action-button delete" onclick="event.stopPropagation(); confirmAction('deleteChat', 'Chat \\"${chat.name}\\" löschen?')" title="Löschen">🗑️</button>
+</div>
+`;
+listContainer.appendChild(chatItem);
+});
+}
+function renderMessages() {
+const chatArea = document.getElementById("chatArea");
+if (!chatArea) return;
+chatArea.innerHTML = "";
+if (!currentChat || !userData.chats[currentChat]) {
+chatArea.innerHTML = `
+<div class="welcome-container">
+<div class="welcome-icon">💬</div>
+<h2 class="welcome-title">${getText('welcome')}</h2>
+<p class="welcome-description">${getText('welcomeDesc')}</p>
+</div>
+`;
+return;
+}
+const messages = userData.chats[currentChat].messages || [];
+if (messages.length === 0) {
+chatArea.innerHTML = `
+<div class="welcome-container">
+<div class="welcome-icon">👋</div>
+<h2 class="welcome-title">Neuer Chat gestartet!</h2>
+<p class="welcome-description">Schreibe deine erste Nachricht. Ich bin hier, um zu helfen!</p>
+</div>
+`;
+return;
+}
+const messageContainer = document.createElement("div");
+messageContainer.className = "message-container";
+messages.forEach((message, index) => {
+const messageDiv = document.createElement("div");
+messageDiv.className = `message message-${message.role}`;
+const time = message.timestamp ?
+new Date(message.timestamp).toLocaleTimeString(currentLanguage === 'de' ? 'de-DE' : 'en-US', {
+hour: '2-digit', minute: '2-digit'
+}) : '';
+messageDiv.innerHTML = `
+<div class="message-header">
+<span>${message.role === 'user' ? '👤 Du' : '🤖 Nano AI'}</span>
+<span class="message-time">${time}</span>
+</div>
+<div class="message-text">${escapeHtml(message.text)}</div>
+${message.role === 'user' ? `
+<div class="message-actions">
+<button class="message-action-btn" onclick="editMessage(${index})" title="Bearbeiten">✏️</button>
+</div>
+` : ''}
+`;
+messageContainer.appendChild(messageDiv);
+});
+chatArea.appendChild(messageContainer);
+chatArea.scrollTop = chatArea.scrollHeight;
+}
+function editMessage(index) {
+if (!currentChat || !userData.chats[currentChat]) return;
+const message = userData.chats[currentChat].messages[index];
+const newText = prompt("Nachricht bearbeiten:", message.text);
+if (newText !== null && newText.trim()) {
+userData.chats[currentChat].messages[index].text = newText.trim();
+saveToFirebase();
+renderMessages();
+}
+}
+function escapeHtml(text) {
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
+}
+
+// ============================================
+// ⚡ SEND MESSAGE MIT GROQ (MODIFIZIERT!)
+// ============================================
+async function sendMessage() {
+const input = document.getElementById("messageInput");
+const text = input.value.trim();
+if (!text || !currentChat || !userData) return;
+const plan = userData.plan || "free";
+const limit = plans[plan]?.limit || 50;
+if (userData.messages >= limit) {
+alert(getText('limitReached', { limit: limit }));
+return;
+}
+userData.chats[currentChat].messages.push({
+role: "user",
+text: text,
+timestamp: new Date().toISOString()
+});
+userData.messages++;
+renderMessages();
+input.value = "";
+autoResize(input);
+showTypingIndicator();
+const sendBtn = document.getElementById("sendBtn");
+if (sendBtn) sendBtn.disabled = true;
+try {
+console.log("⚡ Sending to Groq API...");
+// ⚡ GROQ API AUFRUF STATT HUGGING FACE!
+const aiText = await callGroqAPI(text);
+console.log("📥 Groq Response:", aiText.substring(0, 100) + "...");
+removeTypingIndicator();
+userData.chats[currentChat].messages.push({
+role: "ai",
+text: aiText,
+timestamp: new Date().toISOString()
+});
+await saveToFirebase();
+renderMessages();
+} catch (error) {
+console.error("❌ Groq API Error:", error);
+removeTypingIndicator();
+userData.chats[currentChat].messages.push({
+role: "ai",
+text: "❌ Verbindungsfehler: " + error.message,
+timestamp: new Date().toISOString()
+});
+await saveToFirebase();
+renderMessages();
+} finally {
+if (sendBtn) sendBtn.disabled = false;
+}
+}
+
+function showTypingIndicator() {
+const chatArea = document.getElementById("chatArea");
+const indicator = document.createElement("div");
+indicator.id = "typingIndicator";
+indicator.className = "typing-container";
+indicator.innerHTML = `
+<div class="typing-dot"></div>
+<div class="typing-dot"></div>
+<div class="typing-dot"></div>
+`;
+chatArea.appendChild(indicator);
+chatArea.scrollTop = chatArea.scrollHeight;
+}
+function removeTypingIndicator() {
+const indicator = document.getElementById("typingIndicator");
+if (indicator) { indicator.remove(); }
+}
+async function saveToFirebase() {
+if (!currentUser || !userData) return;
+try {
+await saveUserData(currentUser, userData);
+updateProfileStats();
+} catch (e) {
+console.error("❌ Save Error:", e);
+}
+}
+
+// ============================================
+// EMOJI FUNCTIONS
+// ============================================
+function renderEmojiBar() {
+const bar = document.getElementById("emojiBar");
+if (!bar || !settings.showEmoji) return;
+bar.innerHTML = "";
+emojis.forEach(emoji => {
+const btn = document.createElement("button");
+btn.className = "emoji-button";
+btn.textContent = emoji;
+btn.onclick = () => insertEmoji(emoji);
+btn.title = `Emoji: ${emoji}`;
+bar.appendChild(btn);
+});
+}
+function insertEmoji(emoji) {
+const input = document.getElementById("messageInput");
+if (!input) return;
+const start = input.selectionStart;
+const end = input.selectionEnd;
+const text = input.value;
+input.value = text.substring(0, start) + emoji + text.substring(end);
+input.focus();
+input.selectionStart = input.selectionEnd = start + emoji.length;
+}
+function handleInputKeydown(event) {
+if (event.key === "Enter" && !event.shiftKey) {
+event.preventDefault();
+sendMessage();
+}
+}
+function autoResize(textarea) {
+textarea.style.height = "auto";
+textarea.style.height = Math.min(textarea.scrollHeight, 140) + "px";
+}
+
+// ============================================
+// SECURITY FUNCTIONS
+// ============================================
+function changePassword() {
+const oldPass = document.getElementById("oldPass").value;
+const newPass = document.getElementById("newPass").value;
+const confirmPass = document.getElementById("confirmPass").value;
+if (!oldPass || !newPass || !confirmPass) {
+alert("❌ Bitte alle Felder ausfüllen");
+return;
+}
+if (userData.password !== oldPass) {
+alert("❌ Altes Passwort ist falsch");
+return;
+}
+if (newPass !== confirmPass) {
+alert("❌ Passwörter stimmen nicht überein");
+return;
+}
+if (newPass.length < 6) {
+alert("❌ Passwort muss mindestens 6 Zeichen lang sein");
+return;
+}
+userData.password = newPass;
+saveToFirebase();
+document.getElementById("oldPass").value = "";
+document.getElementById("newPass").value = "";
+document.getElementById("confirmPass").value = "";
+alert("✅ Passwort erfolgreich geändert!");
+closeModal("profileModal");
+}
+function deleteAccount() {
+const confirmed = confirm("⚠️ WIRKLICH löschen? Alle Daten gehen für immer verloren!");
+if (!confirmed) return;
+alert("🗑️ Account gelöscht (Demo)");
+handleLogout();
+}
+function clearUserData() {
+const confirmed = confirm("⚠️ Alle Chats und Nachrichten löschen?");
+if (!confirmed) return;
+userData.chats = {};
+userData.messages = 0;
+currentChat = null;
+saveToFirebase();
+renderChatList();
+renderMessages();
+alert("✅ Alle Daten gelöscht!");
+closeModal("profileModal");
+}
+function exportData() {
+if (!userData) return;
+let exportText = `╔════════════════════════════════════════════════════════╗
+`;
+exportText += `║         Nano AI Chat - Daten Export        ║
+`;
+exportText += `║  User: ${currentUser.padEnd(36)}║
+`;
+exportText += `║  Datum: ${new Date().toLocaleString('de-DE').padEnd(31)}║
+`;
+exportText += `╚════════════════════════════════════════════════════════╝
+`;
+const chats = userData.chats || {};
+Object.entries(chats).forEach(([chatId, chat], index) => {
+exportText += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+exportText += `📁 Chat ${index + 1}: ${chat.name}
+`;
+exportText += `📅 Erstellt: ${chat.createdAt || 'Unbekannt'}
+`;
+exportText += `💬 Nachrichten: ${chat.messages?.length || 0}
+`;
+exportText += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+const messages = chat.messages || [];
+messages.forEach((msg, msgIndex) => {
+const role = msg.role === 'user' ? '👤 DU' : '🤖 AI';
+const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString('de-DE') : '';
+exportText += `[${time}] ${role}:
+${msg.text}
+`;
+});
+});
+const blob = new Blob([exportText], { type: "text/plain;charset=utf-8" });
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = `nano-ai-export-${currentUser}-${Date.now()}.txt`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+alert("✅ Daten erfolgreich exportiert!");
+closeModal("profileModal");
+}
+
+// ============================================
+// ADMIN FUNCTIONS
+// ============================================
+function setupAdminPanel() {
+const userRole = userData.role || 'user';
+const perms = ROLES[userRole] || ROLES.user;
+const tabsContainer = document.getElementById('adminTabs');
+const actionsContainer = document.getElementById('adminActions');
+const roleAssignGroup = document.getElementById('roleAssignGroup');
+const tariffsTab = document.getElementById('admin-tariffs');
+const settingsTab = document.getElementById('admin-settings');
+let tabsHtml = `<button class="tab-button active" onclick="switchTab('admin', 'users')">👥 Users</button>`;
+tabsHtml += `<button class="tab-button" onclick="switchTab('admin', 'stats')">📈 Statistiken</button>`;
+if (perms.canTariffs) tabsHtml += `<button class="tab-button" onclick="switchTab('admin', 'tariffs')">🎁 Tarife</button>`;
+if (perms.canSettings) tabsHtml += `<button class="tab-button" onclick="switchTab('admin', 'settings')">⚙️ Einstellungen</button>`;
+tabsContainer.innerHTML = tabsHtml;
+if (tariffsTab) tariffsTab.style.display = perms.canTariffs ? 'block' : 'none';
+if (settingsTab) settingsTab.style.display = perms.canSettings ? 'block' : 'none';
+let actionsHtml = '';
+if (perms.canBan) actionsHtml += `<button class="btn btn-danger" onclick="banUser()"><span>🚫</span><span>Ban</span></button>`;
+if (perms.canBan) actionsHtml += `<button class="btn btn-success" onclick="unbanUser()"><span>✅</span><span>Unban</span></button>`;
+if (perms.canWarn) actionsHtml += `<button class="btn btn-secondary" onclick="warnUser()"><span>⚠️</span><span>Warnung</span></button>`;
+if (perms.canReset) actionsHtml += `<button class="btn btn-secondary" onclick="resetUserLimit()"><span>🔄</span><span>Limit reset</span></button>`;
+if (perms.canDelete) actionsHtml += `<button class="btn btn-danger" onclick="deleteUser()"><span>🗑️</span><span>Löschen</span></button>`;
+actionsContainer.innerHTML = actionsHtml;
+if (roleAssignGroup) {
+roleAssignGroup.style.display = perms.canAssignRole ? 'block' : 'none';
+}
+}
+async function searchUsers() {
+const searchInput = document.getElementById("adminUserSearch");
+const resultsDiv = document.getElementById("adminUserResults");
+if (!searchInput || !resultsDiv) return;
+const query = searchInput.value.toLowerCase().trim();
+if (!query) {
+resultsDiv.innerHTML = "";
+return;
+}
+const allUsers = await getAllUsers();
+const filteredUsers = Object.entries(allUsers)
+.filter(([username]) => username.toLowerCase().includes(query))
+.slice(0, 10);
+if (filteredUsers.length === 0) {
+resultsDiv.innerHTML = `
+<div style="text-align: center; padding: 20px; color: var(--text-muted);">
+<div style="font-size: 32px; margin-bottom: 8px;">🔍</div>
+<div>Keine User gefunden</div>
+</div>
+`;
+return;
+}
+resultsDiv.innerHTML = "";
+filteredUsers.forEach(([username, data]) => {
+const userDiv = document.createElement("div");
+userDiv.className = "user-result";
+userDiv.style.cursor = "pointer";
+userDiv.style.marginBottom = "8px";
+userDiv.onclick = () => selectAdminUser(username, data);
+const planIcon = plans[data.plan]?.icon || "🆓";
+const role = data.role || 'user';
+const roleData = ROLES[role] || ROLES.user;
+const bannedStatus = data.banned ? "🚫 Gebannt" : "✅ Aktiv";
+userDiv.innerHTML = `
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="font-size: 24px;">👤</span>
+<div>
+<div style="font-weight: 600;">${username}</div>
+<div style="font-size: 12px; color: var(--text-muted);">
+${planIcon} ${plans[data.plan]?.name || "Free"} •
+<span class="role-badge ${roleData.color}" style="padding:1px 6px;font-size:10px;">${roleData.name}</span>
+</div>
+</div>
+</div>
+<div style="font-size: 12px; color: ${data.banned ? 'var(--danger-500)' : 'var(--success-500)'};">
+${bannedStatus}
+</div>
+</div>
+`;
+resultsDiv.appendChild(userDiv);
+});
+}
+function selectAdminUser(username, data) {
+document.querySelectorAll(".user-result").forEach(r => r.classList.remove("selected"));
+event.target.closest(".user-result").classList.add("selected");
+document.getElementById("selectedUser").value = username;
+const role = data.role || 'user';
+const roleData = ROLES[role] || ROLES.user;
+document.getElementById("selectedUserInfo").innerHTML = `
+Ausgewählt: <strong>${username}</strong><br>
+Plan: ${plans[data.plan]?.icon} ${plans[data.plan]?.name} •
+Rolle: <span class="role-badge ${roleData.color}">${roleData.name}</span><br>
+Nachrichten: ${data.messages || 0} •
+Status: ${data.banned ? '🚫 Gebannt' : '✅ Aktiv'}
+`;
+const roleSelect = document.getElementById("roleSelect");
+if (roleSelect) {
+roleSelect.value = role;
+}
+}
+async function assignRole() {
+const username = document.getElementById("selectedUser").value;
+const newRole = document.getElementById("roleSelect").value;
+if (!username) {
+alert("❌ Bitte einen User auswählen");
+return;
+}
+const myRole = userData.role || 'user';
+const myPerms = ROLES[myRole] || ROLES.user;
+if (!myPerms.canAssignRole) {
+alert("❌ Keine Berechtigung");
+return;
+}
+if (newRole === 'owner' && myRole !== 'owner') {
+alert("❌ Kann Owner-Rolle nicht vergeben");
+return;
+}
+const confirmed = confirm(`Rolle von ${username} zu ${ROLES[newRole]?.name} ändern?`);
+if (!confirmed) return;
+await saveUserData(username, { role: newRole });
+alert(`✅ Rolle aktualisiert`);
+searchUsers();
+}
+async function banUser() {
+const username = document.getElementById("selectedUser").value;
+if (!username) {
+alert("❌ Bitte einen User auswählen");
+return;
+}
+if (username === OWNER || username === COOWNER) {
+alert("❌ Owner können nicht gebannt werden!");
+return;
+}
+const confirmed = confirm(`Möchtest du ${username} wirklich bannen?`);
+if (!confirmed) return;
+await saveUserData(username, { banned: true });
+alert(`✅ ${username} wurde gebannt`);
+searchUsers();
+}
+async function unbanUser() {
+const username = document.getElementById("selectedUser").value;
+if (!username) {
+alert("❌ Bitte einen User auswählen");
+return;
+}
+await saveUserData(username, { banned: false });
+alert(`✅ ${username} wurde entbannt`);
+searchUsers();
+}
+async function warnUser() {
+const username = document.getElementById("selectedUser").value;
+if (!username) {
+alert("❌ Bitte einen User auswählen");
+return;
+}
+const data = await getUserData(username);
+const currentWarnings = data?.warnings || 0;
+await saveUserData(username, { warnings: currentWarnings + 1 });
+alert(`⚠️ ${username} wurde verwarnt (Warnungen: ${currentWarnings + 1})`);
+searchUsers();
+}
+async function resetUserLimit() {
+const username = document.getElementById("selectedUser").value;
+if (!username) {
+alert("❌ Bitte einen User auswählen");
+return;
+}
+await saveUserData(username, { messages: 0 });
+alert(`✅ Nachrichten-Limit für ${username} zurückgesetzt`);
+searchUsers();
+}
+async function deleteUser() {
+const username = document.getElementById("selectedUser").value;
+if (!username) {
+alert("❌ Bitte einen User auswählen");
+return;
+}
+if (!confirm(`${username} WIRKLICH löschen?`)) return;
+await deleteUserFromFirebase(username);
+alert(`✅ ${username} gelöscht`);
+searchUsers();
+updateAdminStats();
+}
+async function giftTariff() {
+const username = document.getElementById("giftUser").value.trim();
+const tariff = document.getElementById("giftTariff").value;
+if (!username) {
+alert("❌ Username eingeben");
+return;
+}
+const data = await getUserData(username);
+if (!data) {
+alert("❌ User nicht gefunden");
+return;
+}
+if (!plans[tariff]) {
+alert("❌ Ungültiger Tarif");
+return;
+}
+await saveUserData(username, { plan: tariff, messages: 0 });
+alert(`✅ ${tariff} an ${username} verschenkt!`);
+document.getElementById("giftUser").value = "";
+}
+async function updateAdminStats() {
+try {
+const allUsers = await getAllUsers();
+const userCount = Object.keys(allUsers).length;
+const chatCount = Object.values(allUsers).reduce((s, u) => s + Object.keys(u.chats || {}).length, 0);
+const msgCount = Object.values(allUsers).reduce((s, u) => s + (u.messages || 0), 0);
+const bannedCount = Object.values(allUsers).filter(u => u.banned).length;
+document.getElementById("adminStatUsers").textContent = userCount;
+document.getElementById("adminStatChats").textContent = chatCount;
+document.getElementById("adminStatMsgs").textContent = msgCount;
+document.getElementById("adminStatBanned").textContent = bannedCount;
+} catch (e) {
+console.error("❌ Update Stats Error:", e);
+}
+}
+async function toggleMaintenance() {
+const checkbox = document.getElementById("maintMode");
+maintenanceMode = checkbox.checked;
+const status = document.getElementById("maintStatus");
+if (maintenanceMode) {
+status.innerHTML = 'Status: <strong style="color: var(--danger-500);">🔴 Aktiviert</strong>';
+} else {
+status.innerHTML = 'Status: <strong style="color: var(--success-500);">🟢 Deaktiviert</strong>';
+}
+}
+async function saveAdminSettings() {
+try {
+await db.collection("settings").doc("maintenance").set({ enabled: maintenanceMode });
+alert("✅ Einstellungen gespeichert");
+closeModal("adminModal");
+} catch (e) {
+console.error("❌ Save Settings Error:", e);
+alert("❌ Fehler beim Speichern");
+}
+}
+function createBackup() {
+alert("📥 Backup wird erstellt... (Demo)");
+}
+function restoreBackup() {
+alert("📤 Backup wird wiederhergestellt... (Demo)");
+}
+
+// ============================================
+// THEME FUNCTIONS
+// ============================================
+function applyTheme(theme) {
+if (theme === 'light') {
+document.documentElement.setAttribute('data-theme', 'light');
+} else {
+document.documentElement.removeAttribute('data-theme');
+}
+settings.theme = theme;
+localStorage.setItem('nano_theme', theme);
+}
+function setTheme(theme) {
+applyTheme(theme);
+saveSettings();
+}
+function saveSettings() {
+localStorage.setItem("nano_settings", JSON.stringify(settings));
+}
+
+// ============================================
+// GLOBAL EVENT LISTENERS
+// ============================================
+document.addEventListener('click', (e) => {
+const dropdown = document.getElementById("dropdownMenu");
+const profileBtn = document.querySelector(".profile-button");
+if (dropdown && profileBtn &&
+!dropdown.contains(e.target) &&
+!profileBtn.contains(e.target)) {
+dropdown.classList.remove("show");
+}
+document.querySelectorAll(".modal-overlay").forEach(modal => {
+if (e.target === modal) {
+modal.classList.remove("active");
+}
+});
+});
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape') {
+document.querySelectorAll(".modal-overlay").forEach(modal => {
+modal.classList.remove("active");
+});
+}
+if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+e.preventDefault();
+createChat();
+}
+});
+console.log("✅ Nano AI Chat " + VERSION + " - Groq Integration loaded!");
+console.log("📊 Total Lines: ~6000 (including CSS, HTML, JS)");
+console.log("🎨 Features: Login, Register, Chat, Store, Admin, Profile, Settings, Community, Team, Discord");
+console.log("🔥 Firebase Integration: Active");
+console.log("⚡ Groq API: Active (llama-3.3-70b-versatile)");
+console.log("💬 Discord Webhook: " + (DISCORD_CONFIG.enabled ? "Enabled" : "Disabled"));
+console.log("🌍 Multi-Language: 10 Languages");
+console.log("😊 Emojis: Integrated");
+console.log("🌙 Light/Dark Theme: Working");
+console.log("👑 Owners: Lobi & Jovi");
+console.log("🛡️ Roles: Owner, Admin, Mod, Helper, Team, Sponsor, User");
+</script>
+
+<!-- ============================================
+📋 BESCHREIBUNG / DOKUMENTATION
+============================================= -->
+<div style="display:none;">
+<!--
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                    NANO AI CHAT 1.5.0v - GROQ EDITION                              ║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                    ║
+║  📌 PROJEKT-INFORMATIONEN:                                                                         ║
+║  ────────────────────────                                                                          ║
+║  • Version: 1.5.0v-Groq                                                                            ║
+║  • Entwickler: Lobi & Jovi                                                                         ║
+║  • Erstellt: 2026                                                                                  ║
+║  • Lizenz: Proprietär                                                                              ║
+║                                                                                                    ║
+║  ⚡ GROQ API KONFIGURATION:                                                                         ║
+║  ──────────────────────────                                                                        ║
+║  • API Endpoint: https://api.groq.com/openai/v1/chat/completions                                   ║
+║  • Modell: llama-3.3-70b-versatile                                                                 ║
+║  • Max Tokens: 1024                                                                                ║
+║  • Temperature: 0.7                                                                                ║
+║                                                                                                    ║
+║  🔥 FIREBASE KONFIGURATION:                                                                         ║
+║  ────────────────────────────                                                                      ║
+║  • Project ID: nano-ai-d3486                                                                       ║
+║  • Database: Firestore                                                                             ║
+║  • Auth: Custom (Username/Password)                                                                ║
+║                                                                                                    ║
+║  💬 DISCORD INTEGRATION:                                                                            ║
+║  ──────────────────────────                                                                        ║
+║  • Webhook Proxy: nano-discord-webhook.leano-breitling.workers.dev                                 ║
+║  • Bot Name: NanoAI-Chat                                                                           ║
+║  • Format: [Rolle | Tarif] Name: Nachricht                                                         ║
+║                                                                                                    ║
+║  🎯 FEATURES:                                                                                       ║
+║  ────────────                                                                                      ║
+║  ✅ User Login & Registrierung                                                                     ║
+║  ✅ Private Chats mit KI (Groq API)                                                                ║
+║  ✅ Community Chat mit Discord-Sync                                                                ║
+║  ✅ Team Chat (nur für Team+)                                                                      ║
+║  ✅ Admin Panel mit User-Management                                                                ║
+║  ✅ Plan-System (Free/Ultra/Nano)                                                                  ║
+║  ✅ Multi-Language (10 Sprachen)                                                                   ║
+║  ✅ Dark/Light Theme                                                                               ║
+║  ✅ Emoji Picker                                                                                   ║
+║  ✅ Daten-Export                                                                                   ║
+║  ✅ Wartungsmodus                                                                                  ║
+║  ✅ Rollen-System (Owner/Admin/Mod/Helper/Team/Sponsor/User)                                       ║
+║                                                                                                    ║
+║  📁 DATEI-STRUKTUR:                                                                                 ║
+║  ──────────────────                                                                                ║
+║  • index.html - Hauptanwendung (diese Datei)                                                       ║
+║  • Nano-AI.png - Logo-Datei                                                                        ║
+║  • DiscordNachrichten.js - Externes Discord-Script                                                 ║
+║                                                                                                    ║
+║  ⚙️ SETUP ANLEITUNG:                                                                                ║
+║  ─────────────────                                                                                 ║
+║  1. Groq API Key holen: https://console.groq.com/keys                                              ║
+║  2. API Key in GROQ_CONFIG.apiKey einfügen (Zeile ~5850)                                           ║
+║  3. Firebase Config prüfen (bereits konfiguriert)                                                  ║
+║  4. Datei als index.html speichern                                                                 ║
+║  5. Im Browser öffnen oder auf Server hochladen                                                    ║
+║                                                                                                    ║
+║  🔐 SICHERHEITSHINWEISE:                                                                            ║
+║  ──────────────────────                                                                            ║
+║  • API Keys niemals öffentlich teilen!                                                             ║
+║  • Für Production: API Calls über Backend-Proxy                                                    ║
+║  • Discord Webhook über Proxy leiten (siehe DISCORD_CONFIG)                                        ║
+║  • Firebase Security Rules konfigurieren!                                                          ║
+║                                                                                                    ║
+║  📞 SUPPORT & KONTAKT:                                                                              ║
+║  ──────────────────────                                                                            ║
+║  • Owner: Lobi                                                                                     ║
+║  • Co-Owner: Jovi                                                                                  ║
+║  • Server seit: 2026                                                                               ║
+║                                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+-->
+</div>
+</body>
+</html>
